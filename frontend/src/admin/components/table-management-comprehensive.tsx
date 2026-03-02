@@ -286,6 +286,26 @@ function TableCard({ table, onClick, waiters, onAssignWaiter, onCheckout, onRequ
             </div>
           )}
 
+          {/* Reserved Info */}
+          {table.status === 'Reserved' && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-2.5 space-y-1.5">
+              {(table.reservationTime || table.reservationSlot) && (
+                <div className="flex items-center gap-2 text-amber-800">
+                  <Clock className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span className="text-xs font-semibold">
+                    {table.reservationTime || table.reservationSlot}
+                  </span>
+                </div>
+              )}
+              {table.reservedFor && (
+                <div className="flex items-center gap-2 text-amber-700">
+                  <UserPlus className="w-3.5 h-3.5 flex-shrink-0" />
+                  <span className="text-xs truncate">{table.reservedFor}</span>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* Cleaning Timer */}
           {table.status === 'Cleaning' && (
             <div className="bg-gray-100 rounded-lg p-2 flex items-center justify-between">
@@ -573,6 +593,48 @@ function WalkInModal({ open, onClose, tables, onSelectTable }: WalkInModalProps)
 }
 
 // ============================================================================
+// RESERVATION TIME PARSER
+// Handles: "7:30 PM", "19:30", "7:30 AM - 8:50 AM" (slot), ISO datetime
+// ============================================================================
+
+function parseReservationTime(timeStr: string | null | undefined): Date | null {
+  if (!timeStr) return null;
+
+  // ISO datetime string
+  if (timeStr.includes('T') || /\d{4}-\d{2}-\d{2}/.test(timeStr)) {
+    const d = new Date(timeStr);
+    return isNaN(d.getTime()) ? null : d;
+  }
+
+  // Slot format "7:30 AM - 8:50 AM" → take start time
+  const slotMatch = timeStr.match(/^(\d{1,2}:\d{2}\s*[AP]M)/i);
+  const source = (slotMatch ? slotMatch[1] : timeStr).trim();
+
+  // "H:MM AM/PM"
+  const ampm = source.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
+  if (ampm) {
+    let h = parseInt(ampm[1]);
+    const m = parseInt(ampm[2]);
+    const pm = ampm[3].toUpperCase() === 'PM';
+    if (pm && h !== 12) h += 12;
+    if (!pm && h === 12) h = 0;
+    const d = new Date();
+    d.setHours(h, m, 0, 0);
+    return d;
+  }
+
+  // "HH:MM" 24-hour
+  const h24 = source.match(/^(\d{1,2}):(\d{2})$/);
+  if (h24) {
+    const d = new Date();
+    d.setHours(parseInt(h24[1]), parseInt(h24[2]), 0, 0);
+    return d;
+  }
+
+  return null;
+}
+
+// ============================================================================
 // MAIN COMPONENT
 // ============================================================================
 
@@ -582,6 +644,8 @@ export function TableManagementComprehensive() {
   const [waiters, setWaiters] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const isInitialLoad = useRef(true);
+  // Tracks tables that already had a waiter auto-assigned at reservation time
+  const autoAssignedRef = useRef<Set<string>>(new Set());
   const [selectedLocation, setSelectedLocation] = useState<Location | 'All'>('All');
   const [walkInModalOpen, setWalkInModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('floor');
@@ -603,55 +667,65 @@ export function TableManagementComprehensive() {
 
   const fetchData = async () => {
     try {
-      const [tablesRes, staffRes] = await Promise.all([
+      // Fetch tables and staff independently so a staff failure never blocks the table view
+      const [tablesRes, staffRes] = await Promise.allSettled([
         tablesApi.list(),
         staffApi.list({ role: 'Waiter' })
       ]);
-      
-      // Transform tables data to match component expectations
-      const normalizeStatus = (s: string): TableStatus => {
-        const map: Record<string, TableStatus> = {
-          available: 'Available', occupied: 'Occupied', reserved: 'Reserved',
-          cleaning: 'Cleaning', eating: 'Eating',
-        };
-        return map[s?.toLowerCase()] ?? 'Available';
-      };
 
-      const tablesData = Array.isArray(tablesRes) ? tablesRes : (tablesRes.data || []);
-      const transformedTables = tablesData.map((t: any) => ({
-        id: t._id || t.id,
-        displayNumber: t.displayNumber || t.display_number || t.name || t.tableNumber || t.table_number || `#${String(t._id || t.id).slice(-4)}`,
-        number: t.displayNumber || t.display_number || t.name || t.tableNumber || t.number,
-        capacity: t.capacity,
-        location: t.location,
-        segment: t.segment,
-        status: normalizeStatus(t.status),
-        guestCount: t.guestCount ?? t.currentGuests ?? 0,
-        currentOrderId: t.currentOrderId,
-        waiterId: t.waiterId || t.assignedWaiterId,
-        waiterName: t.waiterName || t.assignedWaiterName,
-        kitchenStatus: t.kitchenStatus,
-        cleaningEndTime: t.cleaningEndTime,
-        reservationSlot: t.reservation?.timeSlot || t.reservationSlot,
-        reservationStatus: t.reservation?.status || t.reservationStatus,
-        reservationType: t.reservation?.type || t.reservationType,
-      }));
-      setTables(transformedTables);
-      
-      // Transform waiters data
-      const staffData = Array.isArray(staffRes) ? staffRes : ((staffRes as any).data || []);
-      const transformedWaiters = staffData.map((s: any) => ({
-        id: s._id || s.id,
-        name: s.name,
-        assignedTableId: s.assignedTableId
-      }));
-      setWaiters(transformedWaiters);
+      // ── Tables ──────────────────────────────────────────
+      if (tablesRes.status === 'fulfilled') {
+        const normalizeStatus = (s: string): TableStatus => {
+          const map: Record<string, TableStatus> = {
+            available: 'Available', occupied: 'Occupied', reserved: 'Reserved',
+            cleaning: 'Cleaning', eating: 'Eating',
+          };
+          return map[s?.toLowerCase()] ?? 'Available';
+        };
+
+        const tablesData = Array.isArray(tablesRes.value) ? tablesRes.value : ((tablesRes.value as any).data || []);
+        const transformedTables = tablesData.map((t: any) => ({
+          id: t._id || t.id,
+          displayNumber: t.displayNumber || t.display_number || t.name || t.tableNumber || t.table_number || `#${String(t._id || t.id).slice(-4)}`,
+          number: t.displayNumber || t.display_number || t.name || t.tableNumber || t.number,
+          capacity: t.capacity,
+          location: t.location,
+          segment: t.segment,
+          status: normalizeStatus(t.status),
+          guestCount: t.guestCount ?? t.currentGuests ?? 0,
+          currentOrderId: t.currentOrderId,
+          waiterId: t.waiterId || t.assignedWaiterId,
+          waiterName: t.waiterName || t.assignedWaiterName,
+          kitchenStatus: t.kitchenStatus,
+          cleaningEndTime: t.cleaningEndTime,
+          reservationSlot: t.reservation?.timeSlot || t.reservationSlot,
+          reservationStatus: t.reservation?.status || t.reservationStatus,
+          reservationType: t.reservation?.type || t.reservationType,
+          reservedFor: t.reservedFor || t.reservation?.customerName || t.reservation?.name || null,
+          reservationTime: t.reservationTime || t.reservation?.time || t.reservation?.scheduledTime || null,
+        }));
+        setTables(transformedTables);
+      } else {
+        console.error('Error fetching tables:', tablesRes.reason);
+        if (isInitialLoad.current) toast.error('Failed to load tables');
+      }
+
+      // ── Waiters ─────────────────────────────────────────
+      if (staffRes.status === 'fulfilled') {
+        const staffData = Array.isArray(staffRes.value) ? staffRes.value : ((staffRes.value as any).data || []);
+        const transformedWaiters = staffData.map((s: any) => ({
+          id: s._id || s.id,
+          name: s.name,
+          assignedTableId: s.assignedTableId
+        }));
+        setWaiters(transformedWaiters);
+      } else {
+        console.warn('Could not load waiters (waiter assignment will be unavailable):', staffRes.reason);
+      }
+
     } catch (error) {
       console.error('Error fetching data:', error);
-      // Only show error toast on the initial load, not on background refreshes
-      if (isInitialLoad.current) {
-        toast.error('Failed to load tables');
-      }
+      if (isInitialLoad.current) toast.error('Failed to load tables');
     } finally {
       if (isInitialLoad.current) {
         setLoading(false);
@@ -690,6 +764,56 @@ export function TableManagementComprehensive() {
       toast.error('Failed to assign waiter');
     }
   };
+
+  // ── Auto-assign least-loaded waiter when reservation time arrives ──────────
+  useEffect(() => {
+    if (waiters.length === 0) return;
+
+    const check = () => {
+      const now = new Date();
+      const reserved = tables.filter(
+        t => t.status === 'Reserved' && !t.waiterId && !autoAssignedRef.current.has(t.id)
+      );
+      if (reserved.length === 0) return;
+
+      for (const table of reserved) {
+        const resTime = parseReservationTime(table.reservationTime || table.reservationSlot);
+        if (!resTime) continue;
+
+        // Trigger within a 10-minute window after reservation time
+        const diffMs = now.getTime() - resTime.getTime();
+        if (diffMs < 0 || diffMs > 10 * 60 * 1000) continue;
+
+        // Count active tables per waiter (Occupied or Eating)
+        const leastBusy = [...waiters]
+          .map(w => ({
+            ...w,
+            load: tables.filter(
+              t => t.waiterId === w.id && (t.status === 'Occupied' || t.status === 'Eating')
+            ).length,
+          }))
+          .sort((a, b) => a.load - b.load)[0];
+
+        if (!leastBusy) continue;
+
+        // Mark immediately to prevent re-triggering on next interval
+        autoAssignedRef.current.add(table.id);
+
+        toast.info(
+          `⏰ Reservation time reached — assigning ${leastBusy.name} to Table ${table.displayNumber}`
+        );
+
+        handleAssignWaiter(table.id, leastBusy.id, leastBusy.name).catch(() => {
+          // Allow retry on next cycle if assignment failed
+          autoAssignedRef.current.delete(table.id);
+        });
+      }
+    };
+
+    check(); // run immediately whenever tables / waiters change
+    const interval = setInterval(check, 30_000);
+    return () => clearInterval(interval);
+  }, [tables, waiters]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleCheckout = async (tableId: string) => {
     const table = tables.find(t => t.id === tableId);

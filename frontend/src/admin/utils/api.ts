@@ -83,11 +83,11 @@ export const staffApi = {
     if (params?.role) query.append('role', params.role);
     if (params?.active !== undefined) query.append('active', String(params.active));
     if (params?.shift) query.append('shift', params.shift);
-    return fetchApi<any[]>(`/staff?${query.toString()}`);
+    return fetchApi<any[]>(`/staff/?${query.toString()}`);
   },
 
   // Alias for list - get all staff
-  getAll: () => fetchApi<any[]>('/staff'),
+  getAll: () => fetchApi<any[]>('/staff/'),
 
   // Get staff who logged in within the last N minutes (default 30)
   getOnline: (minutes = 30) => fetchApi<any[]>(`/staff/online?minutes=${minutes}`),

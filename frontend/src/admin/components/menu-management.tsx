@@ -78,6 +78,14 @@ interface ComboMeal {
 
 const SPICE_LEVELS = ["None", "Mild", "Medium", "Hot", "Extra Hot"];
 const AVAILABLE_ADDONS = ["Ketchup", "Mayonnaise", "Green Sauce", "Pepper Dip", "Raita", "Sweet Chili"];
+
+const DEFAULT_CUISINES = [
+  { name: "North Indian" },
+  { name: "South Indian" },
+  { name: "Chinese" },
+  { name: "Italian" },
+  { name: "Continental" },
+];
 const COOKING_STATIONS = [
   { value: "FRY", label: "Fry Station" },
   { value: "CURRY", label: "Curry Station" },
@@ -214,7 +222,18 @@ useEffect(() => {
       setComboMeals(normalizeComboMeals(comboData));
       
       // Load catalog data
-      setCuisineList(Array.isArray(cuisinesRes) ? cuisinesRes : []);
+      // If DB has no cuisines, seed the defaults and use them locally
+      if (Array.isArray(cuisinesRes) && cuisinesRes.length > 0) {
+        setCuisineList(cuisinesRes);
+      } else {
+        setCuisineList(DEFAULT_CUISINES);
+        // Auto-seed the 5 default cuisines into the DB silently
+        Promise.all(
+          DEFAULT_CUISINES.map(c =>
+            catalogApi.createCuisine({ name: c.name }).catch(() => null)
+          )
+        );
+      }
       setCategoryList(Array.isArray(categoriesRes) ? categoriesRes : []);
       setAddonsList(Array.isArray(addonsRes) ? addonsRes : []);
 
