@@ -1040,12 +1040,12 @@ export function TableManagementComprehensive() {
                 <Utensils className="w-10 h-10 text-stone-400" />
               </div>
               <h3 className="text-xl font-semibold text-stone-700 mb-1">
-                {tables.length === 0 ? 'No tables yet' : 'No tables match this filter'}
+                {tables.length === 0 ? 'No tables yet' : 'No tables match this filter or role'}
               </h3>
               <p className="text-stone-400 text-sm mb-6">
                 {tables.length === 0
                   ? 'Get started by adding your first table to the floor plan.'
-                  : 'Try selecting a different location filter.'}
+                  : 'Try selecting a different location filter or role.'}
               </p>
               {tables.length === 0 && (
                 <Button

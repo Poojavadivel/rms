@@ -6,6 +6,8 @@ export interface Table {
   location: string;
   segment: string;
   capacity: number;
+  /** Normalised lowercase from backend: 'available' | 'occupied' | 'reserved' | 'cleaning' */
+  status?: string;
   isAvailable?: boolean;
 }
 

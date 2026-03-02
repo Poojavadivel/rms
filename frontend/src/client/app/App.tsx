@@ -65,7 +65,8 @@ export interface Order {
   date: string;
   deliveryAddress?: string;
   invoiceUrl?: string;
-  tableNumber?: number;
+  /** String tableId (e.g. 'T3') or legacy numeric value */
+  tableNumber?: string | number;
   customerName?: string;
 }
 

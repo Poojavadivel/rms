@@ -54,12 +54,16 @@ def _serialize_table(doc: dict) -> dict:
     # Map to the client-expected shape.
     table_id = doc.get("tableId") or str(doc.get("_id", ""))
     table_name = doc.get("tableName") or doc.get("name") or doc.get("displayNumber") or table_id
+    # Normalise status to lowercase so the client can compare consistently.
+    raw_status = doc.get("status") or "available"
+    status = raw_status.lower()
     return {
         "tableId": table_id,
         "tableName": table_name,
         "location": doc.get("location", ""),
         "segment": doc.get("segment", ""),
         "capacity": doc.get("capacity", 0),
+        "status": status,
     }
 
 

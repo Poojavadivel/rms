@@ -1,11 +1,13 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Trash2, Plus, Minus, ShoppingBag, CreditCard, Smartphone, Wallet, CheckCircle, Download, Award } from 'lucide-react';
+import { Trash2, Plus, Minus, ShoppingBag, CreditCard, Smartphone, Wallet, CheckCircle, Download, Award, Users as UsersIcon, MapPin, Loader2 } from 'lucide-react';
 import { ImageWithFallback } from '@/client/app/components/figma/ImageWithFallback';
 import type { CartItem, Order, User } from '@/client/app/App';
 import { useLoyalty } from '@/client/app/context/LoyaltyContext';
 import type { Offer } from '@/client/app/data/offersData';
 import { getEligibleOffers } from '@/client/app/data/offersData';
 import { fetchEligibleOffers } from '@/client/api/offers';
+import { fetchTables, fetchActiveReservation } from '@/client/api/reservations';
+import type { Table } from '@/client/api/reservations';
 
 interface CartProps {
   cart: CartItem[];
@@ -30,9 +32,45 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
   const [earnedPoints, setEarnedPoints] = useState<number>(0);
   const [appliedOfferId, setAppliedOfferId] = useState<string | null>(null);
 
+  // Real tables fetched from the backend
+  const [tables, setTables] = useState<Table[]>([]);
+  const [tablesLoading, setTablesLoading] = useState(false);
+  // tableId of the current user's active / upcoming reservation (if any)
+  const [reservedTableId, setReservedTableId] = useState<string | null>(null);
+
   const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   const [eligibleOffers, setEligibleOffers] = useState<Offer[]>([]);
+
+  // Fetch real tables (+ user's reservation) when dine-in is chosen
+  useEffect(() => {
+    if (orderType !== 'dine-in') return;
+    let cancelled = false;
+    setTablesLoading(true);
+
+    const loadTables = fetchTables().then((list) => {
+      if (!cancelled) setTables(list);
+    }).catch(() => {});
+
+    const loadReservation = user?.email
+      ? fetchActiveReservation(user.email)
+          .then((res) => {
+            if (!cancelled && res.active && res.reservation) {
+              const tid = res.reservation.tableNumber; // tableId stored here
+              setReservedTableId(String(tid));
+              // Auto-select if nothing chosen yet
+              setTableNumber((prev) => prev || String(tid));
+            }
+          })
+          .catch(() => {})
+      : Promise.resolve();
+
+    Promise.all([loadTables, loadReservation]).finally(() => {
+      if (!cancelled) setTablesLoading(false);
+    });
+
+    return () => { cancelled = true; };
+  }, [orderType, user?.email]);
 
   useEffect(() => {
     let cancelled = false;
@@ -128,7 +166,7 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
         type: orderType,
         date: new Date().toISOString(),
         deliveryAddress: user?.address || '',
-        tableNumber: orderType === 'dine-in' ? (parseInt(tableNumber) || 0) : 0,
+        tableNumber: orderType === 'dine-in' ? tableNumber : undefined,
         customerName: user?.name || 'Guest',
       };
       
@@ -312,20 +350,97 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
                 </button>
               </div>
 
-              {/* Table number input – only for dine-in */}
+              {/* Real table picker – only for dine-in */}
               {orderType === 'dine-in' && (
                 <div className="mt-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Table Number <span className="text-red-500">*</span>
+                    Select Your Table <span className="text-red-500">*</span>
                   </label>
-                  <input
-                    type="number"
-                    min="1"
-                    placeholder="Enter your table number"
-                    value={tableNumber}
-                    onChange={(e) => setTableNumber(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black"
-                  />
+
+                  {tablesLoading ? (
+                    <div className="flex items-center gap-2 py-4 text-gray-500 text-sm">
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Loading tables…
+                    </div>
+                  ) : tables.length === 0 ? (
+                    /* Fallback: manual entry when API returns nothing */
+                    <input
+                      type="text"
+                      placeholder="Enter your table number"
+                      value={tableNumber}
+                      onChange={(e) => setTableNumber(e.target.value)}
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black"
+                    />
+                  ) : (
+                    <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 max-h-64 overflow-y-auto pr-1">
+                      {tables.map((t) => {
+                        const status = (t.status ?? 'available').toLowerCase();
+                        const isMyReservation = reservedTableId === t.tableId;
+                        const isSelected = tableNumber === t.tableId;
+
+                        // Determine if this table is selectable
+                        const selectable =
+                          status === 'available' || isMyReservation;
+
+                        // Colour scheme
+                        let cardCls = 'relative flex flex-col items-center justify-center gap-1 p-2 rounded-lg border-2 text-center text-xs transition-all ';
+                        if (!selectable) {
+                          cardCls += 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed opacity-60';
+                        } else if (isSelected) {
+                          cardCls += 'border-black bg-gray-900 text-white shadow-md cursor-pointer';
+                        } else if (isMyReservation) {
+                          cardCls += 'border-blue-500 bg-blue-50 text-blue-800 cursor-pointer hover:bg-blue-100';
+                        } else {
+                          cardCls += 'border-green-400 bg-green-50 text-green-800 cursor-pointer hover:bg-green-100';
+                        }
+
+                        const statusLabel =
+                          isMyReservation ? 'Your Reservation'
+                          : status === 'available' ? 'Available'
+                          : status === 'cleaning' ? 'Cleaning'
+                          : status === 'occupied' || status === 'eating' ? 'Occupied'
+                          : 'Unavailable';
+
+                        return (
+                          <button
+                            key={t.tableId}
+                            type="button"
+                            disabled={!selectable}
+                            onClick={() => selectable && setTableNumber(t.tableId)}
+                            className={cardCls}
+                            title={`${t.tableName} — ${t.location}${t.segment ? ` / ${t.segment}` : ''}`}
+                          >
+                            {isMyReservation && (
+                              <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-blue-500 rounded-full border border-white" />
+                            )}
+                            {isSelected && (
+                              <CheckCircle className="absolute -top-1.5 -right-1.5 w-4 h-4 text-white bg-black rounded-full" />
+                            )}
+                            <span className="font-bold text-sm leading-tight">{t.tableName}</span>
+                            <span className="flex items-center gap-0.5 text-[10px] opacity-75">
+                              <UsersIcon className="w-2.5 h-2.5" />{t.capacity}
+                            </span>
+                            {t.location && (
+                              <span className="flex items-center gap-0.5 text-[10px] opacity-75 truncate max-w-full">
+                                <MapPin className="w-2.5 h-2.5 shrink-0" />
+                                <span className="truncate">{t.location}</span>
+                              </span>
+                            )}
+                            <span className="text-[9px] font-medium mt-0.5">{statusLabel}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {!tablesLoading && tableNumber && (
+                    <p className="mt-2 text-xs text-gray-500">
+                      Selected:{' '}
+                      <span className="font-semibold text-gray-800">
+                        {tables.find((t) => t.tableId === tableNumber)?.tableName ?? tableNumber}
+                      </span>
+                    </p>
+                  )}
                 </div>
               )}
             </div>
