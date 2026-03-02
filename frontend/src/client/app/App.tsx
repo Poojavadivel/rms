@@ -98,14 +98,10 @@ type AppRoute =
   | '/notifications'
   | '/login';
 
-const CLIENT_BASE = '/client';
+const CLIENT_BASE = '';
 
 function normalizePathname(pathname: string): AppRoute | null {
-  let clean = pathname.split('?')[0].split('#')[0];
-  // Strip the /client prefix so internal routing stays simple
-  if (clean.startsWith(CLIENT_BASE)) {
-    clean = clean.slice(CLIENT_BASE.length) || '/';
-  }
+  const clean = pathname.split('?')[0].split('#')[0] || '/';
   const known: AppRoute[] = [
     '/',
     '/dashboard',

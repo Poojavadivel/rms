@@ -97,7 +97,6 @@ const Fallback = () => (
 
 const router = createBrowserRouter(
   [
-    { path: '/', element: <Navigate to="/client" replace /> },
     {
       path: '/admin/*',
       element: (
@@ -109,7 +108,8 @@ const router = createBrowserRouter(
       ),
     },
     {
-      path: '/client/*',
+      // Client app owns every non-admin path (/, /menu, /cart, /orders …)
+      path: '/*',
       element: (
         <ChunkErrorBoundary>
           <Suspense fallback={<Fallback />}>
@@ -118,8 +118,6 @@ const router = createBrowserRouter(
         </ChunkErrorBoundary>
       ),
     },
-    // Catch-all: redirect any unmatched URL back to the client app
-    { path: '*', element: <Navigate to="/client" replace /> },
   ],
   {
     future: {
