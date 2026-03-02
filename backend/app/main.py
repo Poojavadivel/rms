@@ -43,6 +43,7 @@ from .client.routes import notifications as client_notif_router
 from .client.routes import feedback as client_feedback_router
 from .client.routes import chat as client_chat_router
 from .client.routes import health as client_health_router
+from .client.routes import stats as client_stats_router
 
 
 app = FastAPI(title='RMS Backend — Unified API')
@@ -111,6 +112,7 @@ app.include_router(client_notif_router.router,         prefix='/api/client',    
 app.include_router(client_feedback_router.router,      prefix='/api/client',              tags=["Client - Feedback"])
 app.include_router(client_chat_router.router,          prefix='/api/client',              tags=["Client - Chat"])
 app.include_router(client_health_router.router,        prefix='/api/client',              tags=["Client - Health"])
+app.include_router(client_stats_router.router,         prefix='/api/client',              tags=["Client - Stats"])
 
 
 # ═══════════════════════════════════════════════════════════════

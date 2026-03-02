@@ -1,4 +1,4 @@
-import { ArrowRight, Star, Clock, MapPin, ChefHat, Sparkles, Users } from "lucide-react";
+import { ArrowRight, Star, Clock, MapPin, ChefHat, Sparkles, Users, UtensilsCrossed, CalendarCheck, ShoppingBag, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { Module } from "@/client/app/App";
 import type { MenuItem } from "@/client/app/data/menuData";
@@ -9,10 +9,15 @@ import { MenuItemImage } from "@/client/app/components/MenuItemImage";
 import { useSystemConfig } from "@/client/context/SystemConfigContext";
 import heroImage from '@/client/assets/8fa912dede0bd681dd44e46c538c6cbb3492342b.png';
 import quoteBgImage from '@/client/assets/11b317025b5248eac9baeb9967cf61a1383601ed.png';
-import zomatoLogo from '@/client/assets/efcc35a43183f90782eea17a5e13fcfbea8e6b6f.png';
-import swiggyLogo from '@/client/assets/eb8cf434a2005ac902c1a31613aef16d630cf894.png';
-import blinkitLogo from '@/client/assets/c6a86088a1be459ac33923b1019c40d9a054ae05.png';
 import aboutBgImage from '@/client/assets/451f83ee2533052ab60bf543996c6b8187cd16b6.png';
+import { apiRequest } from '@/client/api/client';
+
+interface RestaurantStats {
+  totalDishes: number;
+  happyCustomers: number;
+  tablesAvailable: number;
+  ordersToday: number;
+}
 
 interface HomeProps {
   isLoggedIn: boolean;
@@ -24,7 +29,18 @@ export default function Home({
   onNavigate,
 }: HomeProps) {
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [stats, setStats] = useState<RestaurantStats | null>(null);
+  const [statsLoading, setStatsLoading] = useState(true);
   const { config: sysConfig } = useSystemConfig();;
+
+  useEffect(() => {
+    let cancelled = false;
+    apiRequest<RestaurantStats>('/stats')
+      .then((data) => { if (!cancelled) setStats(data); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setStatsLoading(false); });
+    return () => { cancelled = true; };
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -403,91 +419,88 @@ export default function Home({
             </div>
           </section>
 
-          {/* SECTION: SPONSORS / DELIVERY PARTNERS */}
+          {/* SECTION: LIVE RESTAURANT STATS */}
           <section className="py-24 px-6 bg-[#F5F0E8]">
             <div className="max-w-7xl mx-auto">
               <div className="text-center mb-16">
                 <div className="inline-block mb-6 p-1 bg-[#C8A47A] rounded-full px-4">
-                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#3E2723]">Our Network</span>
+                  <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#3E2723]">By The Numbers</span>
                 </div>
-                <h2 
-                  className="text-4xl md:text-5xl font-bold text-[#3E2723] mb-4" 
+                <h2
+                  className="text-4xl md:text-5xl font-bold text-[#3E2723] mb-4"
                   style={{ fontFamily: "'Playfair Display', serif" }}
                 >
-                  Order From Our Partners
+                  Our Restaurant Today
                 </h2>
                 <p className="text-lg text-[#6D4C41] font-light max-w-2xl mx-auto">
-                  Experience our authentic cuisine delivered to your doorstep through trusted partners
+                  Real-time numbers straight from our kitchen
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
                 {[
-                  { 
-                    name: "Zomato", 
-                    bgGradient: "from-red-50 to-red-100/50", 
-                    logo: zomatoLogo,
-                    description: "Order our dishes instantly",
-                    accentColor: "#E23744"
+                  {
+                    icon: UtensilsCrossed,
+                    label: 'Dishes on Menu',
+                    value: stats?.totalDishes,
+                    suffix: '+',
+                    color: '#8B5A2B',
+                    bg: 'from-amber-50 to-amber-100/50',
+                    border: '#C8A47A',
                   },
-                  { 
-                    name: "Swiggy", 
-                    bgGradient: "from-orange-50 to-orange-100/50", 
-                    logo: swiggyLogo,
-                    description: "Fast delivery, hot food",
-                    accentColor: "#FC8019"
+                  {
+                    icon: Users,
+                    label: 'Happy Customers',
+                    value: stats?.happyCustomers,
+                    suffix: '+',
+                    color: '#6D4C41',
+                    bg: 'from-orange-50 to-orange-100/50',
+                    border: '#D4956A',
                   },
-                  { 
-                    name: "Blinkit", 
-                    bgGradient: "from-yellow-50 to-yellow-100/50", 
-                    logo: blinkitLogo,
-                    description: "Quick grocery delivery",
-                    accentColor: "#FFD41C"
-                  }
-                ].map((partner) => (
-                  <div 
-                    key={partner.name}
-                    className="group relative bg-white rounded-[24px] overflow-hidden border-2 border-[#E8DED0] shadow-lg hover:shadow-2xl hover:-translate-y-3 transition-all duration-500 cursor-pointer"
+                  {
+                    icon: CalendarCheck,
+                    label: 'Tables Available',
+                    value: stats?.tablesAvailable,
+                    suffix: '',
+                    color: '#3E7A4A',
+                    bg: 'from-green-50 to-green-100/50',
+                    border: '#7ABF8E',
+                  },
+                  {
+                    icon: ShoppingBag,
+                    label: 'Orders Today',
+                    value: stats?.ordersToday,
+                    suffix: '',
+                    color: '#1A5276',
+                    bg: 'from-blue-50 to-blue-100/50',
+                    border: '#7EB0D4',
+                  },
+                ].map((stat) => (
+                  <div
+                    key={stat.label}
+                    className={`group relative bg-white rounded-[24px] overflow-hidden border-2 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500`}
+                    style={{ borderColor: stat.border }}
                   >
-                    {/* Background gradient */}
-                    <div className={`absolute inset-0 bg-gradient-to-br ${partner.bgGradient} opacity-40 group-hover:opacity-60 transition-opacity duration-500`}></div>
-                    
-                    {/* Card Content */}
-                    <div className="relative z-10 p-10 flex flex-col items-center text-center min-h-[280px]">
-                      {/* Logo Container */}
-                      <div className="w-32 h-32 mb-6 bg-white rounded-[20px] shadow-xl flex items-center justify-center p-6 group-hover:scale-110 group-hover:shadow-2xl transition-all duration-500">
-                        <ImageWithFallback
-                          src={partner.logo}
-                          alt={`${partner.name} logo`}
-                          className="w-full h-full object-contain"
-                        />
-                      </div>
-                      
-                      {/* Partner Name */}
-                      <h3 
-                        className="text-2xl font-bold text-[#3E2723] mb-3 group-hover:text-[#8B5A2B] transition-colors duration-300"
-                        style={{ fontFamily: "'Playfair Display', serif" }}
+                    <div className={`absolute inset-0 bg-gradient-to-br ${stat.bg} opacity-50 group-hover:opacity-70 transition-opacity duration-500`} />
+                    <div className="relative z-10 p-8 flex flex-col items-center text-center">
+                      <div
+                        className="w-16 h-16 mb-5 rounded-2xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-500"
+                        style={{ backgroundColor: `${stat.color}18` }}
                       >
-                        {partner.name}
-                      </h3>
-                      
-                      {/* Description */}
-                      <p className="text-[#6D4C41] text-sm font-light mb-4 leading-relaxed">
-                        {partner.description}
-                      </p>
-                      
-                      {/* CTA */}
-                      <div className="flex items-center gap-2 text-[#8B5A2B] font-semibold text-sm group-hover:gap-3 transition-all duration-300">
-                        <span>Check it out</span>
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                        <stat.icon className="w-8 h-8" style={{ color: stat.color }} />
                       </div>
+                      <div
+                        className="text-4xl font-black mb-2 tabular-nums"
+                        style={{ color: stat.color, fontFamily: "'Playfair Display', serif" }}
+                      >
+                        {statsLoading ? (
+                          <Loader2 className="w-8 h-8 animate-spin mx-auto" style={{ color: stat.color }} />
+                        ) : (
+                          <>{stat.value ?? '—'}{stat.value !== undefined && stat.suffix}</>
+                        )}
+                      </div>
+                      <p className="text-[#6D4C41] text-sm font-medium">{stat.label}</p>
                     </div>
-                    
-                    {/* Hover accent line */}
-                    <div 
-                      className="absolute bottom-0 left-0 right-0 h-1 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                      style={{ backgroundColor: partner.accentColor }}
-                    ></div>
                   </div>
                 ))}
               </div>
