@@ -175,7 +175,7 @@ function AppContent() {
     setActiveTab(value);
   };
 
-  // Chef lands directly on kitchen — skips dashboard cards
+  // Chef lands directly on kitchen ï¿½ skips dashboard cards
   if (isChef && activeTab === 'dashboard') {
     setActiveTab('kitchen');
   }
@@ -268,10 +268,10 @@ function AppContent() {
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => hasPermission(v) && setActiveTab(v)} className="container mx-auto">
 
-        {/* Desktop top nav — hidden on mobile */}
+        {/* Desktop top nav ï¿½ hidden on mobile */}
         <div className="hidden sm:block sticky top-[73px] z-40">
-          <div className="mx-4 my-3 rounded-2xl bg-gradient-to-r from-[#FDFBF9] via-white to-[#FDFBF9] shadow-lg border border-[#E8E0D8]">
-            <TabsList className="w-full justify-center gap-1 flex-nowrap h-auto p-2 bg-transparent border-0 overflow-x-auto scrollbar-hide">
+          <div className="mx-4 my-3 rounded-2xl bg-gradient-to-r from-[#FDFBF9] via-white to-[#FDFBF9] shadow-lg border border-[#E8E0D8] overflow-x-auto scrollbar-hide">
+            <TabsList className="min-w-max w-full justify-center gap-1 flex-nowrap h-auto p-2 bg-transparent border-0">
               {ALL_TABS.map(({ value, icon: Icon, label }) =>
                 hasPermission(value) ? (
                   <TabsTrigger key={value} value={value} className={TAB_CLASS} style={{ fontFamily: 'Inter, sans-serif' }}>
@@ -301,14 +301,14 @@ function AppContent() {
         </Suspense>
       </Tabs>
 
-      {/* Footer — desktop only */}
+      {/* Footer ï¿½ desktop only */}
       <footer className="border-t mt-8 py-4 bg-white hidden sm:block">
         <div className="container mx-auto px-6 text-center">
           <p className="text-sm text-muted-foreground">{config.restaurantName}  Movicloud Labs</p>
         </div>
       </footer>
 
-      {/* Mobile bottom navigation — scrollable, shows all tabs */}
+      {/* Mobile bottom navigation ï¿½ scrollable, shows all tabs */}
       <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
         <div className="flex overflow-x-auto scrollbar-hide">
