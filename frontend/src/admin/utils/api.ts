@@ -623,7 +623,7 @@ export const auditApi = {
     if (params?.date_to) query.append('date_to', params.date_to);
     if (params?.limit) query.append('limit', String(params.limit));
     if (params?.skip) query.append('skip', String(params.skip));
-    return fetchApi<{ data: any[]; total: number }>(`/audit?${query.toString()}`);
+    return fetchApi<{ data: any[]; total: number }>(`/audit/?${query.toString()}`);
   },
 
   // Get audit stats
@@ -669,7 +669,7 @@ export const menuApi = {
     if (params?.available !== undefined) query.append('available', String(params.available));
     if (params?.dietType) query.append('dietType', params.dietType);
     if (params?.search) query.append('search', params.search);
-    return fetchApi<any[]>(`/menu?${query.toString()}`);
+    return fetchApi<any[]>(`/menu/?${query.toString()}`);
   },
 
   // Get stats
@@ -682,7 +682,7 @@ export const menuApi = {
   get: (id: string) => fetchApi<any>(`/menu/${id}`),
 
   // Create item
-  create: (data: any) => fetchApi<any>('/menu', {
+  create: (data: any) => fetchApi<any>('/menu/', {
     method: 'POST',
     body: JSON.stringify(data),
   }),

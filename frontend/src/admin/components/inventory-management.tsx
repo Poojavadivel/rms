@@ -484,7 +484,7 @@ export function InventoryManagement({ triggerStockManagement }: { triggerStockMa
                      <SelectValue placeholder="Category" />
                    </SelectTrigger>
                    <SelectContent>
-                     <SelectItem value="all">All Categories</SelectItem>
+                     <SelectItem key="all-cats" value="all">All Categories</SelectItem>
                      {uniqueCategories.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                    </SelectContent>
                  </Select>
