@@ -95,6 +95,47 @@ const COOKING_STATIONS = [
   { value: "DESSERT", label: "Dessert Station" },
 ];
 
+/** Return a reliable Unsplash image URL based on the item name / category keyword. */
+function getDefaultMenuImage(name: string, category: string = ""): string {
+  const n = (name || "").toLowerCase();
+  const c = (category || "").toLowerCase();
+  if (n.includes("watermelon") || n.includes("melon"))
+    return "https://images.unsplash.com/photo-1622597467836-f3285f2131b8?w=600&h=400&fit=crop";
+  if (n.includes("juice") || n.includes("smoothie") || n.includes("shake") || n.includes("lassi") || n.includes("lemonade") || n.includes("mocktail") || n.includes("mojito"))
+    return "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=600&h=400&fit=crop";
+  if (n.includes("fries") || n.includes("french fry") || n.includes("chips"))
+    return "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=600&h=400&fit=crop";
+  if (n.includes("greek salad") || n.includes("salad"))
+    return "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=600&h=400&fit=crop";
+  if (n.includes("pizza"))
+    return "https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&h=400&fit=crop";
+  if (n.includes("burger") || n.includes("sandwich") || n.includes("wrap"))
+    return "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&h=400&fit=crop";
+  if (n.includes("pasta") || n.includes("noodle") || n.includes("spaghetti") || n.includes("hakka"))
+    return "https://images.unsplash.com/photo-1555949258-eb67b1ef0ceb?w=600&h=400&fit=crop";
+  if (n.includes("biryani") || n.includes("fried rice") || n.includes("pulao") || n.includes("rice"))
+    return "https://images.unsplash.com/photo-1563379091339-03246963d21a?w=600&h=400&fit=crop";
+  if (n.includes("chicken") || n.includes("tikka") || n.includes("tandoori") || n.includes("kebab") || n.includes("kabab"))
+    return "https://images.unsplash.com/photo-1562967914-608f82629710?w=600&h=400&fit=crop";
+  if (n.includes("soup") || n.includes("dal") || n.includes("curry") || n.includes("gravy"))
+    return "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=600&h=400&fit=crop";
+  if (n.includes("coffee") || n.includes("espresso") || n.includes("cappuccino") || n.includes("latte"))
+    return "https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=600&h=400&fit=crop";
+  if (n.includes("tea") || n.includes("chai"))
+    return "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=600&h=400&fit=crop";
+  if (n.includes("cake") || n.includes("ice cream") || n.includes("dessert") || n.includes("gulab") || n.includes("halwa") || n.includes("kheer") || n.includes("pudding"))
+    return "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600&h=400&fit=crop";
+  if (n.includes("bread") || n.includes("naan") || n.includes("roti") || n.includes("paratha"))
+    return "https://images.unsplash.com/photo-1547050605-2b268d10b7d9?w=600&h=400&fit=crop";
+  if (c.includes("beverage") || c.includes("drink"))
+    return "https://images.unsplash.com/photo-1600271886742-f049cd451bba?w=600&h=400&fit=crop";
+  if (c.includes("starter") || c.includes("appetizer"))
+    return "https://images.unsplash.com/photo-1541014741259-de529411b96a?w=600&h=400&fit=crop";
+  if (c.includes("dessert"))
+    return "https://images.unsplash.com/photo-1551024506-0bccd828d307?w=600&h=400&fit=crop";
+  return "https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600&h=400&fit=crop";
+}
+
 const normalizeCategory = (value?: string): string => {
   const raw = (value ?? "").toString().trim();
   if (!raw) return "main-course";
@@ -126,7 +167,7 @@ const normalizeMenuItems = (items: any[]): MenuItem[] =>
     cuisine: item.cuisine ?? "North Indian",
     price: Number(item.price ?? 0),
     description: item.description ?? "",
-    image: item.image ?? "",
+    image: item.image || getDefaultMenuImage(item.name ?? "", item.category ?? ""),
     available: item.available ?? true,
     prepTime: item.prepTime ?? "",
     dietType: item.dietType ?? "veg",
@@ -736,9 +777,10 @@ useEffect(() => {
                 {/* Image Section */}
                 <div className="relative overflow-hidden w-full" style={{ height: '176px' }}>
                   <img 
-                    src={item.image} 
+                    src={item.image || getDefaultMenuImage(item.name, item.category)}
                     alt={item.name} 
                     className="w-full h-full object-cover"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = getDefaultMenuImage(item.name, item.category); }}
                   />
                   
                   {/* VEG/NON-VEG Badge - Top Left */}
@@ -879,9 +921,10 @@ useEffect(() => {
                 {/* Image Section */}
                 <div className="relative overflow-hidden" style={{ height: '176px' }}>
                   <img 
-                    src={combo.image} 
+                    src={combo.image || getDefaultMenuImage(combo.name, combo.category ?? "")}
                     alt={combo.name} 
                     className="w-full h-full object-cover"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).src = getDefaultMenuImage(combo.name, combo.category ?? ""); }}
                   />
                   
                   {/* COMBO DEAL Badge - Top Left */}

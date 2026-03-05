@@ -231,16 +231,18 @@ async def create_menu_item(data: MenuItemIn):
 
 
 @router.put("/{item_id}")
-async def update_menu_item(item_id: str, data: MenuItemUpdate):
+async def update_menu_item(item_id: str, data: dict):
     db = get_db()
     obj_id = validate_object_id(item_id)
 
-    update_data = data.dict(exclude_unset=True)
-    update_data["updatedAt"] = datetime.utcnow()
+    # Strip MongoDB internal field so it can't be overwritten
+    data.pop("_id", None)
+    data.pop("id", None)
+    data["updatedAt"] = datetime.utcnow()
 
     result = await db.menu_items.update_one(
         {"_id": obj_id},
-        {"$set": update_data}
+        {"$set": data}
     )
 
     if result.matched_count == 0:
@@ -249,7 +251,7 @@ async def update_menu_item(item_id: str, data: MenuItemUpdate):
     updated = await db.menu_items.find_one({"_id": obj_id})
 
     await log_audit("update", "menu", item_id, {
-        "name": update_data.get("name")
+        "name": data.get("name")
     })
 
     return serialize_doc(updated)

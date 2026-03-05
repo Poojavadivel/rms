@@ -321,7 +321,7 @@ class MenuOffer(BaseModel):
 class MenuItemIn(BaseModel):
     name: str
     category: str
-    cuisine: CuisineType
+    cuisine: str
     price: float
     description: Optional[str] = ""
     image: Optional[str] = ""
@@ -329,19 +329,25 @@ class MenuItemIn(BaseModel):
 
     spiceLevel: Optional[str] = None
     preparationTime: Optional[int] = None
-
+    prepTime: Optional[str] = None
+    calories: Optional[int] = None
     dietType: Optional[DietType] = None
-    cookingStation: Optional[str] = None  # KDS sub-station: FRY, CURRY, RICE, PREP, GRILL, DESSERT
+    cookingStation: Optional[str] = None
+
+    addons: Optional[List[Any]] = []
+    badges: Optional[List[str]] = []
+    offerLabel: Optional[str] = None
+    offerDiscount: Optional[str] = None
 
     customizations: Optional[List[MenuCustomization]] = []
     offer: Optional[MenuOffer] = None
-    ingredients: Optional[List[IngredientEntry]] = []
+    ingredients: Optional[List[Any]] = []
 
 
 class MenuItemUpdate(BaseModel):
     name: Optional[str] = None
     category: Optional[str] = None
-    cuisine: Optional[CuisineType] = None
+    cuisine: Optional[str] = None
     price: Optional[float] = None
     description: Optional[str] = None
     image: Optional[str] = None
@@ -349,12 +355,19 @@ class MenuItemUpdate(BaseModel):
 
     spiceLevel: Optional[str] = None
     preparationTime: Optional[int] = None
-
+    prepTime: Optional[str] = None
+    calories: Optional[int] = None
     dietType: Optional[DietType] = None
-    cookingStation: Optional[str] = None  # KDS sub-station: FRY, CURRY, RICE, PREP, GRILL, DESSERT
+    cookingStation: Optional[str] = None
+
+    addons: Optional[List[Any]] = None
+    badges: Optional[List[str]] = None
+    offerLabel: Optional[str] = None
+    offerDiscount: Optional[str] = None
+
     customizations: Optional[List[MenuCustomization]] = None
     offer: Optional[MenuOffer] = None
-    ingredients: Optional[List[IngredientEntry]] = None
+    ingredients: Optional[List[Any]] = None
 
 
 class MenuItemOut(BaseModel):

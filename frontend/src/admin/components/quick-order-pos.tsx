@@ -1017,10 +1017,35 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="w-[96vw] max-w-[96vw] sm:max-w-[96vw] h-[92vh] p-0 overflow-hidden flex flex-row gap-0 border-0 [&>button]:hidden">
+        <DialogContent className="w-[96vw] max-w-[96vw] sm:max-w-[96vw] h-[92dvh] max-h-[92dvh] p-0 overflow-hidden flex flex-col md:flex-row gap-0 border-0 [&>button]:hidden">
 
-          {/* ===== LEFT SIDEBAR ===== */}
-          <div className="w-72 bg-[#8B5E34] flex flex-col shrink-0">
+          {/* ===== MOBILE TOP BAR (visible only on small screens) ===== */}
+          <div className="md:hidden bg-[#8B5E34] px-4 py-3 flex items-center justify-between shrink-0">
+            <div className="flex flex-col">
+              <span className="text-white font-bold text-sm tracking-wide">QUICK ORDER</span>
+              <span className="text-white/70 text-[10px] uppercase tracking-wider">{stepLabels[currentStep]}</span>
+            </div>
+            {/* Step pills */}
+            <div className="flex items-center gap-1.5">
+              {Array.from({ length: totalSteps }, (_, i) => i + 1).map(step => (
+                <div
+                  key={step}
+                  className={`rounded-full transition-all ${
+                    step === currentStep ? 'w-6 h-2.5 bg-white' : step < currentStep ? 'w-2.5 h-2.5 bg-white/60' : 'w-2.5 h-2.5 bg-white/20'
+                  }`}
+                />
+              ))}
+            </div>
+            <button
+              onClick={handleCancelOrder}
+              className="h-8 w-8 flex items-center justify-center rounded-lg bg-white/10 text-white"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
+
+          {/* ===== LEFT SIDEBAR (hidden on mobile) ===== */}
+          <div className="hidden md:flex w-72 bg-[#8B5E34] flex-col shrink-0">
             {/* Brand */}
             <div className="px-6 py-6 border-b border-white/10">
               <div className="flex items-center gap-3">
@@ -1082,17 +1107,17 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
           </div>
 
           {/* ===== RIGHT CONTENT AREA ===== */}
-          <div className="flex-1 flex flex-col bg-white min-w-0">
+          <div className="flex-1 flex flex-col bg-white min-w-0 min-h-0">
 
-            {/* Right Header */}
-            <div className="px-8 py-5 border-b border-gray-100 shrink-0">
+            {/* Right Header — hidden on mobile (top bar serves this role) */}
+            <div className="hidden md:block px-8 py-5 border-b border-gray-100 shrink-0">
               <div className="flex items-start justify-between">
                 <div>
-                  <h2 className="text-2xl">
+                  <h2 className="text-xl md:text-2xl">
                     <span className="font-light text-gray-700">Quick </span>
                     <span className="font-bold text-[#8B5E34]">Order</span>
                   </h2>
-                  <p className="text-[11px] text-muted-foreground uppercase tracking-widest mt-1 font-medium">
+                  <p className="text-[10px] md:text-[11px] text-muted-foreground uppercase tracking-widest mt-0.5 font-medium">
                     {stepSubtitles[currentStep]} — PHASE {currentStep} OF {totalSteps}
                   </p>
                 </div>
@@ -1118,7 +1143,7 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
             </div>
 
             {/* Step Content */}
-            <div className="flex-1 overflow-y-auto bg-[#F7F3EE] px-6 py-6">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain bg-[#F7F3EE] px-3 py-4 md:px-6 md:py-6">
           {/* STEP 1: Details */}
           {currentStep === 1 && (
             <div className="max-w-4xl mx-auto">
@@ -1514,7 +1539,7 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
                     <TabsContent value="items" className="flex-1 overflow-hidden mt-0 space-y-4">
                       {/* Feature #11: Inline Item Search */}
                       <div className="space-y-2">
-                        <div className="flex gap-3">
+                        <div className="flex flex-col sm:flex-row gap-2">
                           <div className="relative flex-1">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                             <Input
@@ -1528,7 +1553,7 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
                             value={selectedCategory}
                             onValueChange={setSelectedCategory}
                           >
-                            <SelectTrigger className="w-[180px] h-11 border-2">
+                            <SelectTrigger className="w-full sm:w-[180px] h-11 border-2">
                               <SelectValue />
                             </SelectTrigger>
                             <SelectContent>
@@ -1946,7 +1971,7 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
             </div>{/* end Step Content scroll area */}
 
             {/* ===== FOOTER ===== */}
-            <div className="shrink-0 bg-white border-t border-gray-100 px-8 py-4">
+            <div className="shrink-0 bg-white border-t border-gray-100 px-4 py-3 md:px-8 md:py-4">
               <div className="flex items-center justify-between gap-4">
                 {/* Left */}
                 {currentStep === 1 ? (

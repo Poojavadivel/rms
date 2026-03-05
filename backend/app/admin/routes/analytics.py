@@ -121,11 +121,33 @@ async def get_analytics():
     completed_orders = sum(1 for o in all_orders if normalize_status(o.get("status")) == "completed")
     active_orders = sum(1 for o in all_orders if normalize_status(o.get("status")) in ["pending", "confirmed", "preparing", "ready"])
 
-    total_revenue = sum(
-        get_order_total(order)
-        for order in all_orders
-        if normalize_status(order.get("status")) == "completed"
+    # Revenue: invoices are the primary source of truth for actual payments.
+    # Use grandTotal from paid invoices + revenue from completed orders that have no invoice.
+    all_invoices = await db.invoices.find({"status": "paid"}).to_list(50000)
+
+    # All gross revenue from paid invoices
+    invoice_revenue = sum(
+        to_number(inv.get("grandTotal") or inv.get("total") or inv.get("amount"), 0)
+        for inv in all_invoices
     )
+
+    # Build a set of order IDs that already have a paid invoice (to avoid double-counting)
+    invoiced_order_ids: set = set()
+    for inv in all_invoices:
+        oid = str(inv.get("orderId") or "").strip()
+        if oid:
+            invoiced_order_ids.add(oid)
+
+    # Revenue from completed orders that DON'T have a corresponding paid invoice
+    order_only_revenue = sum(
+        get_order_total(o)
+        for o in all_orders
+        if normalize_status(o.get("status")) == "completed"
+        and str(o.get("id") or "") not in invoiced_order_ids
+        and str(o.get("_id") or "") not in invoiced_order_ids
+    )
+
+    total_revenue = invoice_revenue + order_only_revenue
 
     avg_order_value = round(total_revenue / completed_orders, 2) if completed_orders > 0 else 0.0
 
@@ -246,10 +268,36 @@ async def get_daily_analytics(date: str = None):
             day_orders.append(order)
 
     total_orders = len(day_orders)
-    total_revenue = sum(get_order_total(order) for order in day_orders)
     completed_count = sum(1 for order in day_orders if normalize_status(order.get("status")) == "completed")
 
+    # Revenue: invoices are primary source; add completed orders without an invoice.
+    day_invoices = await db.invoices.find({
+        "status": "paid",
+        "createdAt": {"$gte": target_date, "$lt": next_day},
+    }).to_list(50000)
+
+    invoice_revenue = sum(
+        to_number(inv.get("grandTotal") or inv.get("total") or inv.get("amount"), 0)
+        for inv in day_invoices
+    )
+
+    invoiced_day_order_ids: set = set()
+    for inv in day_invoices:
+        oid = str(inv.get("orderId") or "").strip()
+        if oid:
+            invoiced_day_order_ids.add(oid)
+
+    order_only_revenue = sum(
+        get_order_total(o)
+        for o in day_orders
+        if normalize_status(o.get("status")) == "completed"
+        and str(o.get("id") or "") not in invoiced_day_order_ids
+        and str(o.get("_id") or "") not in invoiced_day_order_ids
+    )
+    total_revenue = invoice_revenue + order_only_revenue
+
     hourly_buckets = {}
+    # Count all orders (for order count), and revenue for orders without an invoice
     for order in day_orders:
         order_dt = get_order_datetime(order)
         if not order_dt:
@@ -258,10 +306,25 @@ async def get_daily_analytics(date: str = None):
         if hour_key not in hourly_buckets:
             hourly_buckets[hour_key] = {"hour": hour_key, "orders": 0, "revenue": 0.0}
         hourly_buckets[hour_key]["orders"] += 1
-        hourly_buckets[hour_key]["revenue"] += get_order_total(order)
+        if normalize_status(order.get("status")) == "completed":
+            # Only count order revenue if no corresponding invoice (to avoid double-counting)
+            if (str(order.get("id") or "") not in invoiced_day_order_ids
+                    and str(order.get("_id") or "") not in invoiced_day_order_ids):
+                hourly_buckets[hour_key]["revenue"] += get_order_total(order)
+    # Add ALL paid invoice revenue into hourly buckets
+    for inv in day_invoices:
+        inv_dt = parse_datetime(inv.get("createdAt"))
+        if not inv_dt:
+            continue
+        hour_key = inv_dt.hour
+        if hour_key not in hourly_buckets:
+            hourly_buckets[hour_key] = {"hour": hour_key, "orders": 0, "revenue": 0.0}
+        hourly_buckets[hour_key]["revenue"] += to_number(
+            inv.get("grandTotal") or inv.get("total") or inv.get("amount"), 0
+        )
 
     hourly_result = [hourly_buckets[hour] for hour in sorted(hourly_buckets.keys())]
-    
+
     return {
         "date": target_date.isoformat()[:10],
         "orders": total_orders,
@@ -299,6 +362,17 @@ async def get_weekly_analytics(days: int = 7):
         key = d.strftime("%Y-%m-%d")
         daily_buckets[key] = {"date": key, "orders": 0, "revenue": 0.0}
 
+    # Build invoiced order IDs for the week to avoid double-counting
+    week_invoices = await db.invoices.find({
+        "status": "paid",
+        "createdAt": {"$gte": week_start, "$lt": today + timedelta(days=1)},
+    }).to_list(50000)
+    invoiced_week_order_ids: set = set()
+    for inv in week_invoices:
+        oid = str(inv.get("orderId") or "").strip()
+        if oid:
+            invoiced_week_order_ids.add(oid)
+
     for order in current_week_orders:
         order_dt = get_order_datetime(order)
         if not order_dt:
@@ -306,7 +380,22 @@ async def get_weekly_analytics(days: int = 7):
         key = order_dt.strftime("%Y-%m-%d")
         if key in daily_buckets:
             daily_buckets[key]["orders"] += 1
-            daily_buckets[key]["revenue"] += get_order_total(order)
+            if normalize_status(order.get("status")) == "completed":
+                # Only count order revenue if no corresponding invoice
+                if (str(order.get("id") or "") not in invoiced_week_order_ids
+                        and str(order.get("_id") or "") not in invoiced_week_order_ids):
+                    daily_buckets[key]["revenue"] += get_order_total(order)
+
+    # Add ALL paid invoice revenue into daily buckets
+    for inv in week_invoices:
+        inv_dt = parse_datetime(inv.get("createdAt"))
+        if not inv_dt:
+            continue
+        key = inv_dt.strftime("%Y-%m-%d")
+        if key in daily_buckets:
+            daily_buckets[key]["revenue"] += to_number(
+                inv.get("grandTotal") or inv.get("total") or inv.get("amount"), 0
+            )
 
     daily_result = [
         {"date": row["date"], "orders": row["orders"], "revenue": round(row["revenue"], 2)}

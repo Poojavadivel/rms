@@ -474,13 +474,13 @@ async def list_invoices(
 
 @router.post("/invoices")
 async def create_invoice(data: dict):
-    """Create invoice"""
+    """Create invoice and keep payments + orders in sync for revenue tracking."""
     db = get_db()
-    
+
     # Generate invoice number
     count = await db.invoices.count_documents({})
     data["invoiceNumber"] = f"INV-{get_ist_now().strftime('%Y%m%d')}-{count + 1001}"
-    
+
     # Use current time for when invoice is actually generated
     now = get_ist_now()
     data["createdAt"] = now
@@ -488,10 +488,87 @@ async def create_invoice(data: dict):
     # generatedBy is passed from the frontend; default to 'Admin' if missing
     if "generatedBy" not in data or not data["generatedBy"]:
         data["generatedBy"] = "Admin"
-    
+
     result = await db.invoices.insert_one(data)
     created = await db.invoices.find_one({"_id": result.inserted_id})
-    
+
+    # ---- Revenue sync ----
+    # When an invoice is paid, create a payment record (so billing stats pick it up)
+    # and mark the linked order as completed (so analytics pick it up).
+    invoice_status = str(data.get("status") or "").strip().lower()
+    if invoice_status == "paid":
+        amount = float(
+            data.get("grandTotal")
+            or data.get("total")
+            or data.get("amount")
+            or 0
+        )
+        payment_method = data.get("paymentMethod") or data.get("method") or "cash"
+        order_id = data.get("orderId")
+        invoice_number = data["invoiceNumber"]
+
+        # 1. Create payment record so billing stats & daily reports count it
+        pay_count = await db.payments.count_documents({})
+        transaction_id = f"TXN-{now.strftime('%Y%m%d')}-{pay_count + 1001}"
+        payment_doc = {
+            "transactionId": transaction_id,
+            "invoiceId": str(result.inserted_id),
+            "invoiceNumber": invoice_number,
+            "orderId": order_id,
+            "orderNumber": data.get("orderNumber"),
+            "tableNumber": data.get("tableNumber"),
+            "customerName": data.get("customerName") or "Walk-in Customer",
+            "amount": amount,
+            "tips": float(data.get("tips", 0)),
+            "totalAmount": amount + float(data.get("tips", 0)),
+            "method": payment_method,
+            "status": "completed",
+            "createdAt": now,
+        }
+        pay_result = await db.payments.insert_one(payment_doc)
+
+        # Store transactionId back on the invoice
+        await db.invoices.update_one(
+            {"_id": result.inserted_id},
+            {"$set": {"transactionId": transaction_id, "paymentId": str(pay_result.inserted_id)}}
+        )
+
+        # 2. Mark the linked order as completed so analytics count it
+        if order_id:
+            # Support both custom string IDs (ORD-...) and ObjectId
+            order = await db.orders.find_one({"id": order_id})
+            if not order:
+                try:
+                    order = await db.orders.find_one({"_id": ObjectId(order_id)})
+                except Exception:
+                    order = None
+            if order:
+                await db.orders.update_one(
+                    {"_id": order["_id"]},
+                    {"$set": {
+                        "status": "completed",
+                        "paymentStatus": "paid",
+                        "paymentMethod": payment_method,
+                        "paymentId": str(pay_result.inserted_id),
+                        "transactionId": transaction_id,
+                        "invoiceNumber": invoice_number,
+                        "paidAt": now,
+                        "completedAt": now,
+                        # Store the billed amount so analytics get_order_total() returns the correct value
+                        "total": amount,
+                        "grandTotal": amount,
+                    }}
+                )
+
+        await log_audit("invoice_payment", "invoice", str(result.inserted_id), {
+            "amount": amount,
+            "method": payment_method,
+            "transactionId": transaction_id,
+            "invoiceNumber": invoice_number,
+        })
+
+    # Re-fetch to return the latest state (with transactionId if added)
+    created = await db.invoices.find_one({"_id": result.inserted_id})
     return serialize_doc(created)
 
 
