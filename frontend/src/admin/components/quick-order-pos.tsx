@@ -2,7 +2,6 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Button } from '@/admin/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/admin/components/ui/card';
 import { Badge } from '@/admin/components/ui/badge';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/admin/components/ui/sheet';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/admin/components/ui/select';
 import { Input } from '@/admin/components/ui/input';
 import { Label } from '@/admin/components/ui/label';
@@ -14,7 +13,7 @@ import {
   Search, Sparkles, ShoppingBag, CheckCircle, ChevronDown, 
   ChevronUp, Tag as TagIcon, Flame, Package2, Clock, 
   AlertTriangle, ChefHat, Repeat, Volume2, VolumeX, 
-  ArrowRight, ArrowLeft, Ban, Edit, Trash2, Check, 
+  ArrowRight, ArrowLeft, Edit, Trash2, Check, 
   Timer, TrendingUp, Package
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -169,10 +168,15 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
   const [customerName, setCustomerName] = useState('');
   const [customerPhone, setCustomerPhone] = useState('');
 
+  // Multi-step flow: step 1 = details, step 2 = items, step 3 = payment (takeaway only)
+  const [currentStep, setCurrentStep] = useState(1);
+
   // Takeaway payment flow
   const [takeawayPaymentOpen, setTakeawayPaymentOpen] = useState(false);
   const [createdOrderId, setCreatedOrderId] = useState('');
   const [createdOrderTotal, setCreatedOrderTotal] = useState(0);
+  const [paymentMethod, setPaymentMethod] = useState<'cash' | 'card' | 'upi' | 'wallet'>('cash');
+  const [paymentProcessing, setPaymentProcessing] = useState(false);
   const [availableTables, setAvailableTables] = useState<TableData[]>([]);
   const [tablesLoading, setTablesLoading] = useState(false);
 
@@ -242,9 +246,12 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
 
   // Pre-fill table number when opened from Take Order button
   useEffect(() => {
-    if (open && initialTableNumber) {
-      setOrderType(initialOrderType ?? 'dine-in');
-      setTableNumber(initialTableNumber);
+    if (open) {
+      setCurrentStep(1);
+      if (initialTableNumber) {
+        setOrderType(initialOrderType ?? 'dine-in');
+        setTableNumber(initialTableNumber);
+      }
     }
   }, [open, initialTableNumber, initialOrderType]);
 
@@ -817,6 +824,19 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
       ? (customerName.trim().length > 0 && customerPhone.trim().length > 0)
       : (orderType === 'dine-in' && !!tableNumber));
 
+  // Step validation
+  const isStep1Valid =
+    orderType === 'dine-in'
+      ? !!tableNumber
+      : customerName.trim().length > 0 && customerPhone.trim().length > 0;
+
+  const totalSteps = orderType === 'takeaway' ? 3 : 2;
+
+  const stepLabels: Record<number, string> =
+    orderType === 'takeaway'
+      ? { 1: 'Customer Details', 2: 'Order Items', 3: 'Payment' }
+      : { 1: 'Table Details', 2: 'Order Items' };
+
   // Reset form
   const resetForm = () => {
     setOrderType('dine-in');
@@ -832,6 +852,7 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
     setCurrentStatus('placed');
     setOrderTimeline([{ status: 'placed', timestamp: new Date(), duration: 0 }]);
     setExpandedCombo(null);
+    setCurrentStep(1);
   };
 
   // Cancel order
@@ -839,6 +860,31 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
     resetForm();
     onOpenChange(false);
     toast.info('Order cancelled', { duration: 2000 });
+  };
+
+  // Handle inline payment on step 3
+  const handlePaymentConfirm = async () => {
+    setPaymentProcessing(true);
+    try {
+      const response = await fetch(`${API_BASE_URL}/billing/process-order-payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: createdOrderId, amount: createdOrderTotal, method: paymentMethod }),
+      });
+      const result = await response.json();
+      if (result.success) {
+        toast.success('Payment processed successfully!');
+        resetForm();
+        onOpenChange(false);
+      } else {
+        toast.error('Payment failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error processing payment:', error);
+      toast.error('Payment failed. Please try again.');
+    } finally {
+      setPaymentProcessing(false);
+    }
   };
 
   // Create or update order
@@ -911,12 +957,12 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
         onOrderCreated();
         playSound('complete', soundEnabled);
 
-        // For takeaway orders open payment dialog immediately
+        // For takeaway orders go to step 3 (inline payment)
         if (!existingOrderId && orderType === 'takeaway') {
           const orderId = result.id || result._id || '';
           setCreatedOrderId(orderId);
           setCreatedOrderTotal(subtotal);
-          setTakeawayPaymentOpen(true);
+          setCurrentStep(3);
           toast.success('🎉 Takeaway order created! Collect payment.', { duration: 3000 });
         } else {
           toast.success(existingOrderId ? '✅ Order updated successfully!' : '🎉 Order created successfully!', { duration: 3000 });
@@ -961,55 +1007,121 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
 
   // ========== RENDER ==========
 
+  const stepSubtitles: Record<number, string> =
+    orderType === 'takeaway'
+      ? { 1: 'Customer & Order Information', 2: 'Menu Selection', 3: 'Payment Collection' }
+      : { 1: 'Table & Order Information', 2: 'Menu Selection' };
+
+  const STEP_ICONS = [UtensilsCrossed, ShoppingBag, CheckCircle];
+
   return (
     <>
-      <Sheet open={open} onOpenChange={onOpenChange}>
-        <SheetContent
-          side="right"
-          className="w-full sm:max-w-[95vw] lg:max-w-[1400px] p-0 overflow-hidden"
-        >
-          {/* Header - Matching Orders Page Theme */}
-          <div className="sticky top-0 z-20 bg-[#8B5E34] text-white px-8 py-6 shadow-lg">
-            <SheetHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="h-12 w-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center">
-                    <Zap className="h-7 w-7 text-white" />
-                  </div>
-                  <div>
-                    <SheetTitle className="text-2xl text-white font-bold">
-                      Quick Order (POS Mode)
-                    </SheetTitle>
-                    <SheetDescription className="text-white/80 text-base">
-                      Fast, flexible order creation
-                    </SheetDescription>
-                  </div>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="w-[96vw] max-w-[96vw] sm:max-w-[96vw] h-[92vh] p-0 overflow-hidden flex flex-row gap-0 border-0 [&>button]:hidden">
+
+          {/* ===== LEFT SIDEBAR ===== */}
+          <div className="w-72 bg-[#8B5E34] flex flex-col shrink-0">
+            {/* Brand */}
+            <div className="px-6 py-6 border-b border-white/10">
+              <div className="flex items-center gap-3">
+                <div className="h-10 w-10 bg-white/20 rounded-xl flex items-center justify-center">
+                  <Zap className="h-5 w-5 text-white" />
                 </div>
-                
-                {/* Feature #7: Menu Sync Badge + Role Warning */}
-                <div className="flex items-center gap-3">
-                  {/* Feature #13: Sound Toggle */}
+                <div>
+                  <p className="text-white font-bold text-base leading-tight">QUICK</p>
+                  <p className="text-white/80 font-semibold text-sm leading-tight tracking-wide">ORDER</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Step Navigation */}
+            <nav className="flex-1 px-4 py-6 space-y-3">
+              {Array.from({ length: totalSteps }, (_, i) => i + 1).map(step => {
+                const isActive = currentStep === step;
+                const isDone = currentStep > step;
+                const StepIcon = STEP_ICONS[step - 1] ?? CheckCircle;
+                return (
+                  <div key={step} className={`flex items-center gap-3 px-4 py-3 rounded-2xl transition-all ${
+                    isActive ? 'bg-white shadow-sm' : isDone ? 'bg-white/20' : 'opacity-40'
+                  }`}>
+                    <div className={`w-9 h-9 rounded-full flex items-center justify-center shrink-0 ${
+                      isActive ? 'bg-[#8B5E34]' : isDone ? 'bg-white/40' : 'bg-white/10'
+                    }`}>
+                      {isDone
+                        ? <Check className="h-4 w-4 text-white" />
+                        : <StepIcon className={`h-4 w-4 ${isActive ? 'text-white' : 'text-white/80'}`} />
+                      }
+                    </div>
+                    <div>
+                      <p className={`text-[10px] font-bold uppercase tracking-widest ${
+                        isActive ? 'text-[#8B5E34]/60' : 'text-white/50'
+                      }`}>
+                        STEP {String(step).padStart(2, '0')}
+                      </p>
+                      <p className={`text-sm font-semibold ${
+                        isActive ? 'text-[#8B5E34]' : 'text-white'
+                      }`}>
+                        {stepLabels[step]}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </nav>
+
+            {/* Discard Entry */}
+            <div className="px-4 pb-6">
+              <button
+                onClick={handleCancelOrder}
+                className="flex items-center gap-2 px-4 py-2.5 w-full rounded-xl text-white/60 hover:text-white hover:bg-white/10 transition-all text-sm font-medium"
+              >
+                <X className="h-4 w-4" />
+                DISCARD ENTRY
+              </button>
+            </div>
+          </div>
+
+          {/* ===== RIGHT CONTENT AREA ===== */}
+          <div className="flex-1 flex flex-col bg-white min-w-0">
+
+            {/* Right Header */}
+            <div className="px-8 py-5 border-b border-gray-100 shrink-0">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h2 className="text-2xl">
+                    <span className="font-light text-gray-700">Quick </span>
+                    <span className="font-bold text-[#8B5E34]">Order</span>
+                  </h2>
+                  <p className="text-[11px] text-muted-foreground uppercase tracking-widest mt-1 font-medium">
+                    {stepSubtitles[currentStep]} — PHASE {currentStep} OF {totalSteps}
+                  </p>
+                </div>
+                <div className="flex items-center gap-1">
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => setSoundEnabled(!soundEnabled)}
-                    className="text-white hover:bg-white/20"
+                    className="h-8 w-8 p-0 text-muted-foreground hover:bg-gray-100 rounded-full"
                   >
-                    {soundEnabled ? (
-                      <Volume2 className="h-5 w-5" />
-                    ) : (
-                      <VolumeX className="h-5 w-5" />
-                    )}
+                    {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onOpenChange(false)}
+                    className="h-8 w-8 p-0 text-muted-foreground hover:bg-gray-100 rounded-full"
+                  >
+                    <X className="h-5 w-5" />
                   </Button>
                 </div>
               </div>
-            </SheetHeader>
-          </div>
+            </div>
 
-          {/* 2-Panel Layout */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 px-3 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 h-[calc(100vh-180px)] overflow-y-auto bg-[#F7F3EE]">
-            {/* LEFT PANEL: Order Creation */}
-            <div className="lg:col-span-7 space-y-6">
+            {/* Step Content */}
+            <div className="flex-1 overflow-y-auto bg-[#F7F3EE] px-6 py-6">
+          {/* STEP 1: Details */}
+          {currentStep === 1 && (
+            <div className="max-w-4xl mx-auto">
               {/* Order Information Card */}
               <Card className="shadow-md border-2 border-[#8B5E34]/10">
                 <CardHeader className="bg-gradient-to-r from-[#F6F2ED] to-white pb-4">
@@ -1193,9 +1305,15 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
                   )}
                 </CardContent>
               </Card>
+            </div>
+          )}
+
+          {/* STEP 2: Items */}
+          {currentStep === 2 && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6">
 
               {/* Item Selection Card */}
-              <Card className="shadow-md border-2 border-[#8B5E34]/10 flex-1 flex flex-col">
+              <Card className="shadow-md border-2 border-[#8B5E34]/10 flex-1 flex flex-col lg:col-span-7">
                 <CardHeader className="bg-gradient-to-r from-[#F6F2ED] to-white pb-4">
                   <CardTitle className="text-lg flex items-center gap-2 text-[#8B5E34]">
                     <ShoppingBag className="h-5 w-5" />
@@ -1604,7 +1722,6 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
                   </Tabs>
                 </CardContent>
               </Card>
-            </div>
 
             {/* RIGHT PANEL: Live Order Preview */}
             <div className="lg:col-span-5 space-y-6">
@@ -1639,16 +1756,16 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
                       <div className="space-y-4">
                         {Object.entries(groupedItems).map(([station, items]) => {
                           const stationInfo = COOKING_STATIONS[station as keyof typeof COOKING_STATIONS];
-                          const isExpanded = expandedGroups.has(station);
+                          const isCollapsed = expandedGroups.has(station);
                           const StationIcon = stationInfo?.icon || Package;
 
                           return (
                             <Collapsible
                               key={station}
-                              open={isExpanded}
+                              open={!isCollapsed}
                               onOpenChange={(open) => {
                                 const newExpanded = new Set(expandedGroups);
-                                if (open) {
+                                if (!open) {
                                   newExpanded.add(station);
                                 } else {
                                   newExpanded.delete(station);
@@ -1675,7 +1792,7 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
                                       </div>
                                       <ChevronDown
                                         className={`h-5 w-5 transition-transform ${
-                                          isExpanded ? 'rotate-180' : ''
+                                          isCollapsed ? '' : 'rotate-180'
                                         }`}
                                       />
                                     </div>
@@ -1748,73 +1865,182 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
                 </CardContent>
               </Card>
             </div>
-          </div>
-
-          {/* Feature #9: Sticky Bottom Action Bar - Order Flow Restriction */}
-          <div className="sticky bottom-0 z-20 bg-white border-t-2 border-[#8B5E34]/20 px-8 py-4 shadow-lg">
-            <div className="flex items-center justify-between gap-4">
-              <Button
-                variant="outline"
-                size="lg"
-                onClick={handleCancelOrder}
-                className="h-12 px-6 border-2"
-              >
-                <Ban className="h-5 w-5 mr-2" />
-                Cancel
-              </Button>
-
-              <div className="text-center">
-                <p className="text-sm text-muted-foreground mb-1">Total Amount</p>
-                <p className="text-2xl font-bold text-[#8B5E34] flex items-center justify-center">
-                  <IndianRupee className="h-6 w-6" />
-                  {subtotal}
-                </p>
-              </div>
-
-              <Button
-                size="lg"
-                onClick={handleCreateOrder}
-                disabled={!isOrderValid}
-                className={`h-12 px-8 text-base font-semibold ${
-                  isOrderValid
-                    ? 'bg-[#8B5E34] hover:bg-[#8B5E34]/90'
-                    : 'bg-gray-300 cursor-not-allowed'
-                }`}
-              >
-                <CheckCircle className="h-5 w-5 mr-2" />
-                {existingOrderId ? 'Update Order' : (orderType === 'takeaway' ? 'Create & Pay' : 'Create Order')}
-                {!isOrderValid && (
-                  <span className="ml-2 text-xs">
-                    ({orderItems.length === 0
-                      ? 'Add items'
-                      : orderType === 'takeaway'
-                        ? 'Name & phone required'
-                        : 'Select table'})
-                  </span>
-                )}
-              </Button>
             </div>
-          </div>
-        </SheetContent>
-      </Sheet>
+          )}
 
-      {/* Takeaway Payment Dialog */}
-      <PaymentDialog
-        open={takeawayPaymentOpen}
-        onOpenChange={(o) => {
-          setTakeawayPaymentOpen(o);
-          if (!o) { resetForm(); onOpenChange(false); }
-        }}
-        orderId={createdOrderId}
-        amount={createdOrderTotal}
-        customerName={customerName}
-        customerPhone={customerPhone}
-        onSuccess={() => {
-          setTakeawayPaymentOpen(false);
-          resetForm();
-          onOpenChange(false);
-        }}
-      />
+          {/* STEP 3: Payment (takeaway only) */}
+          {currentStep === 3 && (
+            <div className="max-w-4xl mx-auto">
+              <Card className="shadow-md border-2 border-[#8B5E34]/10">
+                <CardHeader className="bg-gradient-to-r from-[#F6F2ED] to-white pb-4">
+                  <CardTitle className="text-lg flex items-center gap-2 text-[#8B5E34]">
+                    <CheckCircle className="h-5 w-5" />
+                    Collect Payment
+                  </CardTitle>
+                  <CardDescription>Select payment method and confirm the transaction</CardDescription>
+                </CardHeader>
+                <CardContent className="pt-6 space-y-5">
+                  {/* Customer summary */}
+                  {(customerName || customerPhone) && (
+                    <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg space-y-1">
+                      {customerName && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="font-medium text-amber-900">{customerName}</span>
+                        </div>
+                      )}
+                      {customerPhone && (
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="text-amber-800">{customerPhone}</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Order summary */}
+                  <div className="p-4 bg-muted rounded-lg space-y-2">
+                    {orderItems.map(item => (
+                      <div key={item.id} className="flex justify-between text-sm">
+                        <span>{item.name} × {item.quantity}</span>
+                        <span className="flex items-center font-medium">
+                          <IndianRupee className="h-3.5 w-3.5" />{(item.price * item.quantity).toFixed(2)}
+                        </span>
+                      </div>
+                    ))}
+                    <div className="border-t pt-2 flex justify-between font-bold">
+                      <span>Total</span>
+                      <span className="flex items-center text-lg text-[#8B5E34]">
+                        <IndianRupee className="h-4 w-4" />{createdOrderTotal.toFixed(2)}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Payment method */}
+                  <div className="space-y-3">
+                    <Label className="text-xs font-bold text-muted-foreground uppercase tracking-wide">
+                      Payment Method
+                    </Label>
+                    <div className="grid grid-cols-2 gap-3">
+                      {(['cash', 'card', 'upi', 'wallet'] as const).map(method => (
+                        <button
+                          key={method}
+                          type="button"
+                          onClick={() => setPaymentMethod(method)}
+                          className={`p-3 rounded-lg border-2 text-sm font-medium transition-all ${
+                            paymentMethod === method
+                              ? 'border-[#8B5E34] bg-[#8B5E34]/10 text-[#8B5E34]'
+                              : 'border-muted hover:border-[#8B5E34]/40'
+                          }`}
+                        >
+                          {method === 'cash' && '💵 Cash'}
+                          {method === 'card' && '💳 Card'}
+                          {method === 'upi' && '📱 UPI'}
+                          {method === 'wallet' && '👛 Wallet'}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+            </div>{/* end Step Content scroll area */}
+
+            {/* ===== FOOTER ===== */}
+            <div className="shrink-0 bg-white border-t border-gray-100 px-8 py-4">
+              <div className="flex items-center justify-between gap-4">
+                {/* Left */}
+                {currentStep === 1 ? (
+                  <Button
+                    variant="ghost"
+                    onClick={handleCancelOrder}
+                    className="text-muted-foreground font-semibold tracking-wide uppercase text-sm"
+                  >
+                    Dismiss
+                  </Button>
+                ) : (
+                  <Button
+                    variant="ghost"
+                    onClick={() => setCurrentStep(s => s - 1)}
+                    className="text-muted-foreground gap-2 font-semibold tracking-wide uppercase text-sm"
+                  >
+                    <ArrowLeft className="h-4 w-4" />
+                    Back
+                  </Button>
+                )}
+
+                {/* Centre total (shown on step 2+) */}
+                {currentStep >= 2 && (
+                  <div className="text-center">
+                    <p className="text-xs text-muted-foreground uppercase tracking-wide">Total Amount</p>
+                    <p className="text-xl font-bold text-[#8B5E34] flex items-center justify-center gap-0.5">
+                      <IndianRupee className="h-5 w-5" />
+                      {subtotal}
+                    </p>
+                  </div>
+                )}
+
+                {/* Right */}
+                {currentStep === 1 && (
+                  <Button
+                    onClick={() => setCurrentStep(2)}
+                    disabled={!isStep1Valid}
+                    className="bg-[#8B5E34] hover:bg-[#8B5E34]/90 font-semibold tracking-wide gap-2 uppercase text-sm"
+                  >
+                    Next Phase
+                    <ArrowRight className="h-4 w-4" />
+                  </Button>
+                )}
+
+                {currentStep === 2 && (
+                  <Button
+                    onClick={handleCreateOrder}
+                    disabled={orderItems.length === 0}
+                    className="bg-[#8B5E34] hover:bg-[#8B5E34]/90 font-semibold tracking-wide gap-2 uppercase text-sm"
+                  >
+                    <CheckCircle className="h-4 w-4" />
+                    {existingOrderId ? 'Update Order' : orderType === 'takeaway' ? 'Confirm & Pay' : 'Create Order'}
+                  </Button>
+                )}
+
+                {currentStep === 3 && (
+                  <Button
+                    onClick={handlePaymentConfirm}
+                    disabled={paymentProcessing}
+                    className="bg-[#8B5E34] hover:bg-[#8B5E34]/90 font-semibold tracking-wide gap-2 uppercase text-sm"
+                  >
+                    {paymentProcessing ? 'Processing...' : (
+                      <>
+                        <CheckCircle className="h-4 w-4" />
+                        Pay <IndianRupee className="h-4 w-4" />{createdOrderTotal.toFixed(2)}
+                      </>
+                    )}
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>{/* end right content area */}
+        </DialogContent>
+      </Dialog>
+
+      {/* Takeaway Payment — now handled inline in Step 3, dialog kept for fallback only */}
+      {takeawayPaymentOpen && (
+        <PaymentDialog
+          open={takeawayPaymentOpen}
+          onOpenChange={(o) => {
+            setTakeawayPaymentOpen(o);
+            if (!o) { resetForm(); onOpenChange(false); }
+          }}
+          orderId={createdOrderId}
+          amount={createdOrderTotal}
+          customerName={customerName}
+          customerPhone={customerPhone}
+          onSuccess={() => {
+            setTakeawayPaymentOpen(false);
+            resetForm();
+            onOpenChange(false);
+          }}
+        />
+      )}
 
       {/* Feature #4: Rollback Protection Dialog */}
       <Dialog open={rollbackDialog} onOpenChange={setRollbackDialog}>

@@ -118,11 +118,13 @@ async def run_automatic_backup():
         result = await backups_coll.insert_one(backup_doc)
         print(f"[Scheduler] ✅ Automatic backup created: {result.inserted_id} ({total_docs} documents, {size_str})")
         
-        # Clean up old backups based on retention period
+        # Clean up old backups based on retention period.
+        # createdAt is stored as an ISO-8601 string, so compare as string too.
         retention_days = config.get('retentionDays', 30)
         cutoff_date = now - timedelta(days=retention_days)
+        cutoff_str = cutoff_date.isoformat()
         delete_result = await backups_coll.delete_many({
-            'createdAt': {'$lt': cutoff_date},
+            'createdAt': {'$lt': cutoff_str},
             'type': 'automatic'  # Only delete automatic backups
         })
         if delete_result.deleted_count > 0:
@@ -215,9 +217,10 @@ async def update_backup_schedule():
         else:
             trigger = CronTrigger(hour=hour, minute=minute, timezone=LOCAL_TZ)
         
-        # Use the sync wrapper that properly handles async execution
+        # Pass the async coroutine directly — AsyncIOScheduler awaits it
+        # correctly on the event loop (no sync wrapper needed).
         scheduler.add_job(
-            run_backup_sync,
+            run_automatic_backup,
             trigger=trigger,
             id=backup_job_id,
             replace_existing=True,

@@ -194,12 +194,18 @@ export function InventoryManagement({ triggerStockManagement }: { triggerStockMa
 
   // Derived Stats
   const stats = useMemo(() => {
+    const todayStart = new Date();
+    todayStart.setHours(0, 0, 0, 0);
+    const todayLogs = deductionLogs.filter(log => {
+      if (!log.timestamp) return false;
+      return new Date(log.timestamp) >= todayStart;
+    });
     return {
       total: ingredients.length,
       low: ingredients.filter(i => i.status === 'Low').length,
       critical: ingredients.filter(i => i.status === 'Critical').length,
       out: ingredients.filter(i => i.status === 'Out').length,
-      consumptionToday: deductionLogs.reduce((acc, log) => acc + log.ingredients.length, 0)
+      consumptionToday: todayLogs.reduce((acc, log) => acc + log.ingredients.length, 0)
     };
   }, [ingredients, deductionLogs]);
 
