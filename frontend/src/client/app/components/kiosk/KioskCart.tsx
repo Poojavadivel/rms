@@ -30,7 +30,16 @@ export default function KioskCart({ cart, onUpdateQuantity, onRemoveItem, onChec
 
     setIsProcessing(true);
 
-    const orderId = `KIOSK-${Date.now()}`;
+    // Daily sequential kiosk order number
+    const today = new Date().toISOString().slice(0, 10); // YYYY-MM-DD
+    const storageKey = 'kiosk_order_counter';
+    const stored = JSON.parse(localStorage.getItem(storageKey) || '{}');
+    let counter = 1;
+    if (stored.date === today) {
+      counter = (stored.count || 0) + 1;
+    }
+    localStorage.setItem(storageKey, JSON.stringify({ date: today, count: counter }));
+    const orderId = `KIOSK-${String(counter).padStart(3, '0')}`;
 
     // Simulate payment processing
     setTimeout(() => {
