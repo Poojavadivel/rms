@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
-import { CheckCircle, Clock, ChefHat, Package, ArrowLeft, Copy, Check } from 'lucide-react';
+import { CheckCircle, Clock, ChefHat, Package, ArrowLeft, Copy, Check, Download } from 'lucide-react';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import type { Order } from '@/client/app/App';
 import { apiRequest } from '@/client/api/client';
 
@@ -47,6 +49,128 @@ export default function KioskConfirmation({ order, onNewOrder, onGoHome }: Kiosk
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     }).catch(() => {});
+  };
+
+  const handleDownloadReceipt = () => {
+    const dateStr = new Date(order.date).toLocaleString('en-IN', {
+      dateStyle: 'medium',
+      timeStyle: 'short',
+    });
+
+    const doc = new jsPDF({ unit: 'mm', format: [80, 200] });
+    const w = doc.internal.pageSize.getWidth();
+    const ml = 5; // margin left
+    const mr = 5; // margin right
+    const contentW = w - ml - mr;
+    let y = 10;
+
+    // Header
+    doc.setFontSize(14);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Restaurant', w / 2, y, { align: 'center' });
+    y += 5;
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(120);
+    doc.text('Kiosk Order Receipt', w / 2, y, { align: 'center' });
+    y += 5;
+
+    // Dashed line
+    doc.setDrawColor(180);
+    doc.setLineDashPattern([1, 1], 0);
+    doc.line(ml, y, w - mr, y);
+    y += 6;
+
+    // Order ID
+    doc.setTextColor(80);
+    doc.setFontSize(8);
+    doc.text('Order ID', w / 2, y, { align: 'center' });
+    y += 6;
+    doc.setFontSize(16);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(30);
+    doc.text(order.id, w / 2, y, { align: 'center' });
+    y += 6;
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(100);
+    doc.text(dateStr, w / 2, y, { align: 'center' });
+    y += 5;
+
+    // Dashed line
+    doc.setDrawColor(180);
+    doc.line(ml, y, w - mr, y);
+    y += 3;
+
+    // Items table
+    const tableData = order.items.map((item) => [
+      item.name,
+      String(item.quantity),
+      `Rs.${(item.price * item.quantity).toFixed(2)}`,
+    ]);
+
+    autoTable(doc, {
+      startY: y,
+      head: [['Item', 'Qty', 'Amount']],
+      body: tableData,
+      theme: 'plain',
+      styles: { fontSize: 8, cellPadding: 2, textColor: [40, 40, 40], overflow: 'linebreak' },
+      headStyles: { fontStyle: 'bold', fontSize: 8, textColor: [20, 20, 20], lineWidth: { bottom: 0.3 }, lineColor: [100, 100, 100] },
+      columnStyles: {
+        0: { cellWidth: contentW * 0.50, halign: 'left' },
+        1: { cellWidth: contentW * 0.15, halign: 'center' },
+        2: { cellWidth: contentW * 0.35, halign: 'right' },
+      },
+      margin: { left: ml, right: mr },
+    });
+
+    y = (doc as any).lastAutoTable.finalY + 5;
+
+    // Totals section
+    doc.setDrawColor(180);
+    doc.setLineDashPattern([1, 1], 0);
+    doc.line(ml, y, w - mr, y);
+    y += 5;
+
+    doc.setFontSize(8);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(60);
+    doc.text('Subtotal', ml + 1, y);
+    doc.text(`Rs.${(order.subtotal ?? 0).toFixed(2)}`, w - mr - 1, y, { align: 'right' });
+    y += 5;
+    doc.text('GST (5%)', ml + 1, y);
+    doc.text(`Rs.${(order.tax ?? 0).toFixed(2)}`, w - mr - 1, y, { align: 'right' });
+    y += 4;
+
+    // Total line
+    doc.setLineDashPattern([], 0);
+    doc.setDrawColor(30);
+    doc.setLineWidth(0.4);
+    doc.line(ml, y, w - mr, y);
+    y += 5;
+    doc.setFontSize(10);
+    doc.setFont('helvetica', 'bold');
+    doc.setTextColor(20);
+    doc.text('Total Paid', ml + 1, y);
+    doc.text(`Rs.${order.total.toFixed(2)}`, w - mr - 1, y, { align: 'right' });
+    y += 8;
+
+    // Footer
+    doc.setDrawColor(180);
+    doc.setLineDashPattern([1, 1], 0);
+    doc.setLineWidth(0.2);
+    doc.line(ml, y, w - mr, y);
+    y += 5;
+    doc.setFontSize(7);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(140);
+    doc.text('Thank you for your order!', w / 2, y, { align: 'center' });
+    y += 4;
+    doc.text('Show your Order ID at the counter', w / 2, y, { align: 'center' });
+    y += 3;
+    doc.text('to collect your food.', w / 2, y, { align: 'center' });
+
+    doc.save(`Receipt-${order.id}.pdf`);
   };
 
   const steps = [
@@ -200,6 +324,12 @@ export default function KioskConfirmation({ order, onNewOrder, onGoHome }: Kiosk
 
         {/* Action Buttons */}
         <div className="flex gap-3">
+          <button
+            onClick={handleDownloadReceipt}
+            className="px-5 py-3 bg-[#3E2723] text-[#C8A47A] rounded-xl font-bold text-sm hover:bg-[#5D4037] transition-all active:scale-95 flex items-center gap-2"
+          >
+            <Download className="w-4 h-4" /> Receipt
+          </button>
           <button
             onClick={onNewOrder}
             className="flex-1 py-3 bg-gradient-to-r from-[#8B5A2B] to-[#C8A47A] text-white rounded-xl font-bold text-sm hover:shadow-lg transition-all active:scale-95"
