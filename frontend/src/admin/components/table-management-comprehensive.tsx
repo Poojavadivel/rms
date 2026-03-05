@@ -354,20 +354,7 @@ function TableCard({ table, onClick, waiters, onAssignWaiter, onCheckout, onRequ
             </Button>
           )}
 
-          {/* Checkout Button — shown only to admin/manager or the assigned waiter */}
-          {table.status === 'Eating' && table.currentOrderId && canInteract && (
-            <Button
-              size="sm"
-              className="w-full bg-[#8B5A2B] hover:bg-[#6B4520] text-white"
-              onClick={(e) => {
-                e.stopPropagation();
-                onCheckout(table.id);
-              }}
-            >
-              <DollarSign className="w-4 h-4 mr-1" />
-              Checkout
-            </Button>
-          )}
+
 
 
         </div>

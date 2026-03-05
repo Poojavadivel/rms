@@ -740,22 +740,33 @@ async def upload_backup(request: Request):
         body = await request.json()
     except Exception:
         raise HTTPException(status_code=400, detail='Invalid JSON data')
-    
-    if 'collections' not in body or 'data' not in body:
-        raise HTTPException(status_code=400, detail='Invalid backup format. Must contain collections and data.')
-    
+
+    # Accept top-level {collections, data} OR wrapped {backupInfo, collections, data}
+    raw_data = body.get('data') or {}
+    if not raw_data and 'backupData' in body:
+        raw_data = body['backupData']
+
+    if not raw_data:
+        raise HTTPException(status_code=400, detail='Invalid backup format. Must contain a data field with collection data.')
+
     # Create a backup record for the uploaded file
     now = datetime.utcnow()
+    import json as _json
+    size_bytes = len(_json.dumps(raw_data, default=str).encode('utf-8'))
+    size_str = f"{size_bytes / (1024*1024):.2f} MB" if size_bytes > 1024*1024 else f"{size_bytes / 1024:.2f} KB"
     backup_doc = {
         'name': f"Uploaded Backup - {now.strftime('%Y-%m-%d %H:%M')}",
         'type': 'uploaded',
-        'collections': body.get('collections', []),
-        'totalDocuments': sum(len(docs) for docs in body.get('data', {}).values()),
-        'size': f"{len(str(body)) / 1024:.2f} KB",
+        'collections': body.get('collections', list(raw_data.keys())),
+        'documentCounts': {k: len(v) for k, v in raw_data.items() if isinstance(v, list)},
+        'totalDocuments': sum(len(v) for v in raw_data.values() if isinstance(v, list)),
+        'size': size_str,
         'date': now.strftime('%Y-%m-%d'),
         'time': now.strftime('%H:%M:%S'),
         'status': 'completed',
-        'createdAt': now.isoformat()
+        'createdAt': now.isoformat(),
+        # Store data so restore works
+        'backupData': raw_data,
     }
     
     coll = db.get_collection('backups')

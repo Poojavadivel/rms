@@ -14,12 +14,16 @@ from ...audit import log_audit
 
 router = APIRouter(tags=["Billing"])
 
-# IST timezone (UTC+5:30)
+# IST timezone (UTC+5:30) – kept for label/ID generation only
 IST = timezone(timedelta(hours=5, minutes=30))
 
 def get_ist_now():
-    """Get current time in IST timezone"""
-    return datetime.now(IST).replace(tzinfo=None)
+    """Return current time as a naive UTC datetime.
+
+    All stored timestamps use UTC so that the frontend can display them
+    correctly once the 'Z' suffix is added by serialize_doc.
+    """
+    return datetime.utcnow()
 
 
 def serialize_doc(doc):
@@ -27,6 +31,19 @@ def serialize_doc(doc):
     if doc is None:
         return None
     doc["_id"] = str(doc["_id"])
+    # Convert datetime fields to ISO 8601 UTC strings so the browser
+    # correctly interprets them as UTC ("Z" suffix) instead of local time.
+    datetime_fields = [
+        "createdAt", "updatedAt", "generatedAt", "paidAt", "servedAt",
+        "statusUpdatedAt", "completedAt", "cancelledAt", "expiresAt",
+        "occupiedAt", "reservedUntil",
+    ]
+    for field in datetime_fields:
+        if field in doc and doc[field] is not None:
+            if isinstance(doc[field], datetime):
+                doc[field] = doc[field].isoformat() + "Z"
+            elif isinstance(doc[field], str) and "T" in doc[field] and not doc[field].endswith("Z"):
+                doc[field] = doc[field] + "Z"
     return doc
 
 

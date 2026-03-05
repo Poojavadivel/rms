@@ -546,7 +546,7 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
     const order = orders.find(o => o.id === orderId);
     
     try {
-      // Mark only this station's items as completed (or all if head chef)
+      // Mark this station's items (or all items if head chef) as COMPLETED locally
       if (order) {
         const newStatuses = new Map(itemStatuses);
         order.items.forEach(item => {
@@ -556,25 +556,23 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
         });
         setItemStatuses(newStatuses);
       }
-      
-      // Check if ALL items across ALL stations are now completed
-      const updatedItems = order ? order.items.map(item => ({
-        ...item,
-        status: (isHeadChef || item.station === station) ? "COMPLETED" as const : item.status
-      })) : [];
-      const allDone = updatedItems.every(i => i.status === "COMPLETED");
-      
-      // Only update API to 'ready' when all stations are done
-      if (allDone) {
-        await ordersApi.updateStatus(orderId, 'ready');
-      }
-      
-      setOrders(prev => prev.map(o => 
-        o.id === orderId 
+
+      // Always push 'ready' to the API.
+      // Each station's item statuses are tracked purely in local memory — the
+      // "allDone" check used to fail because other stations' items defaulted to
+      // PENDING in this instance's local state.  Clicking "Mark Ready" is an
+      // explicit declaration that this order is ready for serving, so we always
+      // update the backend regardless of local item state.
+      await ordersApi.updateStatus(orderId, 'ready');
+
+      // Move the order to the READY column in local state immediately so both
+      // the station chef and the head chef (who polls every 5 s) see it as ready.
+      setOrders(prev => prev.map(o =>
+        o.id === orderId
           ? {
               ...o,
-              status: allDone ? "READY" as OrderStatus : o.status,
-              items: o.items.map(i => 
+              status: "READY" as OrderStatus,
+              items: o.items.map(i =>
                 (isHeadChef || i.station === station)
                   ? { ...i, status: "COMPLETED" as const }
                   : i
@@ -582,16 +580,10 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
             }
           : o
       ));
-      
-      if (allDone) {
-        toast.success("Order Ready!", {
-          description: `Order ${order?.orderNumber} is ready for serving`
-        });
-      } else {
-        toast.success("Station items completed!", {
-          description: `${station} station items for order ${order?.orderNumber} are done`
-        });
-      }
+
+      toast.success("Order Ready!", {
+        description: `Order ${order?.orderNumber} is ready for serving`
+      });
     } catch (error) {
       console.error('Error marking order ready:', error);
       toast.error('Failed to mark order as ready');

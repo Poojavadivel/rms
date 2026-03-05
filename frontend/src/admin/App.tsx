@@ -1,4 +1,4 @@
-import { useState, useEffect, lazy, Suspense } from 'react';
+import { useState, useEffect, useRef, lazy, Suspense } from 'react';
 const AdminDashboard = lazy(() => import('@/admin/components/admin-dashboard').then(m => ({ default: m.AdminDashboard })));
 const MenuManagement = lazy(() => import('@/admin/components/menu-management').then(m => ({ default: m.MenuManagement })));
 const OrderManagement = lazy(() => import('@/admin/components/order-management').then(m => ({ default: m.OrderManagement })));
@@ -48,7 +48,21 @@ import {
 } from "@/admin/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/admin/components/ui/avatar";
 import { Badge } from "@/admin/components/ui/badge";
-import { notificationsApi } from '@/admin/utils/api';
+import { notificationsApi, backupApi } from '@/admin/utils/api';
+import { toast as backupToast } from 'sonner';
+
+function triggerBackupDownload(data: any, filename: string) {
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.style.display = 'none';
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 10_000);
+}
 
 const ALL_TABS = [
   { value: 'dashboard',     icon: LayoutDashboard, label: 'Dashboard'  },
@@ -88,6 +102,7 @@ function AppContent() {
   });
   const [notificationCount, setNotificationCount] = useState(0);
   const [triggerStockManagement, setTriggerStockManagement] = useState(false);
+  const lastAutoBackupIdRef = useRef<string | null>(null);
 
   // Fetch real unread notification count scoped to the current user's role
   useEffect(() => {
@@ -121,6 +136,65 @@ function AppContent() {
         setActiveTab(defaultTab);
       }
     }
+  }, [user]);
+
+  // ─── Global auto-backup poller ────────────────────────────────────────
+  useEffect(() => {
+    if (!user) return;
+
+    let autoBackupEnabled = true;
+
+    const runPoller = async () => {
+      try {
+        const cfg = await backupApi.getConfig();
+        autoBackupEnabled = cfg?.autoBackupEnabled ?? true;
+      } catch { /* ignore */ }
+
+      if (!autoBackupEnabled) return;
+
+      // Seed so we don't re-download a backup that already existed
+      try {
+        const initial = await backupApi.list();
+        const initialList = Array.isArray(initial) ? initial : [];
+        const seed = initialList.find((b: any) => b.type === 'automatic' && b.status === 'completed');
+        if (seed && lastAutoBackupIdRef.current === null) {
+          lastAutoBackupIdRef.current = seed._id || seed.id;
+        }
+      } catch { /* ignore */ }
+    };
+
+    runPoller();
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const cfg = await backupApi.getConfig();
+        autoBackupEnabled = cfg?.autoBackupEnabled ?? true;
+      } catch { /* ignore */ }
+
+      if (!autoBackupEnabled) return;
+
+      try {
+        const raw = await backupApi.list();
+        const list = Array.isArray(raw) ? raw : [];
+        const newestAuto = list.find((b: any) => b.type === 'automatic' && b.status === 'completed');
+        if (!newestAuto) return;
+
+        const id = newestAuto._id || newestAuto.id;
+        if (id !== lastAutoBackupIdRef.current) {
+          lastAutoBackupIdRef.current = id;
+          const data = await backupApi.downloadData(id);
+          const filename = `RMS-Backup_${newestAuto.date}_${newestAuto.time.replace(/:/g, '-')}.json`;
+          triggerBackupDownload(data, filename);
+          backupToast.success(`Automatic backup downloaded: ${newestAuto.name}`, {
+            description: `${newestAuto.date} at ${newestAuto.time} · ${newestAuto.size}`,
+          });
+        }
+      } catch (e) {
+        console.error('Global auto-backup download failed', e);
+      }
+    }, 60_000);
+
+    return () => clearInterval(pollInterval);
   }, [user]);
 
   useEffect(() => {

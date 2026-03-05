@@ -481,6 +481,15 @@ export const backupApi = {
     method: 'POST',
   }),
 
+  // Download backup data (returns raw JSON payload to trigger browser download)
+  downloadData: (id: string) => fetchApi<any>(`/settings/backups/${id}/download`),
+
+  // Upload a backup JSON file and register it in the backend
+  uploadFile: (data: any) => fetchApi<{ success: boolean; backup: any }>('/settings/backups/upload', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  }),
+
   // Delete backup
   delete: (id: string) => fetchApi<{ success: boolean }>(`/settings/backups/${id}`, {
     method: 'DELETE',

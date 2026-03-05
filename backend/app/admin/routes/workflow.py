@@ -14,7 +14,7 @@ router = APIRouter(tags=["Workflow"])
 
 # ============ WORKFLOW ENDPOINTS ============
 
-@router.post("/workflow/guest-arrived/{table_id}")
+@router.post("/guest-arrived/{table_id}")
 async def handle_guest_arrival(table_id: str, background_tasks: BackgroundTasks):
     """
     Handle guest arrival - transitions from 'reserved' or 'walk-in-blocked' to 'occupied'
@@ -66,7 +66,7 @@ async def handle_guest_arrival(table_id: str, background_tasks: BackgroundTasks)
     }
 
 
-@router.post("/workflow/walk-in-booking/{table_id}")
+@router.post("/walk-in-booking/{table_id}")
 async def handle_walk_in_booking(table_id: str, data: dict, background_tasks: BackgroundTasks):
     """
     Handle walk-in booking - blocks table for 15 minutes waiting for guest arrival
@@ -144,7 +144,7 @@ async def handle_walk_in_booking(table_id: str, data: dict, background_tasks: Ba
     }
 
 
-@router.post("/workflow/waiter-assigned/{table_id}")
+@router.post("/waiter-assigned/{table_id}")
 async def handle_waiter_assignment(table_id: str, data: dict):
     """
     Handle waiter assignment - waiter is ready to take order
@@ -217,7 +217,7 @@ async def handle_waiter_assignment(table_id: str, data: dict):
     }
 
 
-@router.post("/workflow/order-created/{table_id}")
+@router.post("/order-created/{table_id}")
 async def handle_order_created(table_id: str, data: dict):
     """
     Handle order creation - links order to table
@@ -268,7 +268,7 @@ async def handle_order_created(table_id: str, data: dict):
     }
 
 
-@router.post("/workflow/order-accepted/{table_id}")
+@router.post("/order-accepted/{table_id}")
 async def handle_order_accepted(table_id: str, data: dict):
     """
     Handle order acceptance - order is confirmed and sent to kitchen
@@ -332,7 +332,7 @@ async def handle_order_accepted(table_id: str, data: dict):
     }
 
 
-@router.post("/workflow/order-preparing/{table_id}")
+@router.post("/order-preparing/{table_id}")
 async def handle_order_preparing(table_id: str, data: dict):
     """
     Handle order preparation - chef has taken the order and started preparing
@@ -412,7 +412,7 @@ async def handle_order_preparing(table_id: str, data: dict):
     }
 
 
-@router.post("/workflow/order-ready/{table_id}")
+@router.post("/order-ready/{table_id}")
 async def handle_order_ready(table_id: str, data: dict):
     """
     Handle order ready - chef finished preparing and marked order as ready
@@ -475,7 +475,7 @@ async def handle_order_ready(table_id: str, data: dict):
     }
 
 
-@router.post("/workflow/bill-generated/{table_id}")
+@router.post("/bill-generated/{table_id}")
 async def handle_bill_generated(table_id: str, data: dict):
     """
     Handle bill generation - bill is created for the table
@@ -527,7 +527,7 @@ async def handle_bill_generated(table_id: str, data: dict):
     }
 
 
-@router.post("/workflow/payment-completed/{table_id}")
+@router.post("/payment-completed/{table_id}")
 async def handle_payment_completed(table_id: str, data: dict, background_tasks: BackgroundTasks):
     """
     Handle payment completion - payment is done, start cleaning process
