@@ -67,6 +67,7 @@ interface QuickOrderItem {
   customization?: string;
   category?: string;
   cookingStation?: string;
+  image?: string;
 }
 
 interface OrderTimeline {
@@ -289,7 +290,7 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
             setIsBottleneck(true);
             // Feature #10: Smart Notification
             if (newDuration === BOTTLENECK_THRESHOLD) {
-              toast.warning('⚠️ Order taking longer than usual', { duration: 3000 });
+              toast.warning('Order taking longer than usual', { duration: 3000 });
             }
           }
           return newDuration;
@@ -461,11 +462,11 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
 
       try {
         const menuResult: any = await menuApi.list();
-        console.log('📋 Menu API Response:', menuResult);
+        console.log('Menu API Response:', menuResult);
         
         // Handle both array response and {success, data} format
         const menuData = Array.isArray(menuResult) ? menuResult : (menuResult.data || []);
-        console.log('📋 Menu items count:', menuData.length);
+        console.log('Menu items count:', menuData.length);
         
         // Map _id to id for frontend compatibility
         const availableItems = menuData
@@ -476,19 +477,19 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
           }));
         setMenuItems(availableItems);
         menuFetched = true;
-        console.log('✅ Loaded', availableItems.length, 'menu items from API');
+        console.log('Loaded', availableItems.length, 'menu items from API');
       } catch (menuError) {
-        console.error('❌ Menu API error:', menuError);
+        console.error('Menu API error:', menuError);
         console.log('Using mock data');
       }
 
       try {
         const comboResult: any = await menuApi.listCombos();
-        console.log('🍱 Combo API Response:', comboResult);
+        console.log('Combo API Response:', comboResult);
         
         // Handle both array response and {success, data} format
         const comboData = Array.isArray(comboResult) ? comboResult : (comboResult.data || []);
-        console.log('🍱 Combo count:', comboData.length);
+        console.log('Combo count:', comboData.length);
         
         // Map _id to id for frontend compatibility and normalize prices
         const availableCombos = comboData
@@ -502,19 +503,19 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
           }));
         setComboMeals(availableCombos);
         comboFetched = true;
-        console.log('✅ Loaded', availableCombos.length, 'combo meals from API');
+        console.log('Loaded', availableCombos.length, 'combo meals from API');
       } catch (comboError) {
-        console.error('❌ Combo API error:', comboError);
+        console.error('Combo API error:', comboError);
         console.log('Using mock combo data');
       }
 
       // Use mock data if API fetch failed
       if (!menuFetched) {
-        console.warn('⚠️ Using mock menu data (8 items) - API fetch failed or unavailable');
+        console.warn('Using mock menu data (8 items) - API fetch failed or unavailable');
         setMenuItems(mockMenuItems);
       }
       if (!comboFetched) {
-        console.warn('⚠️ Using mock combo data - API fetch failed or unavailable');
+        console.warn('Using mock combo data - API fetch failed or unavailable');
         setComboMeals(mockCombos);
       }
 
@@ -643,6 +644,7 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
         isCombo: false,
         category: item.category,
         cookingStation: item.cookingStation || undefined,
+        image: item.image || undefined,
       };
       setOrderItems([...orderItems, newItem]);
     }
@@ -963,9 +965,9 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
           setCreatedOrderId(orderId);
           setCreatedOrderTotal(subtotal);
           setCurrentStep(3);
-          toast.success('🎉 Takeaway order created! Collect payment.', { duration: 3000 });
+          toast.success('Takeaway order created! Collect payment.', { duration: 3000 });
         } else {
-          toast.success(existingOrderId ? '✅ Order updated successfully!' : '🎉 Order created successfully!', { duration: 3000 });
+          toast.success(existingOrderId ? 'Order updated successfully!' : 'Order created successfully!', { duration: 3000 });
           resetForm();
           onOpenChange(false);
         }
@@ -1171,8 +1173,8 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="dine-in">🍽️ Dine-In</SelectItem>
-                        <SelectItem value="takeaway">📦 Takeaway</SelectItem>
+                        <SelectItem value="dine-in">Dine-In</SelectItem>
+                        <SelectItem value="takeaway">Takeaway</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -1652,7 +1654,7 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
                                                 : 'border-red-500 text-red-700'
                                             }`}
                                           >
-                                            {item.dietType === 'veg' ? '🌱' : '🍖'}
+                                            {item.dietType === 'veg' ? 'Veg' : 'Non-Veg'}
                                           </Badge>
                                         )}
                                       </div>
@@ -1749,9 +1751,9 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
               </Card>
 
             {/* RIGHT PANEL: Live Order Preview */}
-            <div className="lg:col-span-5 space-y-6">
+            <div className="lg:col-span-5 sticky top-0 self-start">
               {/* Order Preview Card */}
-              <Card className="shadow-md border-2 border-[#8B5E34]/10 flex-1 flex flex-col">
+              <Card className="shadow-md border-2 border-[#8B5E34]/10 flex flex-col" style={{ maxHeight: 'calc(92dvh - 140px)' }}>
                 <CardHeader className="bg-gradient-to-r from-[#F6F2ED] to-white pb-4">
                   <CardTitle className="text-lg flex items-center justify-between text-[#8B5E34]">
                     <div className="flex items-center gap-2">
@@ -1764,7 +1766,7 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
                     </span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-6 flex-1 flex flex-col">
+                <CardContent className="pt-4 flex-1 min-h-0 flex flex-col overflow-hidden">
                   {orderItems.length === 0 ? (
                     <div className="flex-1 flex items-center justify-center">
                       <div className="text-center max-w-xs">
@@ -1776,115 +1778,72 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
                       </div>
                     </div>
                   ) : (
-                    <ScrollArea className="flex-1 pr-4 -mr-4">
-                      {/* Feature #3: Smart KOT Grouping */}
-                      <div className="space-y-4">
-                        {Object.entries(groupedItems).map(([station, items]) => {
-                          const stationInfo = COOKING_STATIONS[station as keyof typeof COOKING_STATIONS];
-                          const isCollapsed = expandedGroups.has(station);
-                          const StationIcon = stationInfo?.icon || Package;
-
-                          return (
-                            <Collapsible
-                              key={station}
-                              open={!isCollapsed}
-                              onOpenChange={(open) => {
-                                const newExpanded = new Set(expandedGroups);
-                                if (!open) {
-                                  newExpanded.add(station);
-                                } else {
-                                  newExpanded.delete(station);
-                                }
-                                setExpandedGroups(newExpanded);
-                              }}
-                            >
-                              <Card className="border-2">
-                                <CollapsibleTrigger asChild>
-                                  <CardHeader className="pb-3 cursor-pointer hover:bg-gray-50">
-                                    <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-2">
-                                        <div className={`p-2 rounded ${stationInfo?.color || 'text-gray-600 bg-gray-100'}`}>
-                                          <StationIcon className="h-4 w-4" />
-                                        </div>
-                                        <div>
-                                          <p className="text-sm font-semibold">
-                                            {stationInfo?.label || station.toUpperCase()}
-                                          </p>
-                                          <p className="text-xs text-muted-foreground">
-                                            {items.length} items
-                                          </p>
-                                        </div>
-                                      </div>
-                                      <ChevronDown
-                                        className={`h-5 w-5 transition-transform ${
-                                          isCollapsed ? '' : 'rotate-180'
-                                        }`}
-                                      />
-                                    </div>
-                                  </CardHeader>
-                                </CollapsibleTrigger>
-                                <CollapsibleContent>
-                                  <CardContent className="pt-0">
-                                    <div className="space-y-3">
-                                      {items.map((item) => (
-                                        <div
-                                          key={item.id}
-                                          className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-                                        >
-                                          <div className="flex-1">
-                                            <p className="font-medium text-sm">{item.name}</p>
-                                            {item.isCombo && (
-                                              <Badge className="mt-1 text-xs" variant="outline">
-                                                Combo
-                                              </Badge>
-                                            )}
-                                            <p className="text-xs text-muted-foreground mt-1 flex items-center">
-                                              <IndianRupee className="h-3 w-3" />
-                                              {item.price} x {item.quantity}
-                                            </p>
-                                          </div>
-                                          <div className="flex items-center gap-2">
-                                            <div className="flex items-center gap-1 border rounded-lg">
-                                              <Button
-                                                size="sm"
-                                                variant="ghost"
-                                                onClick={() => updateItemQuantity(item.id, -1)}
-                                                className="h-8 w-8 p-0"
-                                              >
-                                                <Minus className="h-3 w-3" />
-                                              </Button>
-                                              <span className="text-sm font-semibold w-8 text-center">
-                                                {item.quantity}
-                                              </span>
-                                              <Button
-                                                size="sm"
-                                                variant="ghost"
-                                                onClick={() => updateItemQuantity(item.id, 1)}
-                                                className="h-8 w-8 p-0"
-                                              >
-                                                <Plus className="h-3 w-3" />
-                                              </Button>
-                                            </div>
-                                            <Button
-                                              size="sm"
-                                              variant="ghost"
-                                              onClick={() => removeItemFromOrder(item.id)}
-                                              className="h-8 w-8 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
-                                            >
-                                              <Trash2 className="h-4 w-4" />
-                                            </Button>
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </CardContent>
-                                </CollapsibleContent>
-                              </Card>
-                            </Collapsible>
-                          );
-                        })}
-                      </div>
-                    </ScrollArea>
+                    <div className="overflow-y-auto space-y-3 pr-1" style={{ maxHeight: 'calc(92dvh - 260px)' }}>
+                        {orderItems.map((item) => (
+                          <div
+                            key={item.id}
+                            className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border"
+                          >
+                            {/* Item image */}
+                            <div className="h-14 w-14 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200">
+                              {item.image ? (
+                                <img
+                                  src={item.image}
+                                  alt={item.name}
+                                  className="h-full w-full object-cover"
+                                />
+                              ) : (
+                                <div className="h-full w-full flex items-center justify-center">
+                                  <Package className="h-6 w-6 text-gray-400" />
+                                </div>
+                              )}
+                            </div>
+                            {/* Item details */}
+                            <div className="flex-1 min-w-0">
+                              <p className="font-medium text-sm truncate">{item.name}</p>
+                              {item.isCombo && (
+                                <Badge className="mt-0.5 text-xs" variant="outline">Combo</Badge>
+                              )}
+                              <p className="text-xs text-muted-foreground mt-0.5 flex items-center">
+                                <IndianRupee className="h-3 w-3" />
+                                {item.price} × {item.quantity}
+                              </p>
+                            </div>
+                            {/* Qty controls + remove */}
+                            <div className="flex items-center gap-1 flex-shrink-0">
+                              <div className="flex items-center gap-0.5 border rounded-lg">
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => updateItemQuantity(item.id, -1)}
+                                  className="h-7 w-7 p-0"
+                                >
+                                  <Minus className="h-3 w-3" />
+                                </Button>
+                                <span className="text-sm font-semibold w-6 text-center">
+                                  {item.quantity}
+                                </span>
+                                <Button
+                                  size="sm"
+                                  variant="ghost"
+                                  onClick={() => updateItemQuantity(item.id, 1)}
+                                  className="h-7 w-7 p-0"
+                                >
+                                  <Plus className="h-3 w-3" />
+                                </Button>
+                              </div>
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                onClick={() => removeItemFromOrder(item.id)}
+                                className="h-7 w-7 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </Button>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
                   )}
 
                 </CardContent>
@@ -1956,10 +1915,10 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
                               : 'border-muted hover:border-[#8B5E34]/40'
                           }`}
                         >
-                          {method === 'cash' && '💵 Cash'}
-                          {method === 'card' && '💳 Card'}
-                          {method === 'upi' && '📱 UPI'}
-                          {method === 'wallet' && '👛 Wallet'}
+                          {method === 'cash' && 'Cash'}
+                          {method === 'card' && 'Card'}
+                          {method === 'upi' && 'UPI'}
+                          {method === 'wallet' && 'Wallet'}
                         </button>
                       ))}
                     </div>

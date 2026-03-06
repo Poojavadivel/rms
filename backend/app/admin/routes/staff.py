@@ -3,7 +3,7 @@ from pydantic import BaseModel
 from ...db import get_db
 from ..schemas import (
     StaffIn, StaffUpdate, ShiftAssignment, AttendanceIn, AttendanceUpdate, AttendanceBulkIn,
-    PerformanceLogIn, AttendanceStatus, ShiftType, LoginIn
+    PerformanceLogIn, AttendanceStatus, ShiftType, LoginIn, SalaryPaymentIn
 )
 from ...utils import hash_password, verify_password
 from ...audit import log_audit
@@ -1036,3 +1036,55 @@ async def export_payroll_csv(
         csv_lines.append(f"{sid},{staff.get('name','')},{staff.get('role','')},{staff.get('department','')},{monthly_salary},{days_present},{days_absent},{days_late},{total_hours:.1f},{regular_hours:.1f},{overtime_hours:.1f},{overtime_pay:.2f},{total_pay:.2f}")
     
     return {"csv": "\n".join(csv_lines), "filename": "payroll_export.csv"}
+
+
+# ============ SALARY PAYMENTS ============
+@router.post('/{staff_id}/salary-payment', tags=['salary'])
+async def record_salary_payment(staff_id: str, payload: SalaryPaymentIn, request: Request):
+    """Record a salary disbursement for a staff member"""
+    db = get_db()
+    staff_coll = db.get_collection('staff')
+
+    staff_doc = await staff_coll.find_one({'_id': to_object_id(staff_id)})
+    if not staff_doc:
+        raise HTTPException(status_code=404, detail='Staff member not found')
+
+    payment = {
+        'staffId': staff_id,
+        'staffName': staff_doc.get('name'),
+        'amount': payload.amount,
+        'month': payload.month,
+        'paymentMethod': payload.paymentMethod,
+        'notes': payload.notes,
+        'paidAt': datetime.utcnow(),
+        'paidBy': request.headers.get('X-Staff-Id', 'admin'),
+    }
+
+    payments_coll = db.get_collection('salary_payments')
+    result = await payments_coll.insert_one(payment)
+    payment['_id'] = str(result.inserted_id)
+
+    await log_audit(request, 'salary_payment', staff_id, {
+        'staffName': staff_doc.get('name'),
+        'amount': payload.amount,
+        'month': payload.month,
+        'paymentMethod': payload.paymentMethod,
+    })
+
+    return serialize_doc(payment)
+
+
+@router.get('/{staff_id}/salary-payments', tags=['salary'])
+async def get_salary_payments(staff_id: str, limit: int = 24):
+    """Get salary payment history for a staff member"""
+    db = get_db()
+    staff_coll = db.get_collection('staff')
+
+    staff_doc = await staff_coll.find_one({'_id': to_object_id(staff_id)})
+    if not staff_doc:
+        raise HTTPException(status_code=404, detail='Staff member not found')
+
+    payments_coll = db.get_collection('salary_payments')
+    payments = await payments_coll.find({'staffId': staff_id}).sort('paidAt', -1).to_list(limit)
+
+    return serialize_doc(payments)

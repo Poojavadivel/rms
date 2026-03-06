@@ -11,6 +11,7 @@ import { LoadingSpinner } from '@/admin/components/ui/loading-spinner';
 interface Analytics {
   totalOrders: number;
   completedOrders: number;
+  invoiceCount: number;
   totalRevenue: number;
   avgOrderValue: number;
   popularItems: Array<{ 
@@ -65,6 +66,7 @@ export function AdminDashboard() {
         setAnalytics({
           totalOrders: 0,
           completedOrders: 0,
+          invoiceCount: 0,
           totalRevenue: 0,
           avgOrderValue: 0,
           popularItems: [],
@@ -130,7 +132,7 @@ export function AdminDashboard() {
           <CardContent>
             <div className="text-2xl font-bold" style={{ color: '#000000' }}>₹{(analytics?.totalRevenue ?? 0).toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">
-              {analytics?.completedOrders || 0} completed orders
+              {analytics?.invoiceCount || 0} invoices made
             </p>
           </CardContent>
         </Card>
@@ -327,7 +329,7 @@ export function AdminDashboard() {
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Total Orders</span>
-              <span className="text-2xl font-bold" style={{ color: '#000000' }}>{analytics?.totalOrders || 0}</span>
+              <span className="text-2xl font-bold" style={{ color: '#000000' }}>{analytics?.invoiceCount || 0}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Completed</span>
@@ -341,12 +343,12 @@ export function AdminDashboard() {
               <div
                 className="h-full bg-green-600 transition-all duration-500"
                 style={{
-                  width: `${analytics?.totalOrders ? (analytics.completedOrders / analytics.totalOrders) * 100 : 0}%`,
+                  width: `${analytics?.invoiceCount ? Math.min((analytics.completedOrders / analytics.invoiceCount) * 100, 100) : 0}%`,
                 }}
               />
             </div>
             <p className="text-xs text-muted-foreground text-center">
-              {analytics?.totalOrders ? Math.round((analytics.completedOrders / analytics.totalOrders) * 100) : 0}% completion rate
+              {analytics?.invoiceCount ? Math.round((analytics.completedOrders / analytics.invoiceCount) * 100) : 0}% completion rate
             </p>
           </CardContent>
         </Card>

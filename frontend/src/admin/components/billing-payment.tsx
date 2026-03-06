@@ -36,7 +36,7 @@ import {
   Calculator,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { ordersApi, billingApi } from '@/admin/utils/api';
+import { ordersApi, billingApi, systemConfigApi } from '@/admin/utils/api';
 import { useAuth } from '@/admin/utils/auth-context';
 
 interface Order {
@@ -97,9 +97,16 @@ export function BillingPayment() {
   const [previewInvoice, setPreviewInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [sysConfig, setSysConfig] = useState({ restaurantName: 'Restaurant Management System', logoUrl: '/favicon.png' });
 
   useEffect(() => {
     Promise.all([fetchOrders(), fetchInvoices()]).finally(() => setLoading(false));
+    systemConfigApi.get().then((data: any) => {
+      if (data) setSysConfig({
+        restaurantName: data.restaurantName || 'Restaurant Management System',
+        logoUrl: data.logoUrl || '/favicon.png',
+      });
+    }).catch(() => {});
     const interval = setInterval(fetchOrders, 10000); // auto-refresh every 10s
     return () => clearInterval(interval);
   }, []);
@@ -357,32 +364,60 @@ export function BillingPayment() {
     }
   };
 
-  const downloadInvoice = (invoice: Invoice) => {
+  const loadImageAsBase64 = (url: string): Promise<string | null> =>
+    new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) { resolve(null); return; }
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL('image/png'));
+        } catch { resolve(null); }
+      };
+      img.onerror = () => resolve(null);
+      img.src = url;
+    });
+
+  const downloadInvoice = async (invoice: Invoice) => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
-    
+
+    // Logo
+    let yOff = 0;
+    const imgData = await loadImageAsBase64(sysConfig.logoUrl);
+    if (imgData) {
+      const logoSize = 18;
+      doc.addImage(imgData, 'PNG', pageWidth / 2 - logoSize / 2, 6, logoSize, logoSize);
+      yOff = 20;
+    }
+
     // Header
     doc.setFontSize(20);
     doc.setFont('helvetica', 'bold');
-    doc.text('Restaurant Management System', pageWidth / 2, 20, { align: 'center' });
+    doc.text(sysConfig.restaurantName, pageWidth / 2, 20 + yOff, { align: 'center' });
     
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    doc.text('Movicloud Labs', pageWidth / 2, 27, { align: 'center' });
+    doc.text('Movicloud Labs', pageWidth / 2, 27 + yOff, { align: 'center' });
     
     // Invoice details
     doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text(`Invoice: ${invoice.invoice_number}`, pageWidth / 2, 38, { align: 'center' });
+    doc.text(`Invoice: ${invoice.invoice_number}`, pageWidth / 2, 38 + yOff, { align: 'center' });
     
     // Separator line
     doc.setLineWidth(0.5);
-    doc.line(14, 42, pageWidth - 14, 42);
+    doc.line(14, 42 + yOff, pageWidth - 14, 42 + yOff);
     
     // Customer & Invoice info
     doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
-    const infoStartY = 50;
+    const infoStartY = 50 + yOff;
     
     doc.text(`Customer: ${invoice.customer_name}`, 14, infoStartY);
     doc.text(`${invoice.table_number ? `Table: ${invoice.table_number}` : 'Takeaway'}`, 14, infoStartY + 6);
@@ -495,7 +530,8 @@ export function BillingPayment() {
       </head>
       <body>
         <div class="header">
-          <h1>Restaurant Management System</h1>
+          ${sysConfig.logoUrl ? `<img src="${sysConfig.logoUrl}" style="max-height:64px;margin-bottom:8px;" onerror="this.style.display='none'" alt="Logo" />` : ''}
+          <h1>${sysConfig.restaurantName}</h1>
           <p>Movicloud Labs</p>
           <p style="font-weight: bold; margin-top: 10px;">Invoice: ${invoice.invoice_number}</p>
         </div>

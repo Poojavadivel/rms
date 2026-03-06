@@ -120,6 +120,14 @@ class StaffOut(BaseModel):
     kitchenPin: Optional[str] = None
 
 
+# ============ SALARY PAYMENTS ============
+class SalaryPaymentIn(BaseModel):
+    amount: float
+    month: str  # e.g. "2026-03"
+    paymentMethod: str  # "cash" | "bank_transfer" | "upi"
+    notes: Optional[str] = None
+
+
 # ============ SHIFT & ATTENDANCE ============
 class ShiftAssignment(BaseModel):
     staffId: str

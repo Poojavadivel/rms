@@ -118,12 +118,13 @@ async def get_analytics():
 
     # Total orders
     total_orders = len(all_orders)
-    completed_orders = await db.invoices.count_documents({})
+    invoice_count = await db.invoices.count_documents({})
     active_orders = sum(1 for o in all_orders if normalize_status(o.get("status")) in ["pending", "confirmed", "preparing", "ready"])
 
     # Revenue: invoices are the primary source of truth for actual payments.
     # Use grandTotal from paid invoices + revenue from completed orders that have no invoice.
     all_invoices = await db.invoices.find({"status": "paid"}).to_list(50000)
+    completed_orders = len(all_invoices)  # paid invoices = completed transactions
 
     # All gross revenue from paid invoices
     invoice_revenue = sum(
@@ -149,7 +150,7 @@ async def get_analytics():
 
     total_revenue = invoice_revenue + order_only_revenue
 
-    avg_order_value = round(total_revenue / completed_orders, 2) if completed_orders > 0 else 0.0
+    avg_order_value = round(total_revenue / invoice_count, 2) if invoice_count > 0 else 0.0
 
     # Popular items with revenue and prep time
     popular_map = {}
@@ -233,6 +234,7 @@ async def get_analytics():
         "data": {
             "totalOrders": total_orders,
             "completedOrders": completed_orders,
+            "invoiceCount": invoice_count,
             "activeOrders": active_orders,
             "totalRevenue": round(total_revenue, 2),
             "avgOrderValue": avg_order_value,

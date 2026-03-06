@@ -4,6 +4,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { Order } from '@/client/app/App';
 import { apiRequest } from '@/client/api/client';
+import { fetchSystemConfig } from '@/client/api/config';
 
 interface KioskConfirmationProps {
   order: Order;
@@ -14,6 +15,13 @@ interface KioskConfirmationProps {
 export default function KioskConfirmation({ order, onNewOrder, onGoHome }: KioskConfirmationProps) {
   const [currentStatus, setCurrentStatus] = useState<Order['status']>(order.status || 'preparing');
   const [copied, setCopied] = useState(false);
+  const [sysConfig, setSysConfig] = useState({ restaurantName: 'Restaurant', logoUrl: '/favicon.png' });
+
+  useEffect(() => {
+    fetchSystemConfig().then((cfg) => {
+      setSysConfig({ restaurantName: cfg.restaurantName || 'Restaurant', logoUrl: cfg.logoUrl || '/favicon.png' });
+    }).catch(() => {});
+  }, []);
 
   // Poll the real order status from the backend every 5 seconds
   useEffect(() => {
@@ -51,7 +59,26 @@ export default function KioskConfirmation({ order, onNewOrder, onGoHome }: Kiosk
     }).catch(() => {});
   };
 
-  const handleDownloadReceipt = () => {
+  const loadImageAsBase64 = (url: string): Promise<string | null> =>
+    new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = 'Anonymous';
+      img.onload = () => {
+        try {
+          const canvas = document.createElement('canvas');
+          canvas.width = img.naturalWidth;
+          canvas.height = img.naturalHeight;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) { resolve(null); return; }
+          ctx.drawImage(img, 0, 0);
+          resolve(canvas.toDataURL('image/png'));
+        } catch { resolve(null); }
+      };
+      img.onerror = () => resolve(null);
+      img.src = url;
+    });
+
+  const handleDownloadReceipt = async () => {
     const dateStr = new Date(order.date).toLocaleString('en-IN', {
       dateStyle: 'medium',
       timeStyle: 'short',
@@ -62,12 +89,23 @@ export default function KioskConfirmation({ order, onNewOrder, onGoHome }: Kiosk
     const ml = 5; // margin left
     const mr = 5; // margin right
     const contentW = w - ml - mr;
-    let y = 10;
+    let y = 5;
+
+    // Logo
+    const imgData = await loadImageAsBase64(sysConfig.logoUrl);
+    if (imgData) {
+      const logoSize = 12;
+      doc.addImage(imgData, 'PNG', w / 2 - logoSize / 2, y, logoSize, logoSize);
+      y += 15;
+    } else {
+      y = 10;
+    }
 
     // Header
-    doc.setFontSize(14);
+    doc.setFontSize(11);
     doc.setFont('helvetica', 'bold');
-    doc.text('Restaurant', w / 2, y, { align: 'center' });
+    doc.setTextColor(30);
+    doc.text(sysConfig.restaurantName, w / 2, y, { align: 'center' });
     y += 5;
     doc.setFontSize(8);
     doc.setFont('helvetica', 'normal');

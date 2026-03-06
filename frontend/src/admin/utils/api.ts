@@ -183,6 +183,16 @@ export const staffApi = {
     if (params?.date_to) query.append('date_to', params.date_to);
     return fetchApi<{ csv: string; filename: string }>(`/staff/payroll/export/csv?${query.toString()}`);
   },
+
+  // Record a salary payment
+  paySalary: (id: string, data: { amount: number; month: string; paymentMethod: string; notes?: string }) =>
+    fetchApi<any>(`/staff/${id}/salary-payment`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  // Get salary payment history for a staff member
+  getSalaryPayments: (id: string) => fetchApi<any[]>(`/staff/${id}/salary-payments`),
 };
 
 
