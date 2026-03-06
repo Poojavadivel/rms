@@ -18,7 +18,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { tablesApi, ordersApi, menuApi } from '@/admin/utils/api';
-import { API_BASE_URL } from '@/admin/utils/supabase/info';
+import { API_BASE_URL } from '@/admin/utils/api';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/admin/components/ui/dialog';
 import { restaurantState } from '@/admin/services/restaurant-state';
 import { useAuth } from '@/admin/utils/auth-context';

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/admin/components/ui/card';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { IndianRupee, ShoppingCart, TrendingUp, Users, AlertCircle, Activity, Package, ChefHat, UserCog, Clock, Radio } from 'lucide-react';
-import { API_BASE_URL } from '@/admin/utils/supabase/info';
+import { API_BASE_URL } from '@/admin/utils/api';
 import { Alert, AlertDescription, AlertTitle } from '@/admin/components/ui/alert';
 import { Button } from '@/admin/components/ui/button';
 import { Badge } from '@/admin/components/ui/badge';

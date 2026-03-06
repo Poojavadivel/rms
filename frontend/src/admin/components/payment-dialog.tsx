@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Label } from '@/admin/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/admin/components/ui/radio-group';
 import { CreditCard, Banknote, Smartphone, Wallet, User, Phone, IndianRupee } from 'lucide-react';
-import { API_BASE_URL } from '@/admin/utils/supabase/info';
+import { API_BASE_URL } from '@/admin/utils/api';
 import { toast } from 'sonner';
 
 interface PaymentDialogProps {

@@ -6,7 +6,7 @@
 // Backend API base URL
 // In dev mode, use relative path so Vite proxy handles it (avoids browser HTTPS auto-upgrade)
 // In production, use VITE_API_URL env variable
-const API_BASE_URL = import.meta.env.PROD
+export const API_BASE_URL = import.meta.env.PROD
   ? (import.meta.env.VITE_API_URL || '') + '/api/admin'
   : '/api/admin';
 

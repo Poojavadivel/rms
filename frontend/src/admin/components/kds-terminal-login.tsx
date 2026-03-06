@@ -14,7 +14,7 @@ import {
   Crown,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { API_BASE_URL } from '@/admin/utils/supabase/info';
+import { API_BASE_URL } from '@/admin/utils/api';
 
 export type KitchenTerminalStation =
   | 'FRY'
