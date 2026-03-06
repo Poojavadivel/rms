@@ -118,7 +118,7 @@ async def get_analytics():
 
     # Total orders
     total_orders = len(all_orders)
-    completed_orders = sum(1 for o in all_orders if normalize_status(o.get("status")) == "completed")
+    completed_orders = await db.invoices.count_documents({})
     active_orders = sum(1 for o in all_orders if normalize_status(o.get("status")) in ["pending", "confirmed", "preparing", "ready"])
 
     # Revenue: invoices are the primary source of truth for actual payments.
