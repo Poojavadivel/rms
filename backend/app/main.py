@@ -133,6 +133,7 @@ async def seed_database(secret: str = ''):
     from fastapi import HTTPException
     from datetime import datetime
     from passlib.hash import pbkdf2_sha256
+    import bcrypt
 
     expected_secret = os.getenv('SEED_SECRET', 'seed123')
     if secret != expected_secret:
@@ -144,7 +145,7 @@ async def seed_database(secret: str = ''):
         init_db()
         db = get_db()
 
-    results = {"staff": 0, "client_offers": 0, "tables": 0, "time_slots": 0, "errors": []}
+    results = {"staff": 0, "users": 0, "client_offers": 0, "tables": 0, "time_slots": 0, "errors": []}
 
     # ── Staff seed ──
     staff_data = [
@@ -167,6 +168,39 @@ async def seed_database(secret: str = ''):
                 results["staff"] += 1
     except Exception as e:
         results["errors"].append(f"staff: {e}")
+
+    # ── Mobile users seed ──
+    users_data = [
+        {"name": "Admin User", "email": "admin@restaurant.com", "phone": "+91 98765 00001", "address": "123 Main St", "password": "admin123"},
+    ]
+    try:
+        users_coll = db.get_collection('users')
+        for u in users_data:
+            existing = await users_coll.find_one({"email": u["email"].lower()})
+            if not existing:
+                password_hash = bcrypt.hashpw(u["password"].encode(), bcrypt.gensalt()).decode()
+                await users_coll.insert_one({
+                    "name": u["name"],
+                    "email": u["email"].lower(),
+                    "phone": u["phone"],
+                    "address": u["address"],
+                    "passwordHash": password_hash,
+                    "loyaltyPoints": 1000,
+                    "favorites": [],
+                    "membership": {
+                        "plan": "platinum",
+                        "status": "active",
+                        "monthlyPrice": 0,
+                        "pointsBoost": 50,
+                        "benefits": ["All-access", "Priority Seating"],
+                        "expiryDate": "2026-12-31"
+                    },
+                    "createdAt": datetime.utcnow().isoformat() + "Z",
+                    "updatedAt": datetime.utcnow().isoformat() + "Z",
+                })
+                results["users"] += 1
+    except Exception as e:
+        results["errors"].append(f"users: {e}")
 
     # ── Client offers seed (migrated from SQLite) ──
     offers_data = [
