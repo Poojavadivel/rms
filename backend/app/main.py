@@ -48,6 +48,10 @@ from .client.routes import stats as client_stats_router
 
 app = FastAPI(title='RMS Backend — Unified API')
 
+@app.get("/")
+async def root():
+    return {"message": "RMS Unified Backend API is running", "docs": "/docs", "health": "/api/health"}
+
 # CORS
 cors_env = os.getenv('CORS_ORIGINS', 'http://localhost:5173,http://localhost:3000')
 origins = [o.strip() for o in cors_env.split(',') if o.strip()]
