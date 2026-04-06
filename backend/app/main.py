@@ -6,10 +6,6 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
 
-# Set default MongoDB URI if not in environment
-if not os.getenv('MONGODB_URI'):
-    os.environ['MONGODB_URI'] = 'mongodb://127.0.0.1:27017/restaurant_db'
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .db import init_db, get_db

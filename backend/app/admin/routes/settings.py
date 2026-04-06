@@ -195,80 +195,84 @@ async def update_system_config(config: SystemConfigIn, request: Request):
 @router.get('/roles', tags=['roles'])
 async def list_roles():
     """List all roles with their permissions"""
-    db = get_db()
-    coll = db.get_collection('roles')
-    docs = await coll.find().to_list(100)
+    default_roles = [
+        {
+            '_id': 'admin',
+            'name': 'Admin',
+            'description': 'Full system access with all permissions',
+            'permissions': {
+                'dashboard': True, 'menu': True, 'orders': True, 'kitchen': True,
+                'tables': True, 'inventory': True, 'staff': True, 'billing': True,
+                'delivery': True, 'offers': True, 'reports': True, 'notifications': True, 'settings': True
+            },
+            'createdAt': datetime.utcnow().isoformat()
+        },
+        {
+            '_id': 'manager',
+            'name': 'Manager',
+            'description': 'Restaurant operations management',
+            'permissions': {
+                'dashboard': True, 'menu': True, 'orders': True, 'kitchen': True,
+                'tables': True, 'inventory': True, 'staff': True, 'billing': True,
+                'delivery': True, 'offers': True, 'reports': True, 'notifications': True, 'settings': False
+            },
+            'createdAt': datetime.utcnow().isoformat()
+        },
+        {
+            '_id': 'chef',
+            'name': 'Chef',
+            'description': 'Kitchen and menu management',
+            'permissions': {
+                'dashboard': True, 'menu': True, 'orders': True, 'kitchen': True,
+                'tables': False, 'inventory': True, 'staff': False, 'billing': False,
+                'delivery': False, 'offers': False, 'reports': False, 'notifications': True, 'settings': False
+            },
+            'createdAt': datetime.utcnow().isoformat()
+        },
+        {
+            '_id': 'waiter',
+            'name': 'Waiter',
+            'description': 'Order and table management',
+            'permissions': {
+                'dashboard': True, 'menu': True, 'orders': True, 'kitchen': False,
+                'tables': True, 'inventory': False, 'staff': False, 'billing': True,
+                'delivery': False, 'offers': False, 'reports': False, 'notifications': True, 'settings': False
+            },
+            'createdAt': datetime.utcnow().isoformat()
+        },
+        {
+            '_id': 'cashier',
+            'name': 'Cashier',
+            'description': 'Billing and payment management',
+            'permissions': {
+                'dashboard': True, 'menu': True, 'orders': True, 'kitchen': False,
+                'tables': False, 'inventory': False, 'staff': False, 'billing': True,
+                'delivery': False, 'offers': True, 'reports': True, 'notifications': True, 'settings': False
+            },
+            'createdAt': datetime.utcnow().isoformat()
+        },
+        {
+            '_id': 'delivery',
+            'name': 'Delivery',
+            'description': 'Delivery and order management',
+            'permissions': {
+                'dashboard': True, 'menu': True, 'orders': True, 'kitchen': False,
+                'tables': False, 'inventory': False, 'staff': False, 'billing': False,
+                'delivery': True, 'offers': False, 'reports': False, 'notifications': True, 'settings': False
+            },
+            'createdAt': datetime.utcnow().isoformat()
+        }
+    ]
+
+    try:
+        db = get_db()
+        coll = db.get_collection('roles')
+        docs = await coll.find().to_list(100)
+    except Exception:
+        return serialize_doc(default_roles)
     
     if not docs:
         # Initialize with default roles
-        default_roles = [
-            {
-                '_id': 'admin',
-                'name': 'Admin',
-                'description': 'Full system access with all permissions',
-                'permissions': {
-                    'dashboard': True, 'menu': True, 'orders': True, 'kitchen': True,
-                    'tables': True, 'inventory': True, 'staff': True, 'billing': True,
-                    'delivery': True, 'offers': True, 'reports': True, 'notifications': True, 'settings': True
-                },
-                'createdAt': datetime.utcnow().isoformat()
-            },
-            {
-                '_id': 'manager',
-                'name': 'Manager',
-                'description': 'Restaurant operations management',
-                'permissions': {
-                    'dashboard': True, 'menu': True, 'orders': True, 'kitchen': True,
-                    'tables': True, 'inventory': True, 'staff': True, 'billing': True,
-                    'delivery': True, 'offers': True, 'reports': True, 'notifications': True, 'settings': False
-                },
-                'createdAt': datetime.utcnow().isoformat()
-            },
-            {
-                '_id': 'chef',
-                'name': 'Chef',
-                'description': 'Kitchen and menu management',
-                'permissions': {
-                    'dashboard': True, 'menu': True, 'orders': True, 'kitchen': True,
-                    'tables': False, 'inventory': True, 'staff': False, 'billing': False,
-                    'delivery': False, 'offers': False, 'reports': False, 'notifications': True, 'settings': False
-                },
-                'createdAt': datetime.utcnow().isoformat()
-            },
-            {
-                '_id': 'waiter',
-                'name': 'Waiter',
-                'description': 'Order and table management',
-                'permissions': {
-                    'dashboard': True, 'menu': True, 'orders': True, 'kitchen': False,
-                    'tables': True, 'inventory': False, 'staff': False, 'billing': True,
-                    'delivery': False, 'offers': False, 'reports': False, 'notifications': True, 'settings': False
-                },
-                'createdAt': datetime.utcnow().isoformat()
-            },
-            {
-                '_id': 'cashier',
-                'name': 'Cashier',
-                'description': 'Billing and payment management',
-                'permissions': {
-                    'dashboard': True, 'menu': True, 'orders': True, 'kitchen': False,
-                    'tables': False, 'inventory': False, 'staff': False, 'billing': True,
-                    'delivery': False, 'offers': True, 'reports': True, 'notifications': True, 'settings': False
-                },
-                'createdAt': datetime.utcnow().isoformat()
-            },
-            {
-                '_id': 'delivery',
-                'name': 'Delivery',
-                'description': 'Delivery and order management',
-                'permissions': {
-                    'dashboard': True, 'menu': True, 'orders': True, 'kitchen': False,
-                    'tables': False, 'inventory': False, 'staff': False, 'billing': False,
-                    'delivery': True, 'offers': False, 'reports': False, 'notifications': True, 'settings': False
-                },
-                'createdAt': datetime.utcnow().isoformat()
-            }
-        ]
         await coll.insert_many(default_roles)
         docs = default_roles
     
