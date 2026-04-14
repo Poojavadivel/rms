@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Trash2, Plus, Minus, ShoppingBag, CreditCard, Smartphone, Wallet, ArrowLeft, Loader2 } from 'lucide-react';
 import type { CartItem, Order } from '@/client/app/App';
 import { MenuItemImage } from '@/client/app/components/MenuItemImage';
+import TopAppBar from '@/client/app/components/TopAppBar';
 
 interface KioskCartProps {
   cart: CartItem[];
@@ -63,24 +64,36 @@ export default function KioskCart({ cart, onUpdateQuantity, onRemoveItem, onChec
   if (cart.length === 0) {
     return (
       <div className="min-h-screen bg-[#FAF7F2] flex flex-col">
-        {/* Header */}
-        <div className="bg-gradient-to-r from-[#3E2723] to-[#5D4037] text-white py-4 px-4 sm:px-6 shadow-lg">
-          <div className="max-w-3xl mx-auto flex items-center gap-3">
-            <button onClick={onBackToMenu} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-            <div>
-              <h1 className="text-xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>Your Cart</h1>
-              <p className="text-white/70 text-xs">Review & place your kiosk order</p>
-            </div>
-          </div>
+        <div className="px-3 sm:px-5 pt-3 sm:pt-5">
+          <TopAppBar
+            title="Your Cart"
+            centerSlot={
+              <div className="hidden md:flex items-center gap-2">
+                <span className="rounded-full border border-[#E8DED0] bg-[#FCFAF7] px-3 py-1 text-[11px] font-semibold text-[#6D4C41]">
+                  {cart.length} item{cart.length !== 1 ? 's' : ''}
+                </span>
+                <span className="rounded-full border border-[#E8DED0] bg-[#FCFAF7] px-3 py-1 text-[11px] font-semibold text-[#6D4C41]">
+                  Counter Pickup
+                </span>
+              </div>
+            }
+            rightSlot={
+              <button
+                onClick={onBackToMenu}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-[#E8DED0] bg-[#FCFAF7] px-3 py-1.5 text-[11px] font-semibold text-[#3E2723] hover:border-[#C8A47A] hover:text-[#8B5A2B] transition-colors"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" />
+                Menu
+              </button>
+            }
+          />
         </div>
 
         <div className="flex-1 flex flex-col items-center justify-center px-6">
           <div className="w-20 h-20 bg-[#FAF0E4] rounded-full flex items-center justify-center mb-4">
             <ShoppingBag className="w-10 h-10 text-[#C8A47A]" />
           </div>
-          <h2 className="text-xl font-bold text-[#3E2723] mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <h2 className="text-xl font-bold text-[#3E2723] mb-2">
             Your cart is empty
           </h2>
           <p className="text-gray-500 text-sm mb-6 text-center">Add some delicious items from the menu</p>
@@ -97,207 +110,215 @@ export default function KioskCart({ cart, onUpdateQuantity, onRemoveItem, onChec
 
   return (
     <div className="min-h-screen bg-[#FAF7F2]">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-[#3E2723] to-[#5D4037] text-white py-4 px-4 sm:px-6 shadow-lg">
-        <div className="max-w-3xl mx-auto flex items-center gap-3">
-          <button onClick={onBackToMenu} className="p-2 hover:bg-white/10 rounded-lg transition-colors">
-            <ArrowLeft className="w-5 h-5" />
-          </button>
-          <div>
-            <h1 className="text-xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>Your Cart</h1>
-            <p className="text-white/70 text-xs">{cart.length} item{cart.length !== 1 ? 's' : ''} • Counter Pickup</p>
-          </div>
-        </div>
+      <div className="px-3 sm:px-5 pt-3 sm:pt-5">
+        <TopAppBar
+          title="Your Cart"
+          centerSlot={
+            <div className="hidden md:flex items-center gap-2">
+              <span className="rounded-full border border-[#E8DED0] bg-[#FCFAF7] px-3 py-1 text-[11px] font-semibold text-[#6D4C41]">
+                {cart.length} item{cart.length !== 1 ? 's' : ''}
+              </span>
+              <span className="rounded-full border border-[#E8DED0] bg-[#FCFAF7] px-3 py-1 text-[11px] font-semibold text-[#6D4C41]">
+                Counter Pickup
+              </span>
+            </div>
+          }
+          rightSlot={
+            <button
+              onClick={onBackToMenu}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#E8DED0] bg-[#FCFAF7] px-3 py-1.5 text-[11px] font-semibold text-[#3E2723] hover:border-[#C8A47A] hover:text-[#8B5A2B] transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              Menu
+            </button>
+          }
+        />
       </div>
 
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-6 pb-32">
-        {/* Cart Items */}
-        <div className="space-y-3 mb-8">
-          {cart.map((item) => (
-            <div key={item.id} className="bg-white rounded-xl border border-[#E8D5B5] p-3 flex gap-3 shadow-sm">
-              <div className="w-16 h-16 rounded-lg overflow-hidden flex-shrink-0">
-                <MenuItemImage src={item.image} alt={item.name} className="w-full h-full object-cover" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-1.5">
-                      <div className={`w-3 h-3 rounded-sm border flex items-center justify-center ${item.isVeg ? 'border-green-600' : 'border-red-600'}`}>
-                        <div className={`w-1.5 h-1.5 rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
-                      </div>
-                      <h3 className="font-semibold text-[#3E2723] text-sm truncate">{item.name}</h3>
+      <div className="max-w-7xl mx-auto px-3 sm:px-5 py-4 sm:py-5 pb-8 sm:pb-10">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.7fr)_minmax(320px,0.95fr)] gap-4 lg:gap-5 items-start">
+          <div className="space-y-4">
+            {cart.map((item) => (
+              <div key={item.id} className="min-h-[240px] overflow-hidden rounded-2xl border border-[#E8D5B5] bg-white shadow-sm md:grid md:grid-cols-[minmax(190px,220px)_minmax(0,1fr)]">
+                <div className="relative h-52 md:h-full bg-[#FAF0E4]">
+                  <MenuItemImage src={item.image} alt={item.name} className="h-full w-full object-cover" />
+                  <div className={`absolute left-3 top-3 inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-semibold ${item.isVeg ? 'border-green-200 bg-green-600 text-white' : 'border-red-200 bg-red-600 text-white'}`}>
+                    <span className="w-2 h-2 rounded-full bg-white" />
+                    {item.isVeg ? 'Veg' : 'Non-Veg'}
+                  </div>
+                </div>
+
+                <div className="flex min-w-0 flex-col gap-4 p-4 sm:p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 space-y-1">
+                      <h3 className="truncate text-lg sm:text-xl font-bold text-[#3E2723]">{item.name}</h3>
+                      <p className="text-xs sm:text-sm text-[#6D4C41]">Item details and quantity controls below</p>
                     </div>
-                    {item.spiceLevel && (
-                      <p className="text-xs text-gray-400 capitalize">{item.spiceLevel} spice</p>
-                    )}
-                    {item.addons && item.addons.length > 0 && (
-                      <p className="text-xs text-[#C8A47A]">{item.addons.join(', ')}</p>
-                    )}
-                  </div>
-                  <button onClick={() => onRemoveItem(item.id)} className="p-1 text-red-400 hover:text-red-600 transition-colors">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-                <div className="flex items-center justify-between mt-2">
-                  <div className="flex items-center gap-2 bg-[#FAF0E4] rounded-lg">
-                    <button
-                      onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-                      className="w-7 h-7 flex items-center justify-center rounded-lg text-[#8B5A2B] hover:bg-[#E8D5B5] transition-colors"
-                    >
-                      <Minus className="w-3.5 h-3.5" />
-                    </button>
-                    <span className="w-6 text-center font-bold text-[#3E2723] text-sm">{item.quantity}</span>
-                    <button
-                      onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                      className="w-7 h-7 flex items-center justify-center rounded-lg text-[#8B5A2B] hover:bg-[#E8D5B5] transition-colors"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
+                    <button onClick={() => onRemoveItem(item.id)} className="shrink-0 rounded-lg p-2 text-red-400 transition-colors hover:bg-red-50 hover:text-red-600">
+                      <Trash2 className="w-4 h-4" />
                     </button>
                   </div>
-                  <span className="font-bold text-[#8B5A2B] text-sm">₹{(item.price * item.quantity).toFixed(2)}</span>
+
+                  <div className="grid gap-3 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-end">
+                    <div className="space-y-2">
+                      {item.spiceLevel && <p className="text-xs text-gray-500 capitalize">{item.spiceLevel} spice</p>}
+                      {item.addons && item.addons.length > 0 && <p className="text-xs text-[#8B5A2B] line-clamp-1">{item.addons.join(', ')}</p>}
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-[#6D4C41]">
+                        <span className="rounded-full border border-[#E8D5B5] bg-[#FAF0E4] px-3 py-1">₹{item.price.toFixed(2)} each</span>
+                        <span className="rounded-full border border-[#E8D5B5] bg-[#FAF0E4] px-3 py-1">Line total ₹{(item.price * item.quantity).toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between gap-3 sm:justify-end">
+                      <div className="flex items-center gap-1.5 rounded-xl border border-[#E8D5B5] bg-[#FAF0E4] p-1">
+                        <button
+                          onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-[#8B5A2B] transition-colors hover:bg-[#E8D5B5]"
+                        >
+                          <Minus className="w-3.5 h-3.5" />
+                        </button>
+                        <span className="min-w-8 text-center text-sm font-bold text-[#3E2723]">{item.quantity}</span>
+                        <button
+                          onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
+                          className="flex h-8 w-8 items-center justify-center rounded-lg text-[#8B5A2B] transition-colors hover:bg-[#E8D5B5]"
+                        >
+                          <Plus className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <span className="text-lg font-black text-[#8B5A2B]">₹{(item.price * item.quantity).toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="space-y-4 lg:sticky lg:top-4">
+            <div className="rounded-2xl border border-[#E8D5B5] bg-white p-4 shadow-sm">
+              <h3 className="mb-3 text-sm font-bold text-[#3E2723]">Order Summary</h3>
+              <div className="space-y-2 text-sm">
+                <div className="flex justify-between text-[#6D4C41]">
+                  <span>Subtotal</span>
+                  <span>₹{subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between text-[#6D4C41]">
+                  <span>GST (5%)</span>
+                  <span>₹{tax.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between border-t border-[#E8D5B5] pt-2 font-bold text-[#3E2723]">
+                  <span>Total</span>
+                  <span className="text-[#8B5A2B]">₹{total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
-          ))}
-        </div>
 
-        {/* Order Summary */}
-        <div className="bg-white rounded-xl border border-[#E8D5B5] p-4 mb-6 shadow-sm">
-          <h3 className="font-bold text-[#3E2723] mb-3 text-sm" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Order Summary
-          </h3>
-          <div className="space-y-2 text-sm">
-            <div className="flex justify-between text-gray-600">
-              <span>Subtotal</span>
-              <span>₹{subtotal.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-gray-600">
-              <span>GST (5%)</span>
-              <span>₹{tax.toFixed(2)}</span>
-            </div>
-            <div className="border-t border-[#E8D5B5] pt-2 flex justify-between font-bold text-[#3E2723]">
-              <span>Total</span>
-              <span className="text-[#8B5A2B]">₹{total.toFixed(2)}</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Order Type Info */}
-        <div className="bg-[#FAF0E4] rounded-xl p-4 mb-6 border border-[#E8D5B5]">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-[#8B5A2B] rounded-full flex items-center justify-center">
-              <ShoppingBag className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <p className="font-semibold text-[#3E2723] text-sm">Counter Pickup</p>
-              <p className="text-xs text-[#8B5A2B]/70">Your order will be ready for pickup at the counter</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Payment Method */}
-        <div className="bg-white rounded-xl border border-[#E8D5B5] p-4 mb-6 shadow-sm">
-          <h3 className="font-bold text-[#3E2723] mb-3 text-sm" style={{ fontFamily: "'Playfair Display', serif" }}>
-            Payment Method
-          </h3>
-          <div className="grid grid-cols-2 gap-3">
-            <button
-              onClick={() => { setSelectedPayment('upi'); setUpiError(null); }}
-              className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${
-                selectedPayment === 'upi'
-                  ? 'border-[#8B5A2B] bg-[#FAF0E4]'
-                  : 'border-[#E8D5B5] hover:border-[#C8A47A] hover:bg-[#FAF0E4]/50'
-              }`}
-            >
-              <Smartphone className="w-6 h-6 text-[#8B5A2B]" />
-              <span className="text-sm font-semibold text-[#3E2723]">UPI</span>
-            </button>
-            <button
-              onClick={() => { setSelectedPayment('card'); setUpiError(null); }}
-              className={`p-4 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${
-                selectedPayment === 'card'
-                  ? 'border-[#8B5A2B] bg-[#FAF0E4]'
-                  : 'border-[#E8D5B5] hover:border-[#C8A47A] hover:bg-[#FAF0E4]/50'
-              }`}
-            >
-              <CreditCard className="w-6 h-6 text-[#8B5A2B]" />
-              <span className="text-sm font-semibold text-[#3E2723]">Card</span>
-            </button>
-          </div>
-
-          {/* UPI Input */}
-          {selectedPayment === 'upi' && (
-            <div className="mt-4">
-              <label className="block text-sm font-medium text-[#3E2723] mb-1">UPI ID</label>
-              <input
-                type="text"
-                value={upiId}
-                onChange={(e) => { setUpiId(e.target.value); setUpiError(null); }}
-                placeholder="yourname@upi"
-                className="w-full px-3 py-2.5 border border-[#E8D5B5] rounded-lg text-sm text-[#3E2723] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
-              />
-              {upiError && <p className="text-red-500 text-xs mt-1">{upiError}</p>}
-            </div>
-          )}
-
-          {/* Card Input (simulated) */}
-          {selectedPayment === 'card' && (
-            <div className="mt-4 space-y-3">
-              <div>
-                <label className="block text-sm font-medium text-[#3E2723] mb-1">Card Number</label>
-                <input
-                  type="text"
-                  placeholder="1234 5678 9012 3456"
-                  className="w-full px-3 py-2.5 border border-[#E8D5B5] rounded-lg text-sm text-[#3E2723] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-[#3E2723] mb-1">Expiry</label>
-                  <input
-                    type="text"
-                    placeholder="MM/YY"
-                    className="w-full px-3 py-2.5 border border-[#E8D5B5] rounded-lg text-sm text-[#3E2723] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
-                  />
+            <div className="rounded-2xl border border-[#E8D5B5] bg-[#FAF0E4] p-4">
+              <div className="flex items-center gap-3">
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#8B5A2B]">
+                  <ShoppingBag className="w-4.5 h-4.5 text-white" />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-[#3E2723] mb-1">CVV</label>
-                  <input
-                    type="text"
-                    placeholder="123"
-                    className="w-full px-3 py-2.5 border border-[#E8D5B5] rounded-lg text-sm text-[#3E2723] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
-                  />
+                  <p className="text-sm font-semibold text-[#3E2723]">Counter Pickup</p>
+                  <p className="text-[11px] text-[#8B5A2B]/70">Your order will be ready for pickup at the counter</p>
                 </div>
               </div>
             </div>
-          )}
-        </div>
-      </div>
 
-      {/* Fixed Bottom Pay Button */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-[#E8D5B5] p-4 shadow-[0_-4px_20px_rgba(0,0,0,0.1)] z-40">
-        <div className="max-w-3xl mx-auto">
-          <button
-            onClick={handlePayment}
-            disabled={!selectedPayment || isProcessing}
-            className={`w-full py-4 rounded-xl font-bold text-base transition-all flex items-center justify-center gap-2 ${
-              selectedPayment && !isProcessing
-                ? 'bg-gradient-to-r from-[#8B5A2B] to-[#C8A47A] text-white hover:shadow-lg active:scale-[0.98]'
-                : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-            }`}
-          >
-            {isProcessing ? (
-              <>
-                <Loader2 className="w-5 h-5 animate-spin" />
-                Processing Payment...
-              </>
-            ) : (
-              <>
-                <Wallet className="w-5 h-5" />
-                Pay ₹{total.toFixed(2)}
-              </>
-            )}
-          </button>
+            <div className="rounded-2xl border border-[#E8D5B5] bg-white p-5 sm:p-6 shadow-md">
+              <h3 className="mb-4 text-base sm:text-lg font-bold text-[#3E2723]">Payment Method</h3>
+              <div className="grid grid-cols-2 gap-3 sm:gap-4">
+                <button
+                  onClick={() => { setSelectedPayment('upi'); setUpiError(null); }}
+                  className={`flex min-h-[92px] flex-col items-center justify-center gap-2 rounded-2xl border-2 p-4 sm:p-5 transition-all ${
+                    selectedPayment === 'upi'
+                      ? 'border-[#8B5A2B] bg-[#FAF0E4]'
+                      : 'border-[#E8D5B5] hover:border-[#C8A47A] hover:bg-[#FAF0E4]/50'
+                  }`}
+                >
+                  <Smartphone className="w-6 h-6 text-[#8B5A2B]" />
+                  <span className="text-sm font-semibold text-[#3E2723]">UPI</span>
+                </button>
+                <button
+                  onClick={() => { setSelectedPayment('card'); setUpiError(null); }}
+                  className={`flex min-h-[92px] flex-col items-center justify-center gap-2 rounded-2xl border-2 p-4 sm:p-5 transition-all ${
+                    selectedPayment === 'card'
+                      ? 'border-[#8B5A2B] bg-[#FAF0E4]'
+                      : 'border-[#E8D5B5] hover:border-[#C8A47A] hover:bg-[#FAF0E4]/50'
+                  }`}
+                >
+                  <CreditCard className="w-6 h-6 text-[#8B5A2B]" />
+                  <span className="text-sm font-semibold text-[#3E2723]">Card</span>
+                </button>
+              </div>
+
+              {selectedPayment === 'upi' && (
+                <div className="mt-5">
+                  <label className="mb-1 block text-sm font-medium text-[#3E2723]">UPI ID</label>
+                  <input
+                    type="text"
+                    value={upiId}
+                    onChange={(e) => { setUpiId(e.target.value); setUpiError(null); }}
+                    placeholder="yourname@upi"
+                    className="w-full rounded-xl border border-[#E8D5B5] px-4 py-3 text-sm text-[#3E2723] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
+                  />
+                  {upiError && <p className="text-red-500 text-xs mt-1">{upiError}</p>}
+                </div>
+              )}
+
+              {selectedPayment === 'card' && (
+                <div className="mt-5 space-y-4">
+                  <div>
+                    <label className="mb-1 block text-sm font-medium text-[#3E2723]">Card Number</label>
+                    <input
+                      type="text"
+                      placeholder="1234 5678 9012 3456"
+                      className="w-full rounded-xl border border-[#E8D5B5] px-4 py-3 text-sm text-[#3E2723] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-[#3E2723]">Expiry</label>
+                      <input
+                        type="text"
+                        placeholder="MM/YY"
+                        className="w-full rounded-xl border border-[#E8D5B5] px-4 py-3 text-sm text-[#3E2723] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-sm font-medium text-[#3E2723]">CVV</label>
+                      <input
+                        type="text"
+                        placeholder="123"
+                        className="w-full rounded-xl border border-[#E8D5B5] px-4 py-3 text-sm text-[#3E2723] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <button
+              onClick={handlePayment}
+              disabled={!selectedPayment || isProcessing}
+              className={`flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-bold transition-all ${
+                selectedPayment && !isProcessing
+                  ? 'bg-gradient-to-r from-[#8B5A2B] to-[#C8A47A] text-white hover:shadow-lg active:scale-[0.98]'
+                  : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+              }`}
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Processing Payment...
+                </>
+              ) : (
+                <>
+                  <Wallet className="w-4 h-4" />
+                  Pay ₹{total.toFixed(2)}
+                </>
+              )}
+            </button>
+          </div>
         </div>
       </div>
     </div>

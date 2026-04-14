@@ -616,6 +616,15 @@ export function NotificationManagement() {
               : notifications;
             const tabUnreadCount = tabN.filter((n) => n.status === "unread").length;
 
+              const activeClassByTab: Record<string, string> = {
+                overview: "bg-indigo-500 shadow-[0_4px_24px_rgba(99,102,241,0.26)]",
+                chef: "bg-orange-500 shadow-[0_4px_24px_rgba(249,115,22,0.26)]",
+                waiter: "bg-sky-500 shadow-[0_4px_24px_rgba(14,165,233,0.26)]",
+                cashier: "bg-emerald-500 shadow-[0_4px_24px_rgba(34,197,94,0.26)]",
+                manager: "bg-purple-500 shadow-[0_4px_24px_rgba(168,85,247,0.26)]",
+                "head-chef": "bg-amber-500 shadow-[0_4px_24px_rgba(245,158,11,0.26)]",
+              };
+
               return (
                 <button
                   key={tab.id}
@@ -623,14 +632,9 @@ export function NotificationManagement() {
                   className={cn(
                     "relative flex items-start gap-3 p-3 rounded-xl transition-all text-left min-w-[170px]",
                     isActive
-                      ? "text-white shadow-lg"
+                      ? cn("text-white shadow-lg", activeClassByTab[tab.id] ?? "bg-indigo-500")
                       : "bg-white/10 border border-white/20 text-white hover:bg-white/20 shadow-sm backdrop-blur-sm"
                   )}
-                  style={
-                    isActive
-                      ? { backgroundColor: tab.accentColor + "cc", boxShadow: `0 4px 24px ${tab.accentColor}44` }
-                      : {}
-                  }
                 >
                   <Icon className="h-5 w-5 mt-0.5 shrink-0 text-white" />
                   <div className="flex-1 min-w-0">
@@ -680,7 +684,7 @@ export function NotificationManagement() {
                 <Card className="bg-white border-gray-200 shadow-sm">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-gray-900 text-base flex items-center gap-2">
-                      <BellRing className="h-4 w-4" style={{ color: tab.accentColor }} />
+                      <BellRing className={cn("h-4 w-4", tab.id === "chef" ? "text-[#f97316]" : tab.id === "waiter" ? "text-[#0ea5e9]" : tab.id === "cashier" ? "text-[#22c55e]" : tab.id === "manager" ? "text-[#a855f7]" : tab.id === "head-chef" ? "text-[#f59e0b]" : "text-[#6366f1]")} />
                       Notification Types for {tab.label}
                     </CardTitle>
                     <CardDescription className="text-gray-500">

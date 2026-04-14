@@ -11,6 +11,7 @@
 /* ── Typography ─── */
 @import './admin-fonts.css';
 @import './client-fonts.css';
+@import './design-system.css';
 
 /* ── Module backgrounds ─── */
 @import './backgrounds.css';

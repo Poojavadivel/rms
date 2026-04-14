@@ -29,7 +29,7 @@ interface StationCard {
   id: KitchenTerminalStation;
   name: string;
   icon: ReactNode;
-  color: string;
+  colorClass: string;
   description: string;
   isHeadChef?: boolean;
 }
@@ -42,13 +42,13 @@ interface ChefRecord {
 }
 
 export const TERMINAL_STATIONS: StationCard[] = [
-  { id: 'FRY', name: 'Fry Station', icon: <Flame className="h-10 w-10" />, color: '#FF6B35', description: 'Deep-fry, saute, tempura' },
-  { id: 'CURRY', name: 'Curry Station', icon: <Soup className="h-10 w-10" />, color: '#D4A574', description: 'Gravies, curries, sauces' },
-  { id: 'RICE', name: 'Rice Station', icon: <UtensilsCrossed className="h-10 w-10" />, color: '#8B7355', description: 'Biryani, pulao, fried rice' },
-  { id: 'PREP', name: 'Prep Station', icon: <Salad className="h-10 w-10" />, color: '#4CAF50', description: 'Salads, cold items, plating' },
-  { id: 'GRILL', name: 'Grill Station', icon: <ChefHat className="h-10 w-10" />, color: '#E63946', description: 'Tandoor, BBQ, grills' },
-  { id: 'DESSERT', name: 'Dessert Station', icon: <Coffee className="h-10 w-10" />, color: '#F4A261', description: 'Sweets, beverages, desserts' },
-  { id: 'HEAD_CHEF', name: 'Head Chef', icon: <Crown className="h-10 w-10" />, color: '#8B5A2B', description: 'Global oversight across all stations', isHeadChef: true },
+  { id: 'FRY', name: 'Fry Station', icon: <Flame className="h-10 w-10" />, colorClass: 'bg-[#FF6B35]', description: 'Deep-fry, saute, tempura' },
+  { id: 'CURRY', name: 'Curry Station', icon: <Soup className="h-10 w-10" />, colorClass: 'bg-[#D4A574]', description: 'Gravies, curries, sauces' },
+  { id: 'RICE', name: 'Rice Station', icon: <UtensilsCrossed className="h-10 w-10" />, colorClass: 'bg-[#8B7355]', description: 'Biryani, pulao, fried rice' },
+  { id: 'PREP', name: 'Prep Station', icon: <Salad className="h-10 w-10" />, colorClass: 'bg-[#4CAF50]', description: 'Salads, cold items, plating' },
+  { id: 'GRILL', name: 'Grill Station', icon: <ChefHat className="h-10 w-10" />, colorClass: 'bg-[#E63946]', description: 'Tandoor, BBQ, grills' },
+  { id: 'DESSERT', name: 'Dessert Station', icon: <Coffee className="h-10 w-10" />, colorClass: 'bg-[#F4A261]', description: 'Sweets, beverages, desserts' },
+  { id: 'HEAD_CHEF', name: 'Head Chef', icon: <Crown className="h-10 w-10" />, colorClass: 'bg-[#8B5A2B]', description: 'Global oversight across all stations', isHeadChef: true },
 ];
 
 interface KDSTerminalLoginProps {
@@ -104,7 +104,7 @@ export function KDSTerminalLogin({ onLogin }: KDSTerminalLoginProps) {
           <div className="inline-flex items-center justify-center p-4 bg-[#8B5A2B] rounded-2xl mb-4 shadow-2xl">
             <ChefHat className="h-14 w-14 text-white" />
           </div>
-          <h1 className="text-4xl font-bold mb-2" style={{ color: '#F5E6D3' }}>
+          <h1 className="text-4xl font-bold mb-2 text-[#F5E6D3]">
             Kitchen Display System
           </h1>
           <p className="text-lg text-white/70">Tap the station to enter</p>
@@ -128,8 +128,7 @@ export function KDSTerminalLogin({ onLogin }: KDSTerminalLoginProps) {
                   )}
                 >
                   <div
-                    className="p-4 rounded-xl flex items-center justify-center shadow-lg transition-transform duration-200 group-hover:scale-110"
-                    style={{ backgroundColor: station.color }}
+                    className={cn("p-4 rounded-xl flex items-center justify-center shadow-lg transition-transform duration-200 group-hover:scale-110", station.colorClass)}
                   >
                     {station.icon}
                   </div>

@@ -39,7 +39,7 @@ export interface SystemConfig {
 }
 
 export const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
-  restaurantName: "Restaurant Management System",
+  restaurantName: "Urban Bites",
   address: "",
   city: "",
   state: "",

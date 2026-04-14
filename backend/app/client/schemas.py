@@ -2,29 +2,29 @@
 from __future__ import annotations
 
 from typing import Any, Optional, List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, EmailStr
 
 
 # ── Auth ──
 class UserRegister(BaseModel):
-    name: str
-    email: str
-    phone: str
-    address: str
-    password: str
+    name: str = Field(..., min_length=2, max_length=100)
+    email: EmailStr
+    phone: str = Field(..., min_length=7, max_length=20)
+    address: str = Field(..., min_length=3, max_length=250)
+    password: str = Field(..., min_length=6, max_length=128)
 
 
 class UserLogin(BaseModel):
-    email: str
-    password: str
+    email: EmailStr
+    password: str = Field(..., min_length=1, max_length=128)
 
 
 class UserUpdate(BaseModel):
-    name: Optional[str] = None
-    phone: Optional[str] = None
-    address: Optional[str] = None
-    email: Optional[str] = None
-    password: Optional[str] = None
+    name: Optional[str] = Field(None, min_length=2, max_length=100)
+    phone: Optional[str] = Field(None, min_length=7, max_length=20)
+    address: Optional[str] = Field(None, min_length=3, max_length=250)
+    email: Optional[EmailStr] = None
+    password: Optional[str] = Field(None, min_length=6, max_length=128)
     favorites: Optional[List[str]] = None
     loyaltyPoints: Optional[int] = None
     membership: Optional[dict] = None

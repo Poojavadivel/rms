@@ -68,6 +68,11 @@ interface Reward {
   icon?: string;
 }
 
+const toPercentClass = (value: number): string => {
+  const clamped = Math.max(0, Math.min(100, Math.round(value)));
+  return `ds-w-pct-${clamped}`;
+};
+
 /** Ensure benefits always comes back as a string[], regardless of how the backend stored it. */
 function toBenefitsArray(benefits: unknown): string[] {
   if (Array.isArray(benefits)) return benefits as string[];
@@ -289,7 +294,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
         <div className="mb-12 text-center">
           <h1 
             className="text-5xl font-bold mb-3 text-[#3E2723]" 
-            style={{ fontFamily: "'Playfair Display', serif" }}
+           
           >
             Offers & Loyalty Rewards
           </h1>
@@ -349,8 +354,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
               </div>
               <div className="w-full bg-[#1A110D] rounded-full h-4 overflow-hidden mb-3 border border-[#C8A47A]/20">
                 <div
-                  className="bg-gradient-to-r from-[#C8A47A] to-[#8B5A2B] h-full rounded-full transition-all duration-500 relative"
-                  style={{ width: `${Math.min(100, (currentPoints / loyaltyAdmin.minRedeemablePoints) * 100)}%` }}
+                  className={`bg-gradient-to-r from-[#C8A47A] to-[#8B5A2B] h-full rounded-full transition-all duration-500 relative ${toPercentClass(Math.min(100, (currentPoints / loyaltyAdmin.minRedeemablePoints) * 100))}`}
                 >
                   <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
                 </div>
@@ -379,7 +383,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
               <div className="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="w-10 h-10 text-gray-500" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-700 mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+              <h3 className="text-2xl font-bold text-gray-700 mb-2">
                 Loyalty Program Currently Unavailable
               </h3>
               <p className="text-gray-600 text-sm">
@@ -398,7 +402,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
             <div>
               <h2 
                 className="text-3xl font-bold text-[#3E2723]" 
-                style={{ fontFamily: "'Playfair Display', serif" }}
+               
               >
                 My Membership
               </h2>
@@ -422,7 +426,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
                       <p className="text-xs text-[#FAF7F2]/60 uppercase tracking-wider font-bold mb-1">Current Plan</p>
                       <h3 
                         className="text-4xl font-black text-[#C8A47A] capitalize mb-1" 
-                        style={{ fontFamily: "'Playfair Display', serif" }}
+                       
                       >
                         {user.membership.plan} Membership
                       </h3>
@@ -462,8 +466,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
                   <div className="flex items-center gap-2">
                     <div className="flex-1 bg-[#1A110D] rounded-full h-2">
                       <div 
-                        className="bg-gradient-to-r from-[#C8A47A] to-[#8B5A2B] h-full rounded-full"
-                        style={{ width: `${user.membership.pointsBoost}%` }}
+                        className={`bg-gradient-to-r from-[#C8A47A] to-[#8B5A2B] h-full rounded-full ${toPercentClass(user.membership.pointsBoost)}`}
                       ></div>
                     </div>
                     <span className="text-[#C8A47A] font-black text-xl">+{user.membership.pointsBoost}%</span>
@@ -500,7 +503,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
               </div>
               <h3 
                 className="text-3xl font-bold text-[#3E2723] mb-3" 
-                style={{ fontFamily: "'Playfair Display', serif" }}
+               
               >
                 No Active Membership
               </h3>
@@ -541,7 +544,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
                 <Crown className="w-6 h-6 text-[#8B5A2B]" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold text-[#3E2723]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                <h2 className="text-3xl font-bold text-[#3E2723]">
                   Membership Plans
                 </h2>
                 <p className="text-sm text-[#6D4C41]">Admin-configured plans with exclusive perks</p>
@@ -572,7 +575,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
                           </span>
                         )}
                       </div>
-                      <h3 className="text-2xl font-black capitalize" style={{ fontFamily: "'Playfair Display', serif" }}>
+                      <h3 className="text-2xl font-black capitalize">
                         {plan.name}
                       </h3>
                       <p className="text-white/80 text-lg font-bold mt-1">
@@ -636,7 +639,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
             <div>
               <h2 
                 className="text-3xl font-bold text-[#3E2723]" 
-                style={{ fontFamily: "'Playfair Display', serif" }}
+               
               >
                 Available Offers
               </h2>
@@ -791,7 +794,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
             <div>
               <h2 
                 className="text-3xl font-bold text-[#3E2723]" 
-                style={{ fontFamily: "'Playfair Display', serif" }}
+               
               >
                 Rewards Catalog
               </h2>
@@ -830,7 +833,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
                     </div>
                     <h3 
                       className="font-bold text-lg mb-2 text-[#3E2723]" 
-                      style={{ fontFamily: "'Playfair Display', serif" }}
+                     
                     >
                       {reward.name}
                     </h3>
@@ -895,7 +898,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
             <div>
               <h2 
                 className="text-2xl font-bold text-[#3E2723]" 
-                style={{ fontFamily: "'Playfair Display', serif" }}
+               
               >
                 Checkout Preview - Example Order
               </h2>
@@ -1029,7 +1032,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
                 <Award className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold text-[#3E2723]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                <h2 className="text-3xl font-bold text-[#3E2723]">
                   Loyalty Points History
                 </h2>
                 <p className="text-sm text-[#6D4C41]">Track earned, redeemed, and expired points</p>
@@ -1127,7 +1130,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
           <div className="text-center mb-8">
             <h2 
               className="text-3xl font-bold text-[#3E2723] mb-2" 
-              style={{ fontFamily: "'Playfair Display', serif" }}
+             
             >
               How to Earn Points
             </h2>
@@ -1140,7 +1143,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
               <div className="w-16 h-16 bg-gradient-to-br from-[#8B5A2B] to-[#C8A47A] rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <ShoppingCart className="w-8 h-8 text-white" />
               </div>
-              <p className="font-bold text-[#3E2723] mb-2 text-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
+              <p className="font-bold text-[#3E2723] mb-2 text-lg">
                 Order Food
               </p>
               <p className="text-sm text-[#6D4C41] font-medium mb-2">
@@ -1158,7 +1161,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
               <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <MessageSquare className="w-8 h-8 text-white" />
               </div>
-              <p className="font-bold text-[#3E2723] mb-2 text-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
+              <p className="font-bold text-[#3E2723] mb-2 text-lg">
                 Submit Feedback
               </p>
               <p className="text-sm text-[#6D4C41] font-medium">
@@ -1171,7 +1174,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
               <div className="w-16 h-16 bg-gradient-to-br from-amber-500 to-amber-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
                 <Crown className="w-8 h-8 text-white" />
               </div>
-              <p className="font-bold text-[#3E2723] mb-2 text-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
+              <p className="font-bold text-[#3E2723] mb-2 text-lg">
                 Membership Bonus
               </p>
               {loyaltyAdmin.membershipBonusEnabled ? (
@@ -1223,7 +1226,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
               <Gift className="w-5 h-5 text-white" />
             </div>
             <div>
-              <p className="font-bold text-[#3E2723] mb-2 text-lg" style={{ fontFamily: "'Playfair Display', serif" }}>
+              <p className="font-bold text-[#3E2723] mb-2 text-lg">
                 Automatic Offers Applied
               </p>
               <p className="text-sm text-[#6D4C41] leading-relaxed">

@@ -539,7 +539,7 @@ useEffect(() => {
   if (loading) return <LoadingMenu />;
 
   return (
-    <div className="min-h-screen bg-menu-management-module flex justify-center" style={{ padding: '32px' }}>
+    <div className="min-h-screen bg-menu-management-module flex justify-center p-8">
       <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px); }
@@ -570,10 +570,10 @@ useEffect(() => {
         {/* Header Section with Buttons */}
         <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-6">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg" style={{ fontFamily: 'Poppins, sans-serif' }}>
+            <h1 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">
               Restaurant Menu
             </h1>
-            <p className="text-base text-gray-200 mt-1" style={{ fontFamily: 'Inter, sans-serif' }}>
+            <p className="text-base text-gray-200 mt-1">
               Manage your menu items and combo deals
             </p>
           </div>
@@ -581,14 +581,12 @@ useEffect(() => {
             <Button 
               onClick={() => { setEditingItem(null); setSelectedAddons([]); setIngredientRows([]); setDialogOpen(true); }}
               className="h-11 px-6 bg-[#8B5A2B] hover:bg-[#6D421E] text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200"
-              style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px' }}
             >
               <Plus className="mr-2 h-4 w-4" /> Add Item
             </Button>
             <Button 
               onClick={() => { setEditingCombo(null); setSelectedComboItems([]); setComboDropdownOpen(false); setComboItemSearchQuery(""); setComboDialogOpen(true); }}
               className="h-11 px-6 bg-white hover:bg-gray-50 text-[#8B5A2B] border-2 border-[#8B5A2B] rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200"
-              style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px' }}
             >
               <Plus className="mr-2 h-4 w-4" /> Add Combo
             </Button>
@@ -596,7 +594,7 @@ useEffect(() => {
         </div>
 
         {/* Main White Container with Shine Effect */}
-        <Card className="bg-white rounded-2xl shadow-lg border-none overflow-hidden animate-float mb-8" style={{ backgroundColor: '#F5F3F0' }}>
+        <Card className="bg-[#F5F3F0] rounded-2xl shadow-lg border-none overflow-hidden animate-float mb-8">
           <div className="p-8 space-y-6 relative overflow-hidden">
             {/* Shine effect overlay */}
             <div className="absolute inset-0 animate-shine pointer-events-none"></div>
@@ -607,7 +605,7 @@ useEffect(() => {
               <Input 
                 placeholder="Search menu items..." 
                 className="pl-12 h-14 text-base rounded-xl border-gray-300 bg-white focus:ring-2 focus:ring-[#8B5A2B] focus:border-[#8B5A2B] shadow-sm"
-                style={{ fontFamily: 'Inter, sans-serif' }}
+               
                 value={searchQuery} 
                 onChange={(e) => setSearchQuery(e.target.value)} 
               />
@@ -615,7 +613,7 @@ useEffect(() => {
 
             {/* Browse Cuisines Section */}
             <div>
-              <div className="flex items-center gap-2 text-[#6B6B6B] mb-4" style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px' }}>
+              <div className="flex items-center gap-2 text-[#6B6B6B] mb-4 text-sm">
                 <Pizza className="h-5 w-5 text-[#8B5A2B]" />
                 <span className="font-semibold">Browse Cuisines</span>
               </div>
@@ -632,7 +630,7 @@ useEffect(() => {
                         ? "bg-[#2A1A05] text-white"
                         : "bg-white text-[#6B6B6B] border border-gray-300 hover:bg-gray-50"
                     )}
-                    style={{ fontFamily: 'Inter, sans-serif' }}
+                   
                   >
                     {cuisine.name}
                   </button>
@@ -642,7 +640,7 @@ useEffect(() => {
 
             {/* Select Categories Section */}
             <div>
-              <div className="flex items-center gap-2 text-[#6B6B6B] mb-4" style={{ fontFamily: 'Inter, sans-serif', fontSize: '14px' }}>
+              <div className="flex items-center gap-2 text-[#6B6B6B] mb-4 text-sm">
                 <ChevronRight className="h-5 w-5 text-[#8B5A2B]" />
                 <span className="font-semibold">Select Categories</span>
               </div>
@@ -659,7 +657,7 @@ useEffect(() => {
                         ? "bg-[#8B5A2B] text-white"
                         : "bg-white text-[#6B6B6B] border border-gray-300 hover:border-[#8B5A2B]"
                     )}
-                    style={{ fontFamily: 'Inter, sans-serif' }}
+                   
                   >
                     {cat.name}
                   </button>
@@ -676,7 +674,7 @@ useEffect(() => {
                       ? "bg-[#2A1A05] text-white"
                       : "bg-white text-[#6B6B6B] border border-gray-300 hover:bg-gray-50"
                   )}
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                 
                 >
                   ALL
                 </button>
@@ -688,7 +686,7 @@ useEffect(() => {
                       ? "bg-[#2A1A05] text-white"
                       : "bg-white text-[#6B6B6B] border border-gray-300 hover:bg-gray-50"
                   )}
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                 
                 >
                   VEG
                 </button>
@@ -700,7 +698,7 @@ useEffect(() => {
                       ? "bg-[#2A1A05] text-white"
                       : "bg-white text-[#6B6B6B] border border-gray-300 hover:bg-gray-50"
                   )}
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                 
                 >
                   NON-VEG
                 </button>
@@ -712,7 +710,7 @@ useEffect(() => {
                       ? "bg-[#2A1A05] text-white"
                       : "bg-white text-[#6B6B6B] border border-gray-300 hover:bg-gray-50"
                   )}
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                 
                 >
                   OFFERS
                 </button>
@@ -724,7 +722,7 @@ useEffect(() => {
                       ? "bg-[#2A1A05] text-white"
                       : "bg-white text-[#6B6B6B] border border-gray-300 hover:bg-gray-50"
                   )}
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                 
                 >
                   CHEF'S SPECIAL
                 </button>
@@ -743,7 +741,7 @@ useEffect(() => {
                 ? "bg-[#8B5A2B] text-white"
                 : "bg-white text-[#6B6B6B] hover:bg-gray-50"
             )}
-            style={{ fontFamily: 'Inter, sans-serif' }}
+           
           >
             Menu Items ({filteredItems.length})
           </button>
@@ -755,7 +753,7 @@ useEffect(() => {
                 ? "bg-[#8B5A2B] text-white"
                 : "bg-white text-[#6B6B6B] hover:bg-gray-50"
             )}
-            style={{ fontFamily: 'Inter, sans-serif' }}
+           
           >
             Combo Meals ({filteredCombos.length})
           </button>
@@ -767,15 +765,10 @@ useEffect(() => {
             {filteredItems.map((item) => (
               <div 
                 key={item.id} 
-                className="overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 card-float w-full"
-                style={{ 
-                  minHeight: '424px',
-                  borderRadius: '16px',
-                  backgroundColor: '#FFFFFF'
-                }}
+                className="overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 card-float w-full min-h-[424px] rounded-2xl bg-white"
               >
                 {/* Image Section */}
-                <div className="relative overflow-hidden w-full" style={{ height: '176px' }}>
+                <div className="relative overflow-hidden w-full h-44">
                   <img 
                     src={item.image || getDefaultMenuImage(item.name, item.category)}
                     alt={item.name} 
@@ -790,7 +783,7 @@ useEffect(() => {
                         "text-white text-xs px-3 py-1 font-bold",
                         item.dietType === "veg" ? "bg-green-600" : "bg-red-600"
                       )}
-                      style={{ fontFamily: 'Inter, sans-serif' }}
+                     
                     >
                       {item.dietType === "veg" ? "VEG" : "NON-VEG"}
                     </Badge>
@@ -798,35 +791,35 @@ useEffect(() => {
 
                   {/* BESTSELLER Badge - Top Right */}
                   {item.badges?.includes("BESTSELLER") && (
-                    <Badge className="absolute top-2 right-2 bg-orange-600 text-white text-xs px-3 py-1 font-bold" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    <Badge className="absolute top-2 right-2 bg-orange-600 text-white text-xs px-3 py-1 font-bold">
                       BESTSELLER
                     </Badge>
                   )}
 
                   {/* CHEF'S SPECIAL Badge */}
                   {item.badges?.includes("CHEF'S SPECIAL") && (
-                    <Badge className="absolute top-10 right-2 bg-purple-600 text-white text-xs px-3 py-1 font-bold" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    <Badge className="absolute top-10 right-2 bg-purple-600 text-white text-xs px-3 py-1 font-bold">
                       CHEF'S SPECIAL
                     </Badge>
                   )}
 
                   {/* Offer Discount - Bottom Right */}
                   {item.offerDiscount && (
-                    <Badge className="absolute bottom-2 right-2 bg-red-600 text-white text-xs px-3 py-1 font-bold" style={{ fontFamily: 'Inter, sans-serif' }}>
+                    <Badge className="absolute bottom-2 right-2 bg-red-600 text-white text-xs px-3 py-1 font-bold">
                       {item.offerDiscount}
                     </Badge>
                   )}
                 </div>
 
                 {/* Dark Brown Container - Bottom Section */}
-                <div className="p-4 space-y-2" style={{ height: '248px', backgroundColor: '#2A1A05' }}>
+                <div className="p-4 space-y-2 h-[248px] bg-[#2A1A05]">
                   {/* Title - WHITE COLOR */}
-                  <h3 className="text-white font-bold text-base leading-tight" style={{ fontFamily: 'Poppins, sans-serif', color: '#FFFFFF' }}>
+                  <h3 className="text-white font-bold text-base leading-tight">
                     {item.name}
                   </h3>
                   
                   {/* Description */}
-                  <p className="text-gray-300 text-sm line-clamp-2 leading-snug" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  <p className="text-gray-300 text-sm line-clamp-2 leading-snug">
                     {item.description}
                   </p>
 
@@ -834,11 +827,11 @@ useEffect(() => {
                   <div className="flex items-center justify-between text-white text-xs pt-1">
                     <div className="flex items-center gap-1">
                       <Flame className="h-4 w-4 text-orange-400" />
-                      <span style={{ fontFamily: 'Inter, sans-serif' }}>{item.calories} kcal</span>
+                      <span>{item.calories} kcal</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="h-4 w-4 text-gray-400" />
-                      <span style={{ fontFamily: 'Inter, sans-serif' }}>{item.prepTime}</span>
+                      <span>{item.prepTime}</span>
                     </div>
                   </div>
 
@@ -848,14 +841,14 @@ useEffect(() => {
                   {/* Price and Cuisine Section */}
                   <div className="flex items-center justify-between pt-1">
                     <div>
-                      <p className="text-gray-400 text-xs" style={{ fontFamily: 'Inter, sans-serif' }}>PRICE</p>
-                      <p className="text-white font-bold text-xl leading-none" style={{ fontFamily: 'Poppins, sans-serif' }}>₹{item.price}</p>
+                      <p className="text-gray-400 text-xs">PRICE</p>
+                      <p className="text-white font-bold text-xl leading-none">₹{item.price}</p>
                     </div>
                     
                     {/* Cuisine Badge */}
                     <Badge 
                       className="bg-[#8B5A2B] text-white text-xs px-3 py-1.5"
-                      style={{ fontFamily: 'Inter, sans-serif' }}
+                     
                     >
                       {item.cuisine}
                     </Badge>
@@ -864,7 +857,7 @@ useEffect(() => {
                   {/* Admin Actions Row */}
                   <div className="flex items-center justify-between pt-3 border-t border-white/10">
                     <div className="flex items-center gap-2">
-                      <span className="text-white/80 text-xs" style={{ fontFamily: 'Inter, sans-serif' }}>Available</span>
+                      <span className="text-white/80 text-xs">Available</span>
                       <Switch 
                         checked={item.available}
                         onCheckedChange={(checked) => {
@@ -911,15 +904,10 @@ useEffect(() => {
             {filteredCombos.map((combo) => (
               <div 
                 key={combo.id} 
-                className="overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 card-float w-full"
-                style={{ 
-                  minHeight: '424px',
-                  borderRadius: '16px',
-                  backgroundColor: '#FFFFFF'
-                }}
+                className="overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 card-float w-full min-h-[424px] rounded-2xl bg-white"
               >
                 {/* Image Section */}
-                <div className="relative overflow-hidden" style={{ height: '176px' }}>
+                <div className="relative overflow-hidden h-44">
                   <img 
                     src={combo.image || getDefaultMenuImage(combo.name, combo.category ?? "")}
                     alt={combo.name} 
@@ -931,7 +919,7 @@ useEffect(() => {
                   <div className="absolute top-2 left-2">
                     <Badge 
                       className="bg-purple-600 text-white text-xs px-3 py-1 font-bold"
-                      style={{ fontFamily: 'Inter, sans-serif' }}
+                     
                     >
                       COMBO DEAL
                     </Badge>
@@ -939,26 +927,26 @@ useEffect(() => {
                 </div>
 
                 {/* Dark Brown Container - Bottom Section */}
-                <div className="p-3 flex flex-col overflow-hidden" style={{ height: '248px', backgroundColor: '#2A1A05' }}>
+                <div className="p-3 flex flex-col overflow-hidden h-[248px] bg-[#2A1A05]">
                   {/* Title - WHITE COLOR */}
-                  <h3 className="text-white font-bold text-sm leading-tight truncate" style={{ fontFamily: 'Poppins, sans-serif', color: '#FFFFFF' }}>
+                  <h3 className="text-white font-bold text-sm leading-tight truncate">
                     {combo.name}
                   </h3>
                   
                   {/* Description */}
-                  <p className="text-gray-300 text-xs line-clamp-2 leading-snug mt-1" style={{ fontFamily: 'Inter, sans-serif' }}>
+                  <p className="text-gray-300 text-xs line-clamp-2 leading-snug mt-1">
                     {combo.description}
                   </p>
 
                   {/* Cuisine and Category Badges */}
                   <div className="mt-2 flex flex-wrap gap-2">
                     {combo.cuisine && (
-                      <Badge className="bg-orange-600 text-white text-xs" style={{ fontFamily: 'Inter, sans-serif' }}>
+                      <Badge className="bg-orange-600 text-white text-xs">
                         {combo.cuisine}
                       </Badge>
                     )}
                     {combo.category && (
-                      <Badge className="bg-blue-600 text-white text-xs" style={{ fontFamily: 'Inter, sans-serif' }}>
+                      <Badge className="bg-blue-600 text-white text-xs">
                         {combo.category}
                       </Badge>
                     )}
@@ -968,11 +956,11 @@ useEffect(() => {
                   <div className="flex items-center justify-between text-white text-xs mt-2">
                     <div className="flex items-center gap-1">
                       <Flame className="h-3 w-3 text-orange-400" />
-                      <span style={{ fontFamily: 'Inter, sans-serif' }}>{combo.calories} kcal</span>
+                      <span>{combo.calories} kcal</span>
                     </div>
                     <div className="flex items-center gap-1">
                       <Clock className="h-3 w-3 text-gray-400" />
-                      <span style={{ fontFamily: 'Inter, sans-serif' }}>{combo.prepTime}</span>
+                      <span>{combo.prepTime}</span>
                     </div>
                   </div>
 
@@ -982,12 +970,12 @@ useEffect(() => {
                   {/* Price Section with Strikethrough */}
                   <div>
                     <div className="flex items-baseline gap-2 mb-1">
-                      <p className="text-gray-400 text-xs line-through" style={{ fontFamily: 'Inter, sans-serif' }}>₹{combo.originalPrice}</p>
-                      <Badge className="bg-green-600 text-white text-[10px] px-1.5 py-0.5" style={{ fontFamily: 'Inter, sans-serif' }}>
+                      <p className="text-gray-400 text-xs line-through">₹{combo.originalPrice}</p>
+                      <Badge className="bg-green-600 text-white text-[10px] px-1.5 py-0.5">
                         Save ₹{combo.originalPrice - combo.discountedPrice}
                       </Badge>
                     </div>
-                    <p className="text-white font-bold text-lg leading-none" style={{ fontFamily: 'Poppins, sans-serif' }}>₹{combo.discountedPrice}</p>
+                    <p className="text-white font-bold text-lg leading-none">₹{combo.discountedPrice}</p>
                   </div>
 
                   {/* Spacer to push admin actions to bottom */}
@@ -996,7 +984,7 @@ useEffect(() => {
                   {/* Admin Actions Row */}
                   <div className="flex items-center justify-between pt-2 border-t border-white/10 flex-shrink-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-white/80 text-xs" style={{ fontFamily: 'Inter, sans-serif' }}>Available</span>
+                      <span className="text-white/80 text-xs">Available</span>
                       <Switch 
                         checked={combo.available}
                         onCheckedChange={(checked) => {
@@ -1044,22 +1032,22 @@ useEffect(() => {
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Poppins, sans-serif' }}>
+            <DialogTitle>
               {editingItem ? "Edit Menu Item" : "Add New Menu Item"}
             </DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
+            <DialogDescription>
               {editingItem ? "Update the details of your menu item" : "Add a new item to your menu"}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleUpdateItem} className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="name" style={{ fontFamily: 'Inter, sans-serif' }}>Item Name</Label>
+                <Label htmlFor="name">Item Name</Label>
                 <Input id="name" name="name" defaultValue={editingItem?.name} required />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="cuisine" style={{ fontFamily: 'Inter, sans-serif' }}>Cuisine</Label>
+                  <Label htmlFor="cuisine">Cuisine</Label>
                   <Button
                     type="button"
                     size="sm"
@@ -1085,7 +1073,7 @@ useEffect(() => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="category" style={{ fontFamily: 'Inter, sans-serif' }}>Category</Label>
+                  <Label htmlFor="category">Category</Label>
                   <Button
                     type="button"
                     size="sm"
@@ -1110,16 +1098,16 @@ useEffect(() => {
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="price" style={{ fontFamily: 'Inter, sans-serif' }}>Price (₹)</Label>
+                <Label htmlFor="price">Price (₹)</Label>
                 <Input id="price" name="price" type="number" defaultValue={editingItem?.price} required />
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="description" style={{ fontFamily: 'Inter, sans-serif' }}>Description</Label>
+              <Label htmlFor="description">Description</Label>
               <Input id="description" name="description" defaultValue={editingItem?.description} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="image" style={{ fontFamily: 'Inter, sans-serif' }}>Image URL</Label>
+              <Label htmlFor="image">Image URL</Label>
               <Input 
                 id="image" 
                 name="image" 
@@ -1131,15 +1119,15 @@ useEffect(() => {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="calories" style={{ fontFamily: 'Inter, sans-serif' }}>Calories</Label>
+                <Label htmlFor="calories">Calories</Label>
                 <Input id="calories" name="calories" type="number" defaultValue={editingItem?.calories} required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="prepTime" style={{ fontFamily: 'Inter, sans-serif' }}>Prep Time</Label>
+                <Label htmlFor="prepTime">Prep Time</Label>
                 <Input id="prepTime" name="prepTime" defaultValue={editingItem?.prepTime} placeholder="e.g., 15-20 mins" required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="diet" style={{ fontFamily: 'Inter, sans-serif' }}>Diet Type</Label>
+                <Label htmlFor="diet">Diet Type</Label>
                 <Select name="diet" defaultValue={editingItem?.dietType}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select type" />
@@ -1152,7 +1140,7 @@ useEffect(() => {
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="cookingStation" style={{ fontFamily: 'Inter, sans-serif' }}>Kitchen Station</Label>
+              <Label htmlFor="cookingStation">Kitchen Station</Label>
               <Select name="cookingStation" defaultValue={editingItem?.cookingStation || ""}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select kitchen station" />
@@ -1168,12 +1156,12 @@ useEffect(() => {
             
             {/* Customization Section */}
             <div className="border-t pt-4 mt-4">
-              <h3 className="text-sm font-semibold mb-3" style={{ fontFamily: 'Inter, sans-serif' }}>Customization Options</h3>
+              <h3 className="text-sm font-semibold mb-3">Customization Options</h3>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {/* Spice Level */}
                 <div className="space-y-2">
-                  <Label htmlFor="spiceLevel" style={{ fontFamily: 'Inter, sans-serif' }}>Spice Level</Label>
+                  <Label htmlFor="spiceLevel">Spice Level</Label>
                   <Select name="spiceLevel" defaultValue={editingItem?.spiceLevel}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select spice level" />
@@ -1187,7 +1175,7 @@ useEffect(() => {
                 </div>
                 
                 <div className="space-y-2">
-                  <Label htmlFor="offerDiscount" style={{ fontFamily: 'Inter, sans-serif' }}>Offer Discount</Label>
+                  <Label htmlFor="offerDiscount">Offer Discount</Label>
                   <Input id="offerDiscount" name="offerDiscount" defaultValue={editingItem?.offerDiscount} placeholder="e.g., 10% OFF" />
                 </div>
               </div>
@@ -1195,7 +1183,7 @@ useEffect(() => {
               {/* Addons as Checkboxes */}
               <div className="space-y-2 mt-4">
                 <div className="flex items-center justify-between">
-                  <Label style={{ fontFamily: 'Inter, sans-serif' }}>Available Addons</Label>
+                  <Label>Available Addons</Label>
                   <Button
                     type="button"
                     size="sm"
@@ -1220,7 +1208,7 @@ useEffect(() => {
                           }
                         }}
                       />
-                      <label htmlFor={addon.name} className="text-sm cursor-pointer" style={{ fontFamily: 'Inter, sans-serif' }}>{addon.name}</label>
+                      <label htmlFor={addon.name} className="text-sm cursor-pointer">{addon.name}</label>
                     </div>
                   ))}
                 </div>
@@ -1230,7 +1218,7 @@ useEffect(() => {
             {/* Ingredients Section */}
             <div className="border-t pt-4 mt-2">
               <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-semibold" style={{ fontFamily: 'Inter, sans-serif' }}>Ingredients</h3>
+                <h3 className="text-sm font-semibold">Ingredients</h3>
                 <Button
                   type="button"
                   size="sm"
@@ -1302,25 +1290,25 @@ useEffect(() => {
       <Dialog open={comboDialogOpen} onOpenChange={setComboDialogOpen}>
         <DialogContent className="max-w-xl w-[95vw] max-h-[85vh] flex flex-col">
           <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Poppins, sans-serif' }}>
+            <DialogTitle>
               {editingCombo ? "Edit Combo Meal" : "Add New Combo Meal"}
             </DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
+            <DialogDescription>
               {editingCombo ? "Update the details of your combo" : "Create a new combo meal"}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handleUpdateCombo} className="space-y-4 overflow-y-auto flex-1 pr-1">
             <div className="space-y-2">
-              <Label htmlFor="comboName" style={{ fontFamily: 'Inter, sans-serif' }}>Combo Name</Label>
+              <Label htmlFor="comboName">Combo Name</Label>
               <Input id="comboName" name="name" defaultValue={editingCombo?.name} required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="comboDesc" style={{ fontFamily: 'Inter, sans-serif' }}>Description</Label>
+              <Label htmlFor="comboDesc">Description</Label>
               <Input id="comboDesc" name="desc" defaultValue={editingCombo?.description} required />
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="comboCuisine" style={{ fontFamily: 'Inter, sans-serif' }}>Cuisine</Label>
+                <Label htmlFor="comboCuisine">Cuisine</Label>
                 <Button
                   type="button"
                   size="sm"
@@ -1344,7 +1332,7 @@ useEffect(() => {
             </div>
             <div className="space-y-2">
               <div className="flex items-center justify-between">
-                <Label htmlFor="comboCategory" style={{ fontFamily: 'Inter, sans-serif' }}>Category</Label>
+                <Label htmlFor="comboCategory">Category</Label>
                 <Button
                   type="button"
                   size="sm"
@@ -1368,24 +1356,24 @@ useEffect(() => {
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="originalPrice" style={{ fontFamily: 'Inter, sans-serif' }}>Original Price (₹)</Label>
+                <Label htmlFor="originalPrice">Original Price (₹)</Label>
                 <Input id="originalPrice" name="originalPrice" type="number" defaultValue={editingCombo?.originalPrice || ''} min="1" required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="comboPrice" style={{ fontFamily: 'Inter, sans-serif' }}>Discounted Price (₹)</Label>
+                <Label htmlFor="comboPrice">Discounted Price (₹)</Label>
                 <Input id="comboPrice" name="price" type="number" defaultValue={editingCombo?.discountedPrice || ''} min="1" required />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="comboCalories" style={{ fontFamily: 'Inter, sans-serif' }}>Calories</Label>
+                <Label htmlFor="comboCalories">Calories</Label>
                 <Input id="comboCalories" name="calories" type="number" defaultValue={editingCombo?.calories} required />
               </div>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="comboPrepTime" style={{ fontFamily: 'Inter, sans-serif' }}>Prep Time</Label>
+              <Label htmlFor="comboPrepTime">Prep Time</Label>
               <Input id="comboPrepTime" name="prepTime" defaultValue={editingCombo?.prepTime} placeholder="e.g., 25mins" required />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="comboImage" style={{ fontFamily: 'Inter, sans-serif' }}>Image URL</Label>
+              <Label htmlFor="comboImage">Image URL</Label>
               <Input 
                 id="comboImage" 
                 name="image" 
@@ -1397,7 +1385,7 @@ useEffect(() => {
 
             {/* Menu Items Selection with Search and Filter */}
             <div className="space-y-3">
-              <Label style={{ fontFamily: 'Inter, sans-serif' }}>Select Items for Combo</Label>
+              <Label>Select Items for Combo</Label>
               
               {/* Expandable Multi-Select (Works within Modal) */}
               <div className="border-2 border-gray-300 rounded-lg bg-white">
@@ -1406,7 +1394,7 @@ useEffect(() => {
                   type="button"
                   onClick={() => setComboDropdownOpen(!comboDropdownOpen)}
                   className="w-full px-4 py-3 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
-                  style={{ fontFamily: 'Inter, sans-serif' }}
+                 
                 >
                   <span className="text-sm font-medium">
                     {selectedComboItems.length === 0 
@@ -1429,7 +1417,7 @@ useEffect(() => {
                         value={comboItemSearchQuery}
                         onChange={(e) => setComboItemSearchQuery(e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-[#8B5A2B]"
-                        style={{ fontFamily: 'Inter, sans-serif' }}
+                       
                         autoFocus
                       />
                     </div>
@@ -1513,14 +1501,14 @@ useEffect(() => {
       <Dialog open={addCuisineDialogOpen} onOpenChange={setAddCuisineDialogOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Poppins, sans-serif' }}>Add New Cuisine</DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
+            <DialogTitle>Add New Cuisine</DialogTitle>
+            <DialogDescription>
               Add a new cuisine type to your menu
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="newCuisine" style={{ fontFamily: 'Inter, sans-serif' }}>Cuisine Name</Label>
+              <Label htmlFor="newCuisine">Cuisine Name</Label>
               <Input
                 id="newCuisine"
                 placeholder="e.g., Thai, Japanese, Mexican"
@@ -1530,10 +1518,10 @@ useEffect(() => {
               />
             </div>
             <div className="flex gap-3 pt-4">
-              <Button onClick={handleAddCuisine} className="flex-1 bg-[#8B5A2B] hover:bg-[#6D421E]" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <Button onClick={handleAddCuisine} className="flex-1 bg-[#8B5A2B] hover:bg-[#6D421E]">
                 Add Cuisine
               </Button>
-              <Button type="button" variant="outline" onClick={() => setAddCuisineDialogOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setAddCuisineDialogOpen(false)}>Cancel</Button>
             </div>
           </div>
         </DialogContent>
@@ -1543,14 +1531,14 @@ useEffect(() => {
       <Dialog open={addCategoryDialogOpen} onOpenChange={setAddCategoryDialogOpen}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Poppins, sans-serif' }}>Add New Category</DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
+            <DialogTitle>Add New Category</DialogTitle>
+            <DialogDescription>
               Add a new menu category
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="newCategory" style={{ fontFamily: 'Inter, sans-serif' }}>Category Name</Label>
+              <Label htmlFor="newCategory">Category Name</Label>
               <Input
                 id="newCategory"
                 placeholder="e.g., Appetizers, Soups, Salads"
@@ -1561,10 +1549,10 @@ useEffect(() => {
               <p className="text-xs text-gray-500">Will be normalized to lowercase with hyphens</p>
             </div>
             <div className="flex gap-3 pt-4">
-              <Button onClick={handleAddCategory} className="flex-1 bg-[#8B5A2B] hover:bg-[#6D421E]" style={{ fontFamily: 'Inter, sans-serif' }}>
+              <Button onClick={handleAddCategory} className="flex-1 bg-[#8B5A2B] hover:bg-[#6D421E]">
                 Add Category
               </Button>
-              <Button type="button" variant="outline" onClick={() => setAddCategoryDialogOpen(false)} style={{ fontFamily: 'Inter, sans-serif' }}>Cancel</Button>
+              <Button type="button" variant="outline" onClick={() => setAddCategoryDialogOpen(false)}>Cancel</Button>
             </div>
           </div>
         </DialogContent>
@@ -1574,15 +1562,15 @@ useEffect(() => {
       <Dialog open={manageAddonsDialogOpen} onOpenChange={setManageAddonsDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle style={{ fontFamily: 'Poppins, sans-serif' }}>Manage Addons</DialogTitle>
-            <DialogDescription style={{ fontFamily: 'Inter, sans-serif' }}>
+            <DialogTitle>Manage Addons</DialogTitle>
+            <DialogDescription>
               Add or remove available addons
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
             {/* Add new addon */}
             <div className="space-y-2">
-              <Label htmlFor="newAddon" style={{ fontFamily: 'Inter, sans-serif' }}>Add New Addon</Label>
+              <Label htmlFor="newAddon">Add New Addon</Label>
               <div className="flex gap-2">
                 <Input
                   id="newAddon"
@@ -1599,14 +1587,14 @@ useEffect(() => {
 
             {/* Current addons list */}
             <div className="space-y-2 max-h-64 overflow-y-auto border rounded-lg p-3 bg-gray-50">
-              <p className="text-xs font-semibold text-gray-600" style={{ fontFamily: 'Inter, sans-serif' }}>Current Addons ({addonsList.length})</p>
+              <p className="text-xs font-semibold text-gray-600">Current Addons ({addonsList.length})</p>
               <div className="space-y-2">
                 {addonsList.length === 0 ? (
                   <p className="text-xs text-gray-400 text-center py-3">No addons yet. Add one to get started!</p>
                 ) : (
                   addonsList.map(addon => (
                     <div key={addon} className="flex items-center justify-between p-2 bg-white rounded border text-sm">
-                      <span style={{ fontFamily: 'Inter, sans-serif' }}>{addon}</span>
+                      <span>{addon}</span>
                       <Button
                         size="icon"
                         variant="ghost"
@@ -1626,7 +1614,7 @@ useEffect(() => {
                 variant="outline"
                 className="flex-1"
                 onClick={() => setManageAddonsDialogOpen(false)}
-                style={{ fontFamily: 'Inter, sans-serif' }}
+               
               >
                 Done
               </Button>

@@ -115,7 +115,7 @@ export default function Feedback({ user, orders, onSubmitFeedback }: FeedbackPro
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-12 h-12 text-green-600" />
             </div>
-            <h2 className="text-3xl font-bold mb-2 text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Thank You!</h2>
+            <h2 className="text-3xl font-bold mb-2 text-foreground">Thank You!</h2>
             <p className="text-muted-foreground mb-4">Your feedback has been submitted successfully</p>
             <div className="bg-primary/10 border border-primary/30 rounded-lg p-4 mt-4">
               <div className="flex items-center justify-center gap-2 text-primary">
@@ -134,7 +134,7 @@ export default function Feedback({ user, orders, onSubmitFeedback }: FeedbackPro
       <div className="max-w-3xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2 text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Share Your Feedback</h1>
+          <h1 className="text-4xl font-bold mb-2 text-foreground">Share Your Feedback</h1>
           <p className="text-muted-foreground">Help us improve your dining experience</p>
         </div>
 
@@ -307,7 +307,7 @@ export default function Feedback({ user, orders, onSubmitFeedback }: FeedbackPro
 
         {/* Recent Feedback */}
         <div className="bg-card rounded-xl border border-border shadow-sm p-6 mt-6">
-          <h2 className="text-xl font-bold mb-4 text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Your Recent Reviews</h2>
+          <h2 className="text-xl font-bold mb-4 text-foreground">Your Recent Reviews</h2>
           <div className="space-y-4">
             {loyalty.feedbackHistory.slice(0, 5).map((review) => {
               const ratings = Object.values(review.foodRatings || {});

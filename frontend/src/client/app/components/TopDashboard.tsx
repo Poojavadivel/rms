@@ -34,9 +34,7 @@ export default function TopDashboard({
   const unreadCount = getUnreadCount();
   const { config: sysConfig } = useSystemConfig();
 
-  const restaurantName = sysConfig.restaurantName
-    ? sysConfig.restaurantName.toUpperCase()
-    : 'RESTAURANT MANAGEMENT SYSTEM';
+  const restaurantName = 'Urban Bites';
 
   const navItems: NavItem[] = [
     { id: 'home', label: 'Home', icon: <Home className="w-4 h-4" /> },
@@ -51,20 +49,20 @@ export default function TopDashboard({
   ];
 
   return (
-    <div className="fixed top-0 left-0 right-0 z-50 bg-white shadow-md">
+    <div className="fixed top-0 left-0 right-0 z-50 app-header">
       {/* Main Header - Always Visible */}
-      <header className="bg-primary text-white">
-        <div className="max-w-[1920px] mx-auto px-3 sm:px-6">
-          <div className="flex items-center justify-between h-14 sm:h-20">
+      <header className="bg-white/90 backdrop-blur-sm text-foreground border-b border-border/70">
+        <div className="app-content-container">
+          <div className="flex items-center justify-between h-9 sm:h-10">
             {/* Restaurant Title + Logo - Left */}
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 mr-2">
+            <div className="flex items-center gap-1.5 sm:gap-2 min-w-0 flex-1 mr-2">
               <img
                 src={sysConfig.logoUrl || '/favicon.png'}
                 alt="Logo"
-                className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg object-cover flex-shrink-0"
+                className="w-4.5 h-4.5 sm:w-5 sm:h-5 rounded-md object-cover flex-shrink-0"
                 onError={(e) => { (e.currentTarget as HTMLImageElement).src = '/favicon.png'; }}
               />
-              <h1 className="text-base sm:text-2xl font-bold text-white tracking-tight truncate" style={{ fontFamily: "'Playfair Display', serif" }}>
+              <h1 className="text-[12px] sm:text-[13px] font-semibold text-foreground tracking-tight truncate leading-none">
                 {restaurantName}
               </h1>
             </div>
@@ -73,23 +71,23 @@ export default function TopDashboard({
             {!isLoggedIn && (
               <button
                 onClick={() => navigate('/admin')}
-                className="flex items-center gap-1.5 px-3 py-1.5 sm:px-4 sm:py-2 text-white/80 hover:text-white border border-white/30 hover:border-white/60 rounded-xl transition-all duration-200 text-xs font-semibold uppercase tracking-widest backdrop-blur-sm hover:bg-white/10 flex-shrink-0"
+                className="flex items-center gap-1.5 px-2.5 py-1 sm:px-3 sm:py-1.5 text-muted-foreground hover:text-foreground border border-border hover:border-border rounded-lg transition-all duration-200 text-[11px] font-medium uppercase tracking-wider bg-white/70 hover:bg-white flex-shrink-0"
               >
                 <ShieldCheck className="w-4 h-4" />
                 <span className="hidden xs:inline sm:inline">Staff</span>
               </button>
             )}
             {isLoggedIn && (
-              <div className="flex items-center gap-1.5 sm:gap-3 flex-shrink-0">
+              <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                 {/* Cart Icon */}
                 <button
                   onClick={() => onModuleChange('cart')}
-                  className={`relative p-2 sm:p-2.5 rounded-lg transition-all ${
-                    activeModule === 'cart' ? 'bg-white text-primary' : 'text-white hover:bg-primary-foreground/10'
+                  className={`relative app-icon-button p-2 sm:p-2.5 transition-all ${
+                    activeModule === 'cart' ? 'bg-secondary text-primary' : 'text-muted-foreground hover:bg-secondary/80 hover:text-foreground'
                   }`}
                   title="Cart"
                 >
-                  <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
                   {cartItemCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-destructive text-white text-[10px] w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center font-semibold">
                       {cartItemCount}
@@ -100,12 +98,12 @@ export default function TopDashboard({
                 {/* Notifications Icon */}
                 <button
                   onClick={() => onModuleChange('notifications')}
-                  className={`relative p-2 sm:p-2.5 rounded-lg transition-all ${
-                    activeModule === 'notifications' ? 'bg-white text-primary' : 'text-white hover:bg-primary-foreground/10'
+                  className={`relative app-icon-button p-2 sm:p-2.5 transition-all ${
+                    activeModule === 'notifications' ? 'bg-secondary text-primary' : 'text-muted-foreground hover:bg-secondary/80 hover:text-foreground'
                   }`}
                   title="Notifications"
                 >
-                  <Bell className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <Bell className="w-4 h-4 sm:w-5 sm:h-5" />
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 bg-accent text-foreground text-[10px] min-w-4 h-4 sm:min-w-5 sm:h-5 px-1 rounded-full flex items-center justify-center font-semibold border border-white">
                       {unreadCount > 99 ? '99+' : unreadCount}
@@ -116,23 +114,23 @@ export default function TopDashboard({
                 {/* Profile Icon */}
                 <button
                   onClick={() => onModuleChange('profile')}
-                  className={`relative p-2 sm:p-2.5 rounded-lg transition-all ${
-                    activeModule === 'profile' ? 'bg-white text-primary' : 'text-white hover:bg-primary-foreground/10'
+                  className={`relative app-icon-button p-2 sm:p-2.5 transition-all ${
+                    activeModule === 'profile' ? 'bg-secondary text-primary' : 'text-muted-foreground hover:bg-secondary/80 hover:text-foreground'
                   }`}
                   title={user?.name || 'Profile'}
                 >
-                  <User className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <User className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
 
                 {/* Settings Icon */}
                 <button
                   onClick={() => onModuleChange('settings')}
-                  className={`relative p-2 sm:p-2.5 rounded-lg transition-all ${
-                    activeModule === 'settings' ? 'bg-white text-primary' : 'text-white hover:bg-primary-foreground/10'
+                  className={`relative app-icon-button p-2 sm:p-2.5 transition-all ${
+                    activeModule === 'settings' ? 'bg-secondary text-primary' : 'text-muted-foreground hover:bg-secondary/80 hover:text-foreground'
                   }`}
                   title="Settings"
                 >
-                  <Settings className="w-5 h-5 sm:w-6 sm:h-6" />
+                  <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
                 </button>
               </div>
             )}
@@ -143,8 +141,8 @@ export default function TopDashboard({
       {/* Module Navigation Bar - Below Header, Only After Login */}
       {isLoggedIn && showModuleNav && (
         <nav className="bg-white border-b border-border">
-          <div className="max-w-[1920px] mx-auto px-2 sm:px-6">
-            <div className="flex items-center gap-0.5 sm:gap-1 overflow-x-auto scrollbar-hide py-1.5 sm:py-2">
+          <div className="app-content-container">
+            <div className="flex items-center gap-0.5 sm:gap-1 overflow-x-auto scrollbar-hide py-1 sm:py-1.5">
               {navItems.map((item) => {
                 const active = activeModule === item.id;
 
@@ -152,10 +150,7 @@ export default function TopDashboard({
                   <button
                     key={item.id}
                     onClick={() => onModuleChange(item.id)}
-                    className={`
-                      relative flex items-center gap-1.5 px-2.5 sm:px-4 py-2 sm:py-2.5 rounded-lg transition-all whitespace-nowrap text-xs sm:text-sm font-medium
-                      ${active ? 'bg-primary text-white shadow-sm' : 'text-foreground hover:bg-secondary'}
-                    `}
+                    className={`app-tab-trigger relative whitespace-nowrap text-xs sm:text-sm ${active ? 'bg-primary text-white shadow-sm' : 'text-foreground hover:bg-secondary'}`}
                   >
                     {item.icon}
                     <span>{item.label}</span>

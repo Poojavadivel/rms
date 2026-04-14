@@ -36,5 +36,8 @@ def get_db():
     """Get the database instance"""
     global db
     if db is None:
-        raise RuntimeError('Database not initialized. Call init_db() first.')
+        try:
+            init_db()
+        except Exception as exc:
+            raise RuntimeError('Database not initialized. Unable to connect to database.') from exc
     return db

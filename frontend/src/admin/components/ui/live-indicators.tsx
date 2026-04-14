@@ -33,7 +33,7 @@ export function LiveDataIndicator({
         sizeClasses[size],
         className
       )}
-      style={{ fontFamily: 'Inter, sans-serif' }}
+     
     >
       {/* Pulsing Dot */}
       <span className="relative flex">
@@ -137,7 +137,7 @@ export function StatusDot({ status, size = 'md', showLabel = false, className }:
             dotSizes[size]
           )} />
         </span>
-        <span className="text-sm font-medium" style={{ fontFamily: 'Inter, sans-serif' }}>
+        <span className="text-sm font-medium">
           {config.label}
         </span>
       </div>

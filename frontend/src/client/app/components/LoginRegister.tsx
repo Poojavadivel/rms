@@ -60,16 +60,16 @@ export default function LoginRegister({ onLogin }: LoginRegisterProps) {
 
   if (isProcessing) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center py-12 px-6">
-        <div className="max-w-md w-full bg-white rounded-xl border border-border shadow-lg p-8">
+      <div className="min-h-[calc(100vh-3rem)] bg-background flex items-center justify-center px-4 py-6 sm:py-8">
+        <div className="max-w-md w-full bg-white rounded-xl border border-border shadow-lg p-6 sm:p-7">
           <div className="text-center">
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <CheckCircle className="w-12 h-12 text-green-600" />
+            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle className="w-10 h-10 text-green-600" />
             </div>
-            <h2 className="text-3xl font-bold mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+            <h2 className="text-2xl font-semibold mb-1.5">
               {mode === 'login' ? 'Welcome Back!' : 'Account Created!'}
             </h2>
-            <p className="text-muted-foreground mb-4">
+            <p className="text-sm text-muted-foreground mb-3">
               {mode === 'login'
                 ? 'Successfully logged in'
                 : 'Your account has been created successfully'}
@@ -84,7 +84,7 @@ export default function LoginRegister({ onLogin }: LoginRegisterProps) {
   }
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center py-12 px-6">
+    <div className="min-h-[calc(100vh-3rem)] relative flex items-center justify-center px-4 py-6 sm:py-8">
       {/* Background Image */}
       <div className="absolute inset-0">
         <ImageWithFallback
@@ -96,14 +96,14 @@ export default function LoginRegister({ onLogin }: LoginRegisterProps) {
       </div>
 
       {/* Login/Register Box */}
-      <div className="relative z-10 max-w-md w-full">
-        <div className="bg-white/95 backdrop-blur-sm rounded-2xl border border-[#E8DED0] shadow-2xl p-8">
+      <div className="relative z-10 max-w-lg w-full">
+        <div className="bg-white/95 backdrop-blur-sm rounded-xl border border-[#E8DED0] shadow-xl p-5 sm:p-6">
           {/* Header */}
-          <div className="text-center mb-8">
-            <h2 className="text-4xl font-bold mb-3 text-primary" style={{ fontFamily: "'Playfair Display', serif" }}>
+          <div className="text-center mb-5">
+            <h2 className="text-2xl sm:text-3xl font-semibold mb-2 text-primary">
               {mode === 'login' ? 'Welcome Back' : 'Create Account'}
             </h2>
-            <p className="text-muted-foreground">
+            <p className="text-sm text-muted-foreground">
               {mode === 'login'
                 ? 'Login to continue ordering delicious food'
                 : 'Register to get started with exclusive offers'}
@@ -111,10 +111,10 @@ export default function LoginRegister({ onLogin }: LoginRegisterProps) {
           </div>
 
           {/* Toggle Mode */}
-          <div className="flex gap-2 mb-6 bg-secondary p-1 rounded-lg">
+          <div className="flex gap-1.5 mb-4 bg-secondary p-1 rounded-lg">
             <button
               onClick={() => setMode('login')}
-              className={`flex-1 py-2.5 rounded-lg font-medium transition-all ${
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
                 mode === 'login' ? 'bg-primary text-white shadow-sm' : 'text-foreground'
               }`}
             >
@@ -122,7 +122,7 @@ export default function LoginRegister({ onLogin }: LoginRegisterProps) {
             </button>
             <button
               onClick={() => setMode('register')}
-              className={`flex-1 py-2.5 rounded-lg font-medium transition-all ${
+              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-all ${
                 mode === 'register' ? 'bg-primary text-white shadow-sm' : 'text-foreground'
               }`}
             >
@@ -131,7 +131,7 @@ export default function LoginRegister({ onLogin }: LoginRegisterProps) {
           </div>
 
           {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-3.5">
             {errorMessage && (
               <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                 {errorMessage}
@@ -146,7 +146,7 @@ export default function LoginRegister({ onLogin }: LoginRegisterProps) {
                     type="text"
                     value={formData.name}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                     placeholder="Enter your full name"
                     required
                   />
@@ -162,7 +162,7 @@ export default function LoginRegister({ onLogin }: LoginRegisterProps) {
                   type="email"
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                   placeholder="Enter your email"
                   required
                 />
@@ -178,7 +178,7 @@ export default function LoginRegister({ onLogin }: LoginRegisterProps) {
                     type="tel"
                     value={formData.phone}
                     onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                     placeholder="Enter your phone number"
                     required
                   />
@@ -194,7 +194,7 @@ export default function LoginRegister({ onLogin }: LoginRegisterProps) {
                   <textarea
                     value={formData.address}
                     onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                     placeholder="Enter your delivery address"
                     rows={2}
                     required
@@ -211,7 +211,7 @@ export default function LoginRegister({ onLogin }: LoginRegisterProps) {
                   type="password"
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  className="w-full pl-10 pr-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                   placeholder="Enter your password"
                   required
                   minLength={6}
@@ -228,7 +228,7 @@ export default function LoginRegister({ onLogin }: LoginRegisterProps) {
                     type="password"
                     value={formData.confirmPassword}
                     onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
-                    className="w-full pl-10 pr-4 py-3 border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 border border-border rounded-lg focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
                     placeholder="Confirm your password"
                     required
                     minLength={6}
@@ -250,14 +250,14 @@ export default function LoginRegister({ onLogin }: LoginRegisterProps) {
 
             <button
               type="submit"
-              className="w-full bg-primary text-white py-3.5 rounded-lg font-semibold hover:bg-primary/90 transition-colors shadow-sm"
+              className="w-full bg-primary text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-primary/90 transition-colors shadow-sm"
             >
               {mode === 'login' ? 'Login to Account' : 'Create Account'}
             </button>
           </form>
 
           {mode === 'register' && (
-            <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+            <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
               <p className="text-sm text-green-800">
                 <span className="font-semibold">🎁 Welcome Bonus!</span> Get 100 loyalty points on registration
               </p>

@@ -87,10 +87,9 @@ export function MenuItemImage({ src, alt, className }: MenuItemImageProps) {
       <img
         src={currentSrc}
         alt={alt}
-        className={className}
+        className={`${className} ${isLoading ? 'hidden' : 'block'}`}
         onError={handleError}
         onLoad={handleLoad}
-        style={{ display: isLoading ? 'none' : 'block' }}
       />
     </>
   );

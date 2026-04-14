@@ -94,7 +94,7 @@ export default function Settings({ user, notifications: userNotifications, onMar
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>Settings</h1>
+          <h1 className="text-4xl font-bold mb-2">Settings</h1>
           <p className="text-muted-foreground">Manage your account preferences and notifications</p>
         </div>
 

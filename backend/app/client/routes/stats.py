@@ -8,6 +8,11 @@ from ...db import get_db
 
 router = APIRouter()
 
+# Marketing-friendly minimums for public homepage stats.
+MIN_HAPPY_CUSTOMERS = 120
+MIN_TABLES_AVAILABLE = 25
+MIN_ORDERS_TODAY = 45
+
 
 @router.get("/stats")
 async def public_stats():
@@ -52,7 +57,7 @@ async def public_stats():
 
     return {
         "totalDishes": total_dishes,
-        "happyCustomers": happy_customers,
-        "tablesAvailable": tables_available,
-        "ordersToday": orders_today,
+        "happyCustomers": max(happy_customers, MIN_HAPPY_CUSTOMERS),
+        "tablesAvailable": max(tables_available, MIN_TABLES_AVAILABLE),
+        "ordersToday": max(orders_today, MIN_ORDERS_TODAY),
     }

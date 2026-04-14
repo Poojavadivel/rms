@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Plus, Minus, Search, X, Flame, Clock, Tag, Sparkles, ShoppingBag, ChevronUp, ChevronDown, RotateCcw } from 'lucide-react';
+import { Plus, Minus, Search, X, Sparkles, Flame, Clock, Tag, ShoppingBag, ArrowRight, RotateCcw, ChevronDown, Grid3X3, Leaf, Globe } from 'lucide-react';
 import type { MenuItem } from '@/client/app/data/menuData';
 import { categories as sampleCategories, menuData } from '@/client/app/data/menuData';
 import { fetchMenuCategories, fetchMenuItems } from '@/client/api/menu';
 import { MenuItemImage } from '@/client/app/components/MenuItemImage';
+import TopAppBar from '@/client/app/components/TopAppBar';
 import type { CartItem } from '@/client/app/App';
+import menuBg from '@/client/assets/4b8f78df70182590282085e8c94bb5315bb0108c.png';
 
 interface KioskMenuProps {
   onAddToCart: (item: Omit<CartItem, 'quantity'> & { quantity?: number }) => void;
@@ -15,29 +17,23 @@ interface KioskMenuProps {
   onRemoveItem: (id: string) => void;
 }
 
-/* ---------- category emoji map ---------- */
-const categoryIcons: Record<string, string> = {
-  'All': '🍽️',
-  'Starters': '🥗',
-  'Main Course': '🍛',
-  'Breads': '🫓',
-  'Desserts': '🍰',
-  'Beverages': '☕',
-  'Sides': '🥘',
-  'Salads': '🥬',
-};
+type VegFilter = 'all' | 'veg' | 'non-veg' | 'special';
+type CuisineFilter = 'all' | 'North Indian' | 'South Indian' | 'Chinese' | 'Italian' | 'Continental';
+
+const cuisines: CuisineFilter[] = ['all', 'North Indian', 'South Indian', 'Chinese', 'Italian', 'Continental'];
+const navBtnBase = 'w-full text-left px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors';
 
 export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, onUpdateQuantity, onRemoveItem }: KioskMenuProps) {
   const [categories, setCategories] = useState<string[]>(['All']);
   const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('All');
-  const [filterVeg, setFilterVeg] = useState<'all' | 'veg' | 'non-veg' | 'special'>('all');
-  const [filterCuisine, setFilterCuisine] = useState<'all' | 'North Indian' | 'South Indian' | 'Chinese' | 'Italian' | 'Continental'>('all');
+  const [filterVeg, setFilterVeg] = useState<VegFilter>('all');
+  const [filterCuisine, setFilterCuisine] = useState<CuisineFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedItem, setSelectedItem] = useState<MenuItem | null>(null);
-  const [showBasket, setShowBasket] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const mainRef = useRef<HTMLDivElement>(null);
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const filterWrapRef = useRef<HTMLDivElement>(null);
   const [customization, setCustomization] = useState({
     spiceLevel: 'medium',
     addons: [] as string[],
@@ -45,13 +41,27 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
     quantity: 1,
   });
 
-  useEffect(() => { setMounted(true); }, []);
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    const onDocClick = (ev: MouseEvent) => {
+      if (!filterWrapRef.current) return;
+      if (!filterWrapRef.current.contains(ev.target as Node)) {
+        setFiltersOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDocClick);
+    return () => document.removeEventListener('mousedown', onDocClick);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
     const cuisineLookup = new Map<string, MenuItem['cuisine']>(
       menuData.map((m) => [m.name.toLowerCase(), m.cuisine]),
     );
+
     Promise.all([fetchMenuCategories(), fetchMenuItems()])
       .then(([cats, items]) => {
         if (cancelled) return;
@@ -66,7 +76,10 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
         setCategories(sampleCategories);
         setMenuItems(menuData);
       });
-    return () => { cancelled = true; };
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const filteredItems = useMemo(() => {
@@ -77,8 +90,7 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
         (filterVeg === 'veg' && item.isVeg) ||
         (filterVeg === 'non-veg' && !item.isVeg) ||
         (filterVeg === 'special' && item.todaysSpecial);
-      const cuisineMatch =
-        filterCuisine === 'all' || item.cuisine === filterCuisine;
+      const cuisineMatch = filterCuisine === 'all' || item.cuisine === filterCuisine;
       const searchMatch =
         searchQuery === '' ||
         item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -86,15 +98,6 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
       return categoryMatch && vegMatch && cuisineMatch && searchMatch && item.available;
     });
   }, [filterCuisine, filterVeg, menuItems, searchQuery, selectedCategory]);
-
-  /* representative image per category for sidebar */
-  const categoryImages = useMemo(() => {
-    const map: Record<string, string> = {};
-    for (const item of menuItems) {
-      if (item.image && !map[item.category]) map[item.category] = item.image;
-    }
-    return map;
-  }, [menuItems]);
 
   const cartTotal = useMemo(() => cart.reduce((sum, c) => sum + c.price * c.quantity, 0), [cart]);
 
@@ -110,7 +113,7 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
     const cat = selectedItem.category;
     const isVeg = selectedItem.isVeg;
     const foodCats = ['Starters', 'Main Course', 'Breads', 'Sides'];
-    if (!foodCats.includes(cat)) return false; // no add-ons for Beverages, Desserts, Salads
+    if (!foodCats.includes(cat)) return false;
     if (addon.id === 'extra-cheese') return ['Starters', 'Main Course', 'Breads'].includes(cat);
     if (addon.id === 'extra-paneer') return isVeg && ['Starters', 'Main Course'].includes(cat);
     if (addon.id === 'extra-chicken') return !isVeg && ['Starters', 'Main Course'].includes(cat);
@@ -131,6 +134,7 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
       specialInstructions: customization.specialInstructions,
       quantity: customization.quantity,
     };
+
     onAddToCart(cartItem);
     setSelectedItem(null);
     setCustomization({ spiceLevel: 'medium', addons: [], specialInstructions: '', quantity: 1 });
@@ -148,326 +152,294 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
   };
 
   const getCartQuantity = (itemId: string) => {
-    const c = cart.find(ci => ci.id === itemId);
+    const c = cart.find((ci) => ci.id === itemId);
     return c ? c.quantity : 0;
   };
 
-  const handleCategoryClick = (cat: string) => {
-    setSelectedCategory(cat);
-    mainRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  const resetFilters = () => {
+    setSelectedCategory('All');
+    setFilterVeg('all');
+    setFilterCuisine('all');
+    setSearchQuery('');
+  };
+
+  const selectCategory = (value: string) => {
+    setSelectedCategory(value);
+    setFiltersOpen(false);
+  };
+
+  const selectVeg = (value: VegFilter) => {
+    setFilterVeg(value);
+    setFiltersOpen(false);
+  };
+
+  const selectCuisine = (value: CuisineFilter) => {
+    setFilterCuisine(value);
+    setFiltersOpen(false);
   };
 
   return (
-    <div className={`h-screen flex flex-col bg-[#FAF7F2] overflow-hidden transition-opacity duration-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
-
-      {/* ====== TOP BAR ====== */}
-      <div className="flex-shrink-0 bg-[#3E2723] text-white px-4 py-3 flex items-center justify-between shadow-lg z-30">
-        <div className="flex items-center gap-3">
-          <img src="/favicon.png" alt="logo" className="w-10 h-10 rounded-full object-contain" />
-          <div>
-            <h1 className="text-lg font-bold leading-tight" style={{ fontFamily: "'Playfair Display', serif" }}>Self-Order Kiosk</h1>
-            <p className="text-[10px] text-white/50 uppercase tracking-widest">Touch to begin</p>
+    <div className={`min-h-screen bg-[#FAF7F2] transition-opacity duration-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
+      <section className="relative py-4 sm:py-6 px-3 sm:px-5 min-h-screen overflow-hidden">
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[#FAF7F2]" />
+          <div className="absolute inset-0 opacity-15 saturate-[1.2]">
+            <img src={menuBg} alt="Menu background" className="w-full h-full object-cover scale-105" />
           </div>
+          <div className="absolute inset-0 bg-[#EADBC8]/30 mix-blend-multiply" />
+          <div className="absolute inset-0 backdrop-blur-[1px]" />
+          <div className="absolute inset-0 bg-gradient-to-b from-[#FAF7F2] via-transparent to-[#FAF7F2]" />
         </div>
-        {/* Search */}
-        <div className="relative w-64 hidden md:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search menu…"
-            className="w-full pl-9 pr-8 py-2 bg-white/10 border border-white/10 rounded-full text-sm text-white placeholder-white/30 focus:outline-none focus:bg-white/20 transition-colors"
-          />
-          {searchQuery && (
-            <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2">
-              <X className="w-4 h-4 text-white/50" />
-            </button>
-          )}
-        </div>
-      </div>
 
-      {/* ====== MAIN AREA: SIDEBAR + CONTENT ====== */}
-      <div className="flex flex-1 min-h-0">
-
-        {/* ---- LEFT SIDEBAR ---- */}
-        <aside className="w-[100px] md:w-[120px] flex-shrink-0 bg-white border-r border-[#E8DED0] overflow-y-auto scrollbar-hide flex flex-col py-2">
-          {categories.map((cat, i) => {
-            const isActive = selectedCategory === cat;
-            return (
-              <button
-                key={cat}
-                onClick={() => handleCategoryClick(cat)}
-                className={`relative flex flex-col items-center gap-1.5 px-2 py-3 transition-all duration-300 border-l-4 ${
-                  isActive
-                    ? 'border-[#8B5A2B] bg-[#FAF0E4]'
-                    : 'border-transparent hover:bg-[#FAF7F2]'
-                }`}
-                style={{ animationDelay: `${i * 60}ms` }}
-              >
-                {/* Category thumbnail */}
-                <div className={`w-14 h-14 md:w-16 md:h-16 rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
-                  isActive ? 'border-[#8B5A2B] shadow-lg shadow-[#8B5A2B]/20 scale-105' : 'border-[#E8DED0]'
-                }`}>
-                  {cat === 'All' ? (
-                    <div className="w-full h-full bg-gradient-to-br from-[#3E2723] to-[#8B5A2B] flex items-center justify-center text-2xl">
-                      {categoryIcons['All']}
-                    </div>
-                  ) : categoryImages[cat] ? (
-                    <MenuItemImage src={categoryImages[cat]} alt={cat} className="w-full h-full object-cover" />
-                  ) : (
-                    <div className="w-full h-full bg-[#E8DED0] flex items-center justify-center text-2xl">
-                      {categoryIcons[cat] || '🍴'}
-                    </div>
+        <div className="relative z-10 max-w-7xl mx-auto">
+          <div className="space-y-4">
+            {/* Top App Bar */}
+            <TopAppBar
+              title="Urban Bites"
+              centerSlot={
+                <div className="relative w-full">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8B5A2B]/60" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="Search for your favorite dish..."
+                    className="w-full pl-9 pr-9 py-2 border border-[#E8DED0] bg-white rounded-lg focus:outline-none focus:border-[#8B5A2B] focus:ring-2 focus:ring-[#8B5A2B]/10 transition-all text-sm"
+                  />
+                  {searchQuery && (
+                    <button
+                      onClick={() => setSearchQuery('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8B5A2B]/60 hover:text-[#8B5A2B]"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                   )}
                 </div>
-                <span className={`text-[10px] md:text-xs font-bold text-center leading-tight uppercase tracking-wider transition-colors ${
-                  isActive ? 'text-[#8B5A2B]' : 'text-[#6D4C41]'
-                }`}>
-                  {cat}
-                </span>
-                {/* item count badge */}
-                <span className={`text-[9px] font-semibold px-1.5 py-0.5 rounded-full ${
-                  isActive ? 'bg-[#8B5A2B] text-white' : 'bg-[#E8DED0] text-[#6D4C41]'
-                }`}>
-                  {cat === 'All' ? menuItems.filter(i => i.available).length : menuItems.filter(i => i.category === cat && i.available).length}
-                </span>
-              </button>
-            );
-          })}
-        </aside>
-
-        {/* ---- MAIN CONTENT ---- */}
-        <main ref={mainRef} className="flex-1 overflow-y-auto scrollbar-hide pb-28">
-          {/* Category Header */}
-          <div className="sticky top-0 z-20 bg-[#FAF7F2]/95 backdrop-blur-sm border-b border-[#E8DED0] px-4 py-3">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-2xl font-black text-[#3E2723] uppercase tracking-wide" style={{ fontFamily: "'Playfair Display', serif" }}>
-                {selectedCategory}
-              </h2>
-              <span className="text-xs text-[#8B5A2B] font-semibold bg-[#8B5A2B]/10 px-3 py-1 rounded-full">
-                {filteredItems.length} items
-              </span>
-            </div>
-            {/* Sub-filters row */}
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-              {(['all', 'veg', 'non-veg', 'special'] as const).map((f) => (
-                <button
-                  key={f}
-                  onClick={() => setFilterVeg(f)}
-                  className={`px-3 py-1.5 rounded-full text-[11px] font-bold border-2 whitespace-nowrap transition-all duration-200 ${
-                    filterVeg === f
-                      ? f === 'veg' ? 'bg-green-600 text-white border-green-600'
-                      : f === 'non-veg' ? 'bg-red-600 text-white border-red-600'
-                      : f === 'special' ? 'bg-[#C8A47A] text-[#2D1B10] border-[#C8A47A]'
-                      : 'bg-[#3E2723] text-white border-[#3E2723]'
-                      : 'bg-white text-[#6D4C41] border-[#E8DED0] hover:border-[#8B5A2B]'
-                  }`}
-                >
-                  {f === 'all' ? 'ALL' : f === 'veg' ? '● VEG' : f === 'non-veg' ? '● NON-VEG' : '✦ SPECIAL'}
-                </button>
-              ))}
-              <div className="w-px bg-[#E8DED0] mx-1" />
-              {(['all', 'North Indian', 'South Indian', 'Chinese', 'Italian', 'Continental'] as const).map((c) => (
-                <button
-                  key={c}
-                  onClick={() => setFilterCuisine(c)}
-                  className={`px-3 py-1.5 rounded-full text-[11px] font-bold border-2 whitespace-nowrap transition-all duration-200 ${
-                    filterCuisine === c
-                      ? 'bg-[#8B5A2B] text-white border-[#8B5A2B]'
-                      : 'bg-white text-[#6D4C41] border-[#E8DED0] hover:border-[#8B5A2B]'
-                  }`}
-                >
-                  {c === 'all' ? 'ALL CUISINES' : c.toUpperCase()}
-                </button>
-              ))}
-            </div>
-            {/* Mobile search */}
-            <div className="relative mt-2 md:hidden">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8B5A2B]/40" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search…"
-                className="w-full pl-9 pr-8 py-2 bg-white border border-[#E8D5B5] rounded-lg text-sm text-[#3E2723] placeholder-[#8B5A2B]/30 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery('')} className="absolute right-3 top-1/2 -translate-y-1/2">
-                  <X className="w-4 h-4 text-gray-400" />
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* ---- ITEMS GRID ---- */}
-          <div className="px-3 py-3">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
-              {filteredItems.map((item, idx) => {
-                const qty = getCartQuantity(item.id);
-                return (
-                  <div
-                    key={item.id}
-                    className="group bg-white rounded-xl border border-[#E8DED0] overflow-hidden hover:shadow-lg hover:shadow-[#8B5A2B]/10 transition-all duration-300 hover:-translate-y-0.5 flex flex-col animate-[fadeSlideUp_0.4s_ease-out_both]"
-                    style={{ animationDelay: `${idx * 50}ms` }}
+              }
+              rightSlot={
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                  <button
+                    onClick={() => setFiltersOpen((v) => !v)}
+                    className={`inline-flex items-center gap-1 px-2 py-1.5 rounded-lg border text-[11px] sm:text-xs font-semibold transition-colors whitespace-nowrap ${
+                      filtersOpen
+                        ? 'bg-[#8B5A2B] text-white border-[#8B5A2B]'
+                        : 'bg-[#FCFAF7] text-[#6D4C41] border-[#E8DED0] hover:border-[#C8A47A] hover:text-[#8B5A2B]'
+                    }`}
                   >
-                    {/* Image */}
-                    <div className="relative aspect-[5/3] overflow-hidden cursor-pointer" onClick={() => setSelectedItem(item)}>
-                      <MenuItemImage
-                        src={item.image}
-                        alt={item.name}
-                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                      />
-                      {/* Badges */}
-                      {item.todaysSpecial && (
-                        <div className="absolute top-1.5 left-1.5 bg-[#C8A47A] text-[#2D1B10] text-[8px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider flex items-center gap-0.5 animate-pulse">
-                          <Sparkles className="w-2.5 h-2.5" /> Special
-                        </div>
-                      )}
-                      {/* Veg indicator */}
-                      <div className={`absolute bottom-1.5 left-1.5 w-4 h-4 rounded border-2 flex items-center justify-center bg-white ${item.isVeg ? 'border-green-600' : 'border-red-600'}`}>
-                        <div className={`w-2 h-2 rounded-full ${item.isVeg ? 'bg-green-600' : 'bg-red-600'}`} />
+                    <span className="hidden sm:inline">Browse Categories</span>
+                    <span className="sm:hidden">Browse</span>
+                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${filtersOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  <button
+                    onClick={onGoToCart}
+                    disabled={cartCount === 0}
+                    className={`inline-flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3 sm:py-2 rounded-lg border font-semibold text-[10px] sm:text-xs transition-all whitespace-nowrap ${
+                      cartCount > 0
+                        ? 'bg-[#3E2723] text-white border-[#3E2723] hover:bg-[#5D4037]'
+                        : 'bg-[#FAF7F2] text-[#8B5A2B]/50 border-[#E8DED0] cursor-not-allowed'
+                    }`}
+                  >
+                    <ShoppingBag className="w-3.5 h-3.5" />
+                    <span>{cartCount}</span>
+                    <span className="hidden sm:inline">₹{cartTotal}</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              }
+            />
+
+            {/* Filter Dropdown */}
+            <div ref={filterWrapRef} className="relative">
+              {filtersOpen && (
+                <div className="absolute inset-x-0 md:inset-x-auto md:right-0 md:w-[min(92vw,960px)] mt-2 bg-white border border-[#E8DED0] rounded-xl shadow-[0_12px_40px_rgba(62,39,35,0.18)] p-3 sm:p-4 z-30">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
+                    <div className="rounded-lg bg-[#FCFAF7] border border-[#EFE6DA] p-2.5">
+                      <div className="text-[11px] uppercase tracking-wide font-bold text-[#8B5A2B] mb-2 flex items-center gap-1.5">
+                        <Grid3X3 className="w-3.5 h-3.5" /> Categories
+                      </div>
+                      <div className="space-y-1">
+                        {categories.map((cat) => (
+                          <button
+                            key={cat}
+                            onClick={() => selectCategory(cat)}
+                            className={`${navBtnBase} ${selectedCategory === cat ? 'bg-[#8B5A2B] text-white border-[#8B5A2B]' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-[#C8A47A]'}`}
+                          >
+                            {cat}
+                          </button>
+                        ))}
                       </div>
                     </div>
 
-                    {/* Info */}
-                    <div className="p-2 flex flex-col flex-1">
-                      <h3 className="font-bold text-[#3E2723] text-sm leading-tight line-clamp-1">{item.name}</h3>
-                      <div className="flex items-center gap-2 text-xs text-[#5D4037] font-medium mt-0.5">
-                        <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5 text-[#8B5A2B]" />{item.prepTime}</span>
-                        <span className="text-[#C8A47A]">•</span>
-                        <span className="flex items-center gap-1"><Flame className="w-3.5 h-3.5 text-[#8B5A2B]" />{item.calories} kcal</span>
+                    <div className="rounded-lg bg-[#FCFAF7] border border-[#EFE6DA] p-2.5">
+                      <div className="text-[11px] uppercase tracking-wide font-bold text-[#8B5A2B] mb-2 flex items-center gap-1.5">
+                        <Leaf className="w-3.5 h-3.5" /> Diet & Specials
                       </div>
-                      <div className="mt-auto">
-                        <div className="flex items-center gap-1.5 mt-1">
-                          <span className="text-sm font-black text-[#3E2723]">₹{item.price}</span>
-                          {/* Quantity control or Add button */}
-                          {qty > 0 ? (
-                            <div className="flex items-center bg-[#3E2723] rounded-lg overflow-hidden shadow-sm animate-[scaleIn_0.2s_ease-out]">
-                              <button
-                                onClick={() => qty <= 1 ? onRemoveItem(item.id) : onUpdateQuantity(item.id, qty - 1)}
-                                className="w-7 h-7 flex items-center justify-center text-[#C8A47A] hover:bg-[#5D4037] transition-colors active:scale-90"
-                              >
-                                <Minus className="w-3 h-3" />
-                              </button>
-                              <span className="w-5 text-center text-white font-bold text-xs">{qty}</span>
-                              <button
-                                onClick={() => onUpdateQuantity(item.id, qty + 1)}
-                                className="w-7 h-7 flex items-center justify-center text-[#C8A47A] hover:bg-[#5D4037] transition-colors active:scale-90"
-                              >
-                                <Plus className="w-3 h-3" />
-                              </button>
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => handleQuickAdd(item)}
-                              className="w-7 h-7 flex items-center justify-center bg-[#8B5A2B] text-white rounded-lg hover:bg-[#3E2723] transition-all duration-200 active:scale-90 shadow-sm"
-                            >
-                              <Plus className="w-3.5 h-3.5" />
-                            </button>
-                          )}
+                      <div className="space-y-1">
+                        <button onClick={() => selectVeg('all')} className={`${navBtnBase} ${filterVeg === 'all' ? 'bg-[#3E2723] text-white border-[#3E2723]' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-[#3E2723]/40'}`}>All</button>
+                        <button onClick={() => selectVeg('veg')} className={`${navBtnBase} ${filterVeg === 'veg' ? 'bg-green-700 text-white border-green-700' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-green-700'}`}>Veg</button>
+                        <button onClick={() => selectVeg('non-veg')} className={`${navBtnBase} ${filterVeg === 'non-veg' ? 'bg-red-700 text-white border-red-700' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-red-700'}`}>Non-Veg</button>
+                        <button onClick={() => selectVeg('special')} className={`${navBtnBase} inline-flex items-center gap-1.5 ${filterVeg === 'special' ? 'bg-[#C8A47A] text-[#2D1B10] border-[#C8A47A]' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-[#C8A47A]'}`}><Sparkles className="w-3 h-3" /> Special</button>
+                      </div>
+                    </div>
+
+                    <div className="rounded-lg bg-[#FCFAF7] border border-[#EFE6DA] p-2.5">
+                      <div className="text-[11px] uppercase tracking-wide font-bold text-[#8B5A2B] mb-2 flex items-center gap-1.5">
+                        <Globe className="w-3.5 h-3.5" /> Cuisine
+                      </div>
+                      <div className="space-y-1">
+                        {cuisines.map((cuisine) => (
                           <button
-                            onClick={() => setSelectedItem(item)}
-                            className="flex-1 min-w-0 px-1.5 py-1.5 bg-gradient-to-r from-[#8B5A2B] to-[#C8A47A] text-white rounded-lg hover:shadow-md transition-all duration-200 active:scale-95 text-[10px] font-bold uppercase tracking-wider truncate"
+                            key={cuisine}
+                            onClick={() => selectCuisine(cuisine)}
+                            className={`${navBtnBase} ${filterCuisine === cuisine ? 'bg-[#8B5A2B] text-white border-[#8B5A2B]' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-[#C8A47A]'}`}
                           >
-                            Customize
+                            {cuisine === 'all' ? 'All Cuisines' : cuisine}
                           </button>
-                        </div>
+                        ))}
                       </div>
                     </div>
                   </div>
-                );
-              })}
-            </div>
-
-            {filteredItems.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-20 text-center">
-                <Search className="w-12 h-12 text-[#E8DED0] mb-4" />
-                <p className="text-lg font-bold text-[#3E2723]">No items found</p>
-                <p className="text-sm text-[#8B5A2B]/60 mt-1">Try adjusting your filters</p>
-                <button
-                  onClick={() => { setSelectedCategory('All'); setFilterVeg('all'); setFilterCuisine('all'); setSearchQuery(''); }}
-                  className="mt-4 flex items-center gap-2 px-4 py-2 text-sm font-semibold text-[#8B5A2B] bg-[#FAF0E4] rounded-full hover:bg-[#E8D5B5] transition-colors"
-                >
-                  <RotateCcw className="w-4 h-4" /> Reset Filters
-                </button>
-              </div>
-            )}
-          </div>
-        </main>
-      </div>
-
-      {/* ====== BOTTOM BAR ====== */}
-      <div className={`flex-shrink-0 bg-[#3E2723] text-white shadow-[0_-8px_30px_rgba(0,0,0,0.2)] z-30 transition-all duration-500 ${mounted ? 'translate-y-0' : 'translate-y-full'}`}>
-        {/* Mini basket preview */}
-        {showBasket && cartCount > 0 && (
-          <div className="border-b border-white/10 px-4 py-3 max-h-40 overflow-y-auto animate-[slideUp_0.3s_ease-out]">
-            {cart.map(ci => (
-              <div key={ci.id} className="flex items-center justify-between py-1.5 text-sm">
-                <span className="text-white/80 truncate flex-1">{ci.quantity}× {ci.name}</span>
-                <span className="text-[#C8A47A] font-bold ml-2">₹{ci.price * ci.quantity}</span>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div className="flex items-center justify-between px-4 py-3">
-          {/* Show Basket toggle */}
-          <button
-            onClick={() => cartCount > 0 && setShowBasket(!showBasket)}
-            className="flex items-center gap-3 group"
-          >
-            <div className="relative">
-              <ShoppingBag className="w-7 h-7 text-[#C8A47A]" />
-              {cartCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white text-[10px] font-black rounded-full flex items-center justify-center animate-[bounceIn_0.3s_ease-out]">
-                  {cartCount}
-                </span>
+                </div>
               )}
             </div>
-            <div className="text-left">
-              <span className="font-bold text-sm flex items-center gap-1">
-                SHOW BASKET {showBasket ? <ChevronDown className="w-4 h-4" /> : <ChevronUp className="w-4 h-4" />}
-              </span>
-              {cartCount > 0 && <p className="text-[10px] text-white/50">{cartCount} item{cartCount !== 1 ? 's' : ''}</p>}
+
+            <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pb-5 mt-3">
+            {filteredItems.map((item) => {
+              const qty = getCartQuantity(item.id);
+              return (
+                <div
+                  key={item.id}
+                  className="group relative bg-[#2D1B10] rounded-2xl overflow-hidden border border-[#C8A47A]/30 shadow-xl hover:shadow-[#C8A47A]/20 transition-all duration-300 flex flex-col min-h-[420px] hover:-translate-y-1"
+                >
+                  <div className="relative h-52 bg-[#1A110D] overflow-hidden">
+                    <MenuItemImage
+                      src={item.image}
+                      alt={item.name}
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+
+                    <div className="absolute top-2.5 left-2.5 z-10">
+                      <span
+                        className={`px-2.5 py-1 rounded-full text-[10px] font-semibold uppercase tracking-wide ${
+                          item.isVeg ? 'bg-green-600/90 text-white' : 'bg-red-600/90 text-white'
+                        }`}
+                      >
+                        {item.isVeg ? 'Vegetarian' : 'Non-Veg'}
+                      </span>
+                    </div>
+
+                    <div className="absolute top-2.5 right-2.5 z-10 flex flex-col gap-1">
+                      {item.todaysSpecial && (
+                        <span className="bg-[#C8A47A] text-[#2D1B10] px-2.5 py-1 rounded-full text-[10px] font-semibold shadow-md flex items-center gap-1 uppercase tracking-wide">
+                          <Sparkles className="w-3 h-3" />
+                          Special
+                        </span>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="p-3 flex flex-col flex-grow">
+                    <h3 className="font-semibold text-base text-[#FAF7F2] group-hover:text-[#C8A47A] transition-colors duration-300 line-clamp-1">
+                      {item.name}
+                    </h3>
+                    <p className="text-xs text-[#EADBC8]/70 mt-1.5 mb-3.5 line-clamp-2 leading-relaxed">
+                      {item.description}
+                    </p>
+
+                    <div className="flex items-center gap-3 mb-3.5 flex-wrap">
+                      <div className="flex items-center gap-1.5">
+                        <Flame className="w-4 h-4 text-[#C8A47A]/70" strokeWidth={1.5} />
+                        <span className="text-xs text-[#EADBC8]/60 font-medium">{item.calories} kcal</span>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="w-4 h-4 text-[#C8A47A]/70" strokeWidth={1.5} />
+                        <span className="text-xs text-[#EADBC8]/60 font-medium">{item.prepTime}</span>
+                      </div>
+                      {item.offer && (
+                        <div className="flex items-center gap-1.5">
+                          <Tag className="w-4 h-4 text-[#C8A47A]/70" strokeWidth={1.5} />
+                          <span className="text-xs text-[#C8A47A] font-semibold">{item.offer}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-auto flex items-end justify-between border-t border-[#C8A47A]/20 pt-3 gap-3">
+                      <div className="flex flex-col">
+                        <span className="text-[10px] text-[#C8A47A] uppercase tracking-wide font-bold mb-1">Price</span>
+                        <span className="text-xl font-bold text-[#FAF7F2]">₹{item.price}</span>
+                      </div>
+
+                      <div className="flex gap-1.5 min-w-0">
+                        {qty > 0 ? (
+                          <div className="flex items-center border border-[#C8A47A]/30 rounded-xl overflow-hidden">
+                            <button
+                              onClick={() => {
+                                if (qty <= 1) onRemoveItem(item.id);
+                                else onUpdateQuantity(item.id, qty - 1);
+                              }}
+                              className="w-7.5 h-7.5 flex items-center justify-center bg-[#3E2723] text-[#C8A47A] hover:bg-[#C8A47A] hover:text-[#2D1B10] transition-all"
+                            >
+                              <Minus className="w-4 h-4" />
+                            </button>
+                            <span className="w-7.5 h-7.5 flex items-center justify-center text-[#FAF7F2] font-semibold text-xs bg-[#3E2723]">
+                              {qty}
+                            </span>
+                            <button
+                              onClick={() => onUpdateQuantity(item.id, qty + 1)}
+                              className="w-7.5 h-7.5 flex items-center justify-center bg-[#3E2723] text-[#C8A47A] hover:bg-[#C8A47A] hover:text-[#2D1B10] transition-all"
+                            >
+                              <Plus className="w-4 h-4" />
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => handleQuickAdd(item)}
+                            className="w-7.5 h-7.5 flex-shrink-0 flex items-center justify-center bg-[#3E2723] text-[#C8A47A] border border-[#C8A47A]/30 rounded-xl hover:bg-[#C8A47A] hover:text-[#2D1B10] transition-all"
+                          >
+                            <Plus className="w-4 h-4" />
+                          </button>
+                        )}
+
+                        <button
+                          onClick={() => setSelectedItem(item)}
+                          className="px-2 py-1.5 bg-gradient-to-r from-[#8B5A2B] to-[#C8A47A] text-[#FAF7F2] rounded-xl hover:shadow-[0_10px_20px_-10px_rgba(200,164,122,0.5)] transition-all text-[10px] font-semibold uppercase tracking-wide whitespace-nowrap"
+                        >
+                          Customize
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+              </div>
+
+              {filteredItems.length === 0 && (
+                <div className="text-center py-14 bg-white/10 backdrop-blur-md rounded-3xl border-2 border-dashed border-[#E8DED0] mt-4">
+                  <div className="flex flex-col items-center">
+                    <Search className="w-8 h-8 text-[#8B5A2B] mb-5" />
+                    <h3 className="text-2xl font-semibold text-[#3E2723] mb-2">No dishes found</h3>
+                    <p className="text-[#6D4C41] text-sm mb-6 max-w-md">We could not find any menu items matching these filters.</p>
+                    <button
+                      onClick={resetFilters}
+                      className="px-6 py-3 bg-[#8B5A2B] text-white rounded-full font-semibold uppercase tracking-wider hover:bg-[#3E2723] transition-all inline-flex items-center gap-2 text-xs"
+                    >
+                      <RotateCcw className="w-4 h-4" />
+                      View Full Menu
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
-          </button>
-
-          {/* Place Order button */}
-          <button
-            onClick={onGoToCart}
-            disabled={cartCount === 0}
-            className={`px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all duration-300 active:scale-95 ${
-              cartCount > 0
-                ? 'bg-[#C8A47A] text-[#2D1B10] hover:bg-[#D4AF37] shadow-lg shadow-[#C8A47A]/30'
-                : 'bg-white/10 text-white/30 cursor-not-allowed'
-            }`}
-          >
-            PLACE ORDER {cartCount > 0 && <span className="ml-1">₹{cartTotal}</span>}
-          </button>
+          </div>
         </div>
+      </section>
 
-        {/* Restart */}
-        <div className="px-4 pb-2">
-          <button
-            onClick={() => {
-              setSelectedCategory('All');
-              setFilterVeg('all');
-              setFilterCuisine('all');
-              setSearchQuery('');
-            }}
-            className="text-[#C8A47A]/60 text-xs font-semibold flex items-center gap-1 hover:text-[#C8A47A] transition-colors"
-          >
-            <RotateCcw className="w-3 h-3" /> RESTART
-          </button>
-        </div>
-      </div>
-
-      {/* ====== CUSTOMIZATION MODAL ====== */}
       {selectedItem && (
         <div className="fixed inset-0 bg-black/60 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 animate-[fadeIn_0.2s_ease-out]">
           <div className="bg-white w-full sm:max-w-lg sm:rounded-2xl rounded-t-2xl max-h-[90vh] overflow-y-auto animate-[slideUp_0.3s_ease-out]">
-            {/* Item Image */}
             <div className="relative h-48 sm:h-56 overflow-hidden sm:rounded-t-2xl">
               <MenuItemImage
                 src={selectedItem.image}
@@ -487,9 +459,7 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
 
             <div className="p-5">
               <div className="flex items-start justify-between mb-2">
-                <h2 className="text-xl font-bold text-[#3E2723]" style={{ fontFamily: "'Playfair Display', serif" }}>
-                  {selectedItem.name}
-                </h2>
+                <h2 className="text-xl font-bold text-[#3E2723]">{selectedItem.name}</h2>
                 <span className="text-lg font-bold text-[#8B5A2B]">₹{selectedItem.price}</span>
               </div>
               <p className="text-sm text-gray-500 mb-4">{selectedItem.description}</p>
@@ -498,7 +468,6 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
                 <span>{selectedItem.calories} kcal</span>
               </div>
 
-              {/* Spice Level */}
               <div className="mb-4">
                 <p className="text-sm font-semibold text-[#3E2723] mb-2">Spice Level</p>
                 <div className="flex gap-2">
@@ -518,35 +487,33 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
                 </div>
               </div>
 
-              {/* Add-ons */}
               {addons.length > 0 && (
-              <div className="mb-4">
-                <p className="text-sm font-semibold text-[#3E2723] mb-2">Add-ons</p>
-                <div className="space-y-2">
-                  {addons.map((addon) => (
-                    <label key={addon.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#FAF0E4] cursor-pointer transition-colors">
-                      <input
-                        type="checkbox"
-                        checked={customization.addons.includes(addon.name)}
-                        onChange={() => {
-                          setCustomization((p) => ({
-                            ...p,
-                            addons: p.addons.includes(addon.name)
-                              ? p.addons.filter((a) => a !== addon.name)
-                              : [...p.addons, addon.name],
-                          }));
-                        }}
-                        className="w-4 h-4 rounded border-[#E8D5B5] text-[#8B5A2B] focus:ring-[#C8A47A]"
-                      />
-                      <span className="text-sm text-[#3E2723] flex-1">{addon.name}</span>
-                      <span className="text-xs text-[#8B5A2B] font-semibold">+₹{addon.price}</span>
-                    </label>
-                  ))}
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-[#3E2723] mb-2">Add-ons</p>
+                  <div className="space-y-2">
+                    {addons.map((addon) => (
+                      <label key={addon.id} className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#FAF0E4] cursor-pointer transition-colors">
+                        <input
+                          type="checkbox"
+                          checked={customization.addons.includes(addon.name)}
+                          onChange={() => {
+                            setCustomization((p) => ({
+                              ...p,
+                              addons: p.addons.includes(addon.name)
+                                ? p.addons.filter((a) => a !== addon.name)
+                                : [...p.addons, addon.name],
+                            }));
+                          }}
+                          className="w-4 h-4 rounded border-[#E8D5B5] text-[#8B5A2B] focus:ring-[#C8A47A]"
+                        />
+                        <span className="text-sm text-[#3E2723] flex-1">{addon.name}</span>
+                        <span className="text-xs text-[#8B5A2B] font-semibold">+₹{addon.price}</span>
+                      </label>
+                    ))}
+                  </div>
                 </div>
-              </div>
               )}
 
-              {/* Special Instructions */}
               <div className="mb-5">
                 <p className="text-sm font-semibold text-[#3E2723] mb-2">Special Instructions</p>
                 <textarea
@@ -558,7 +525,6 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
                 />
               </div>
 
-              {/* Quantity & Add */}
               <div className="flex items-center gap-4">
                 <div className="flex items-center gap-3 bg-[#FAF0E4] rounded-xl px-3 py-2">
                   <button
@@ -579,7 +545,7 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
                   onClick={handleAddToCart}
                   className="flex-1 py-3 bg-[#3E2723] text-white rounded-xl font-bold text-sm hover:bg-[#5D4037] transition-all active:scale-95 shadow-lg"
                 >
-                  Add to Cart — ₹{selectedItem.price * customization.quantity}
+                  Add to Cart - ₹{selectedItem.price * customization.quantity}
                 </button>
               </div>
             </div>
@@ -587,12 +553,7 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
         </div>
       )}
 
-      {/* ====== KEYFRAME STYLES ====== */}
       <style>{`
-        @keyframes fadeSlideUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to   { opacity: 1; transform: translateY(0); }
-        }
         @keyframes fadeIn {
           from { opacity: 0; }
           to   { opacity: 1; }
@@ -600,15 +561,6 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
         @keyframes slideUp {
           from { opacity: 0; transform: translateY(40px); }
           to   { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes scaleIn {
-          from { transform: scale(0.8); opacity: 0; }
-          to   { transform: scale(1); opacity: 1; }
-        }
-        @keyframes bounceIn {
-          0%   { transform: scale(0); }
-          60%  { transform: scale(1.2); }
-          100% { transform: scale(1); }
         }
       `}</style>
     </div>

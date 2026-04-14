@@ -5,8 +5,9 @@ from typing import Any
 import bcrypt
 from fastapi import APIRouter, HTTPException
 from datetime import datetime
+from pymongo.errors import PyMongoError
 
-from ...db import get_db
+from ...db import get_db, init_db
 from ..schemas import UserRegister, UserLogin, UserUpdate
 
 router = APIRouter()
@@ -49,100 +50,123 @@ def _utc_now() -> str:
     return datetime.utcnow().isoformat() + "Z"
 
 
+def _get_users_collection():
+    """
+    Resolve users collection safely and convert DB init issues to a clear HTTP error.
+    """
+    try:
+        db = get_db()
+    except RuntimeError:
+        try:
+            init_db()
+            db = get_db()
+        except Exception:
+            raise HTTPException(status_code=503, detail="database_unavailable")
+    return db.get_collection("users")
+
+
 @router.post("/auth/register", status_code=201)
 async def register_user(body: UserRegister):
     email = _normalize_email(body.email)
-    db = get_db()
-    users = db.get_collection("users")
+    users = _get_users_collection()
 
-    if await users.find_one({"email": email}):
-        raise HTTPException(status_code=409, detail="email_exists")
+    try:
+        if await users.find_one({"email": email}):
+            raise HTTPException(status_code=409, detail="email_exists")
 
-    password_hash = bcrypt.hashpw(body.password.encode(), bcrypt.gensalt()).decode()
+        password_hash = bcrypt.hashpw(body.password.encode(), bcrypt.gensalt()).decode()
 
-    user_doc = {
-        "name": body.name.strip(),
-        "email": email,
-        "phone": body.phone.strip(),
-        "address": body.address.strip(),
-        "passwordHash": password_hash,
-        "loyaltyPoints": 100,
-        "favorites": [],
-        "membership": _default_membership(),
-        "createdAt": _utc_now(),
-        "updatedAt": _utc_now(),
-    }
+        user_doc = {
+            "name": body.name.strip(),
+            "email": email,
+            "phone": body.phone.strip(),
+            "address": body.address.strip(),
+            "passwordHash": password_hash,
+            "loyaltyPoints": 100,
+            "favorites": [],
+            "membership": _default_membership(),
+            "createdAt": _utc_now(),
+            "updatedAt": _utc_now(),
+        }
 
-    await users.insert_one(user_doc)
-    return {"user": _serialize_user(user_doc)}
+        await users.insert_one(user_doc)
+        return {"user": _serialize_user(user_doc)}
+    except HTTPException:
+        raise
+    except PyMongoError:
+        raise HTTPException(status_code=503, detail="database_error")
+    except Exception:
+        raise HTTPException(status_code=500, detail="registration_failed")
 
 
 @router.post("/auth/login")
 async def login_user(body: UserLogin):
     email = _normalize_email(body.email)
-    print(f"DEBUG: Login attempt for {email}")
     if not email or not body.password:
         raise HTTPException(status_code=400, detail="missing_credentials")
 
-    db = get_db()
-    users = db.get_collection("users")
-    user = await users.find_one({"email": email})
-    if not user:
-        print(f"DEBUG: User {email} not found in 'users' collection")
-        raise HTTPException(status_code=401, detail="invalid_credentials")
-
-    stored_hash = str(user.get("passwordHash", ""))
-    
-    # ── Fallback for testing ──
-    # If it's the admin account and password matches or bcrypt matches
-    is_valid = False
     try:
-        if email == "admin@restaurant.com" and body.password == "admin123":
-            is_valid = True
-            print("DEBUG: Admin password matched via plain-text fallback")
-        elif bcrypt.checkpw(body.password.encode(), stored_hash.encode()):
-            is_valid = True
-            print(f"DEBUG: Password verified via bcrypt for {email}")
-    except Exception as e:
-        print(f"DEBUG: Hashing error: {e}")
+        users = _get_users_collection()
+        user = await users.find_one({"email": email})
+        if not user:
+            raise HTTPException(status_code=401, detail="invalid_credentials")
 
-    if not is_valid:
-        print(f"DEBUG: Invalid credentials for {email}")
+        stored_hash = str(user.get("passwordHash", ""))
+        if not stored_hash:
+            raise HTTPException(status_code=401, detail="invalid_credentials")
+
+        is_valid = bcrypt.checkpw(body.password.encode(), stored_hash.encode())
+        if not is_valid:
+            raise HTTPException(status_code=401, detail="invalid_credentials")
+
+        return {"user": _serialize_user(user)}
+    except HTTPException:
+        raise
+    except ValueError:
+        # Invalid hash format in DB should not crash the API.
         raise HTTPException(status_code=401, detail="invalid_credentials")
-
-    return {"user": _serialize_user(user)}
+    except PyMongoError:
+        raise HTTPException(status_code=503, detail="database_error")
+    except Exception:
+        raise HTTPException(status_code=500, detail="login_failed")
 
 
 @router.patch("/users/{email}")
 async def update_user(email: str, body: UserUpdate):
-    db = get_db()
-    users = db.get_collection("users")
+    users = _get_users_collection()
     current_email = _normalize_email(email)
 
-    user = await users.find_one({"email": current_email})
-    if not user:
-        raise HTTPException(status_code=404, detail="not_found")
+    try:
+        user = await users.find_one({"email": current_email})
+        if not user:
+            raise HTTPException(status_code=404, detail="not_found")
 
-    updates: dict[str, Any] = {}
-    for field in ["name", "phone", "address", "favorites", "loyaltyPoints", "membership"]:
-        val = getattr(body, field, None)
-        if val is not None:
-            updates[field] = val
+        updates: dict[str, Any] = {}
+        for field in ["name", "phone", "address", "favorites", "loyaltyPoints", "membership"]:
+            val = getattr(body, field, None)
+            if val is not None:
+                updates[field] = val
 
-    if body.email and body.email.strip():
-        normalized = _normalize_email(body.email)
-        if normalized != current_email:
-            if await users.find_one({"email": normalized}):
-                raise HTTPException(status_code=409, detail="email_exists")
-            updates["email"] = normalized
+        if body.email and body.email.strip():
+            normalized = _normalize_email(body.email)
+            if normalized != current_email:
+                if await users.find_one({"email": normalized}):
+                    raise HTTPException(status_code=409, detail="email_exists")
+                updates["email"] = normalized
 
-    if body.password and body.password.strip():
-        updates["passwordHash"] = bcrypt.hashpw(body.password.encode(), bcrypt.gensalt()).decode()
+        if body.password and body.password.strip():
+            updates["passwordHash"] = bcrypt.hashpw(body.password.encode(), bcrypt.gensalt()).decode()
 
-    if not updates:
-        return {"user": _serialize_user(user)}
+        if not updates:
+            return {"user": _serialize_user(user)}
 
-    updates["updatedAt"] = _utc_now()
-    await users.update_one({"email": current_email}, {"$set": updates})
-    updated = await users.find_one({"email": updates.get("email", current_email)})
-    return {"user": _serialize_user(updated or user)}
+        updates["updatedAt"] = _utc_now()
+        await users.update_one({"email": current_email}, {"$set": updates})
+        updated = await users.find_one({"email": updates.get("email", current_email)})
+        return {"user": _serialize_user(updated or user)}
+    except HTTPException:
+        raise
+    except PyMongoError:
+        raise HTTPException(status_code=503, detail="database_error")
+    except Exception:
+        raise HTTPException(status_code=500, detail="update_failed")

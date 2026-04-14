@@ -499,10 +499,10 @@ export function BillingPayment() {
     
     const itemRows = (invoice.items || []).map(item => `
       <tr>
-        <td style="padding: 8px; border-bottom: 1px solid #ddd;">${item.name}</td>
-        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: center;">${item.quantity}</td>
-        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">₹${item.price.toFixed(2)}</td>
-        <td style="padding: 8px; border-bottom: 1px solid #ddd; text-align: right;">₹${item.total.toFixed(2)}</td>
+        <td class="inv-cell">${item.name}</td>
+        <td class="inv-cell inv-cell-center">${item.quantity}</td>
+        <td class="inv-cell inv-cell-right">₹${item.price.toFixed(2)}</td>
+        <td class="inv-cell inv-cell-right">₹${item.total.toFixed(2)}</td>
       </tr>
     `).join('');
     
@@ -516,10 +516,18 @@ export function BillingPayment() {
           .header { text-align: center; border-bottom: 2px solid #333; padding-bottom: 15px; margin-bottom: 20px; }
           .header h1 { margin: 0; font-size: 24px; }
           .header p { margin: 5px 0; color: #666; }
+          .invoice-id { font-weight: bold; margin-top: 10px; }
+          .logo { max-height: 64px; margin-bottom: 8px; }
           .info { display: flex; justify-content: space-between; margin-bottom: 20px; }
           .info div { font-size: 14px; }
+          .info-right { text-align: right; }
           table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
           th { background: #333; color: white; padding: 10px; text-align: left; }
+          .th-center { text-align: center; }
+          .th-right { text-align: right; }
+          .inv-cell { padding: 8px; border-bottom: 1px solid #ddd; }
+          .inv-cell-center { text-align: center; }
+          .inv-cell-right { text-align: right; }
           .totals { text-align: right; }
           .totals div { margin: 5px 0; }
           .grand-total { font-size: 18px; font-weight: bold; border-top: 2px solid #333; padding-top: 10px; margin-top: 10px; }
@@ -530,10 +538,10 @@ export function BillingPayment() {
       </head>
       <body>
         <div class="header">
-          ${sysConfig.logoUrl ? `<img src="${sysConfig.logoUrl}" style="max-height:64px;margin-bottom:8px;" onerror="this.style.display='none'" alt="Logo" />` : ''}
+          ${sysConfig.logoUrl ? `<img src="${sysConfig.logoUrl}" class="logo" alt="Logo" />` : ''}
           <h1>${sysConfig.restaurantName}</h1>
           <p>Movicloud Labs</p>
-          <p style="font-weight: bold; margin-top: 10px;">Invoice: ${invoice.invoice_number}</p>
+          <p class="invoice-id">Invoice: ${invoice.invoice_number}</p>
         </div>
         
         <div class="info">
@@ -541,7 +549,7 @@ export function BillingPayment() {
             <p><strong>Customer:</strong> ${invoice.customer_name}</p>
             <p><strong>${invoice.table_number ? `Table: ${invoice.table_number}` : 'Takeaway'}</strong></p>
           </div>
-          <div style="text-align: right;">
+          <div class="info-right">
             <p><strong>Date:</strong> ${new Date(invoice.created_at).toLocaleString()}</p>
             <p><strong>Payment:</strong> ${invoice.payment_mode.toUpperCase()}</p>
           </div>
@@ -551,9 +559,9 @@ export function BillingPayment() {
           <thead>
             <tr>
               <th>Item</th>
-              <th style="text-align: center;">Qty</th>
-              <th style="text-align: right;">Price</th>
-              <th style="text-align: right;">Total</th>
+              <th class="th-center">Qty</th>
+              <th class="th-right">Price</th>
+              <th class="th-right">Total</th>
             </tr>
           </thead>
           <tbody>
@@ -598,7 +606,7 @@ export function BillingPayment() {
             Generate bills, manage payments, and process refunds
           </p>
         </div>
-        <Button onClick={fetchOrders} size="sm" className="self-start font-semibold shadow-sm" style={{ backgroundColor: 'white', color: '#8B5A2B', border: '2px solid white' }}>
+        <Button onClick={fetchOrders} size="sm" className="self-start font-semibold shadow-sm bg-white text-[#8B5A2B] border-2 border-white hover:bg-white/90">
           <RefreshCcw className="h-4 w-4 mr-2" />
           Refresh
         </Button>

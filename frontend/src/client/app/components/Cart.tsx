@@ -367,7 +367,7 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-4xl font-bold mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>Shopping Cart &amp; Checkout</h1>
+          <h1 className="text-2xl sm:text-4xl font-bold mb-2">Shopping Cart &amp; Checkout</h1>
           <p className="text-muted-foreground">{cart.length} items in your cart</p>
         </div>
 
@@ -748,7 +748,7 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
               <div className="loyalty-card-decor-2"></div>
 
               <div className="relative z-10">
-                <h2 className="text-xl font-bold mb-6 text-[#FAF7F2]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                <h2 className="text-xl font-bold mb-6 text-[#FAF7F2]">
                   Bill Summary
                 </h2>
 

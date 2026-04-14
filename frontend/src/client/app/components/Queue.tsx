@@ -380,7 +380,7 @@ export default function Queue({
         <div className="relative z-10 text-center px-6 max-w-4xl mx-auto">
           <h1
             className="text-5xl md:text-7xl mb-6 text-white"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+           
           >
             "Good food is always worth the wait."
           </h1>
@@ -412,7 +412,7 @@ export default function Queue({
         <div className="max-w-6xl mx-auto">
           <h2
             className="text-2xl sm:text-4xl md:text-5xl text-center mb-4 text-[#8B5A2B]"
-            style={{ fontFamily: "'Playfair Display', serif" }}
+           
           >
             A Better Way to Wait
           </h2>
@@ -427,7 +427,7 @@ export default function Queue({
               </div>
               <h3
                 className="text-xl mb-3 text-[#3E2723]"
-                style={{ fontFamily: "'Playfair Display', serif" }}
+               
               >
                 Live Queue Updates
               </h3>
@@ -442,7 +442,7 @@ export default function Queue({
               </div>
               <h3
                 className="text-xl mb-3 text-[#3E2723]"
-                style={{ fontFamily: "'Playfair Display', serif" }}
+               
               >
                 Smart Notifications
               </h3>
@@ -457,7 +457,7 @@ export default function Queue({
               </div>
               <h3
                 className="text-xl mb-3 text-[#3E2723]"
-                style={{ fontFamily: "'Playfair Display', serif" }}
+               
               >
                 Comfortable Waiting
               </h3>
@@ -472,7 +472,7 @@ export default function Queue({
               </div>
               <h3
                 className="text-xl mb-3 text-[#3E2723]"
-                style={{ fontFamily: "'Playfair Display', serif" }}
+               
               >
                 Fair Queue System
               </h3>
@@ -495,7 +495,7 @@ export default function Queue({
               <div className="mb-8">
                 <h2
                   className="text-3xl text-[#3E2723] mb-2"
-                  style={{ fontFamily: "'Playfair Display', serif" }}
+                 
                 >
                   Join the Queue
                 </h2>
@@ -511,7 +511,7 @@ export default function Queue({
                 <div className="mb-8 bg-[#FAF7F2] border border-[#8B5A2B]/20 rounded-xl p-6">
                   <h3
                     className="text-lg text-[#8B5A2B] mb-4 flex items-center gap-2"
-                    style={{ fontFamily: "'Playfair Display', serif" }}
+                   
                   >
                     <LayoutGrid className="w-5 h-5" />
                     Your Reservation Details
@@ -649,7 +649,7 @@ export default function Queue({
                   <CheckCircle className="w-8 h-8 text-green-600" />
                   <h3
                     className="text-2xl text-green-800"
-                    style={{ fontFamily: "'Playfair Display', serif" }}
+                   
                   >
                     Successfully Joined the Queue!
                   </h3>
@@ -664,7 +664,7 @@ export default function Queue({
                 <div className="bg-gradient-to-br from-[#8B5A2B] to-[#6D4C41] text-white rounded-2xl p-8 shadow-2xl">
                   <h3
                     className="text-3xl mb-6"
-                    style={{ fontFamily: "'Playfair Display', serif" }}
+                   
                   >
                     Welcome, {currentUserEntry.name}!
                   </h3>
@@ -675,7 +675,7 @@ export default function Queue({
                       <p className="text-[#EADBC8] mb-2">Your Queue Position</p>
                       <p
                         className="text-6xl mb-2"
-                        style={{ fontFamily: "'Playfair Display', serif" }}
+                       
                       >
                         #{currentUserEntry.position}
                       </p>
@@ -687,7 +687,7 @@ export default function Queue({
                       <p className="text-[#EADBC8] mb-2">Estimated Wait Time</p>
                       <p
                         className={`text-6xl mb-2 ${currentUserEntry.estimatedWaitMinutes <= 0 ? 'text-green-300' : currentUserEntry.estimatedWaitMinutes <= 5 ? 'text-yellow-300' : ''}`}
-                        style={{ fontFamily: "'Playfair Display', serif" }}
+                       
                       >
                         {formatWaitTime(currentUserEntry.estimatedWaitMinutes)}
                       </p>
@@ -714,7 +714,7 @@ export default function Queue({
                 <div className="bg-white rounded-2xl p-8 border border-[#E8DED0] shadow-lg">
                   <h3
                     className="text-2xl mb-6 text-[#8B5A2B]"
-                    style={{ fontFamily: "'Playfair Display', serif" }}
+                   
                   >
                     Queue Details
                   </h3>

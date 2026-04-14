@@ -80,10 +80,7 @@ const ALL_TABS = [
 ] as const;
 
 const TAB_CLASS =
-  'gap-2 px-4 py-2.5 rounded-xl font-medium text-[#6B5B4F] transition-all duration-300 ' +
-  'hover:bg-[#F5EDE5] hover:text-[#8B5A2B] ' +
-  'data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#8B5A2B] data-[state=active]:to-[#A0694B] ' +
-  'data-[state=active]:!text-white data-[state=active]:shadow-md data-[state=active]:shadow-[#8B5A2B]/25';
+  'app-tab-trigger';
 
 function AppContent() {
   const { config } = useSystemConfig();
@@ -254,18 +251,18 @@ function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-background overflow-x-hidden w-full">
+    <div className="app-shell w-full">
       <Toaster position="top-right" />
 
       {/* Header */}
-      <header className="border-b bg-white shadow-sm sticky top-0 z-50">
-        <div className="container mx-auto px-3 sm:px-6 py-3 sm:py-4">
+      <header className="app-header">
+        <div className="app-content-container py-3 sm:py-4">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 overflow-hidden">
               <img src="/favicon.png" alt="logo" className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 rounded-lg object-contain" />
               <div className="min-w-0 overflow-hidden">
-                <h1 className="text-base font-bold tracking-tight leading-tight sm:hidden" style={{ color: '#000000' }}>RMS</h1>
-                <h1 className="hidden sm:block text-xl font-semibold tracking-tight leading-tight truncate" style={{ color: '#000000' }}>{config.restaurantName}</h1>
+                <h1 className="text-base font-bold tracking-tight leading-tight sm:hidden">RMS</h1>
+                <h1 className="hidden sm:block text-xl font-semibold tracking-tight leading-tight truncate">{config.restaurantName}</h1>
                 <p className="text-xs text-muted-foreground hidden sm:block">Powered by Movicloud Labs</p>
               </div>
             </div>
@@ -274,10 +271,10 @@ function AppContent() {
               <Button
                 variant="ghost"
                 size="icon"
-                className="relative"
+                className="relative app-icon-button"
                 onClick={() => navigate('notifications')}
               >
-                <Bell className="h-5 w-5" style={{ color: '#000000' }} />
+                <Bell className="h-5 w-5" />
                 {notificationCount > 0 && (
                   <Badge className="absolute -top-1 -right-1 h-5 min-w-5 flex items-center justify-center p-0 px-1 text-xs">
                     {notificationCount > 99 ? '99+' : notificationCount}
@@ -288,8 +285,8 @@ function AppContent() {
               {hasPermission('settings') && (
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <Settings className="h-5 w-5" style={{ color: '#000000' }} />
+                    <Button variant="ghost" size="icon" className="app-icon-button">
+                      <Settings className="h-5 w-5" />
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
@@ -339,15 +336,15 @@ function AppContent() {
       </header>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={(v) => hasPermission(v) && setActiveTab(v)} className="container mx-auto">
+      <Tabs value={activeTab} onValueChange={(v) => hasPermission(v) && setActiveTab(v)} className="app-content-container">
 
         {/* Desktop top nav � hidden on mobile */}
         <div className="hidden sm:block sticky top-[73px] z-40">
-          <div className="mx-4 my-3 rounded-2xl bg-gradient-to-r from-[#FDFBF9] via-white to-[#FDFBF9] shadow-lg border border-[#E8E0D8] overflow-x-auto scrollbar-hide">
+          <div className="my-3 app-nav-surface overflow-x-auto scrollbar-hide">
             <TabsList className="min-w-max w-full justify-center gap-1 flex-nowrap h-auto p-2 bg-transparent border-0">
               {ALL_TABS.map(({ value, icon: Icon, label }) =>
                 hasPermission(value) ? (
-                  <TabsTrigger key={value} value={value} className={TAB_CLASS} style={{ fontFamily: 'Inter, sans-serif' }}>
+                  <TabsTrigger key={value} value={value} className={TAB_CLASS}>
                     <Icon className="h-4 w-4" />
                     <span>{label}</span>
                   </TabsTrigger>
@@ -376,14 +373,13 @@ function AppContent() {
 
       {/* Footer � desktop only */}
       <footer className="border-t mt-8 py-4 bg-white hidden sm:block">
-        <div className="container mx-auto px-6 text-center">
+        <div className="app-content-container text-center">
           <p className="text-sm text-muted-foreground">{config.restaurantName}  Movicloud Labs</p>
         </div>
       </footer>
 
       {/* Mobile bottom navigation � scrollable, shows all tabs */}
-      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.08)]"
-           style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <nav className="sm:hidden fixed bottom-0 left-0 right-0 z-50 bg-white border-t border-gray-200 shadow-[0_-4px_20px_rgba(0,0,0,0.08)] pb-[env(safe-area-inset-bottom)]">
         <div className="flex overflow-x-auto scrollbar-hide">
           {permittedTabs.map(({ value, icon: Icon, label }) => {
             const isActive = activeTab === value;
@@ -391,8 +387,7 @@ function AppContent() {
               <button
                 key={value}
                 onClick={() => navigate(value)}
-                style={{ WebkitTapHighlightColor: 'transparent', minWidth: '64px' }}
-                className={`flex-shrink-0 flex flex-col items-center justify-center gap-0.5 px-2 py-2 min-h-[56px] transition-colors ${
+                className={`[webkit-tap-highlight-color:transparent] min-w-16 app-mobile-nav-button flex flex-col items-center justify-center gap-0.5 transition-colors ${
                   isActive ? 'text-[#8B5A2B]' : 'text-gray-500'
                 }`}
               >

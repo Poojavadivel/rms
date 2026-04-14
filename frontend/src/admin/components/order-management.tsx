@@ -730,6 +730,7 @@ export function OrderManagement() {
   };
 
   const kitchenLoad = getKitchenLoad();
+  const kitchenLoadClass = `ds-w-pct-${Math.max(0, Math.min(100, Math.round(kitchenLoad.percentage)))}`;
 
   // Get unique table numbers for filter
   const tableNumbers = Array.from(new Set(orders.map(o => o.tableNumber).filter(Boolean)));
@@ -817,8 +818,7 @@ export function OrderManagement() {
                 className={`h-full transition-all duration-500 ${
                   kitchenLoad.level === 'high' ? 'bg-red-500' :
                   kitchenLoad.level === 'medium' ? 'bg-orange-500' : 'bg-green-500'
-                }`}
-                style={{ width: `${kitchenLoad.percentage}%` }}
+                } ${kitchenLoadClass}`}
               />
             </div>
           </div>

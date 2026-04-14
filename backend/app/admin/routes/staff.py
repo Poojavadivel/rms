@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Request, Query
 from pydantic import BaseModel
-from ...db import get_db
+from ...db import get_db, init_db
 from ..schemas import (
     StaffIn, StaffUpdate, ShiftAssignment, AttendanceIn, AttendanceUpdate, AttendanceBulkIn,
     PerformanceLogIn, AttendanceStatus, ShiftType, LoginIn, SalaryPaymentIn
@@ -10,6 +10,7 @@ from ...audit import log_audit
 from datetime import datetime, date, timedelta
 from typing import Optional
 from bson import ObjectId
+from pymongo.errors import PyMongoError
 
 router = APIRouter()
 
@@ -50,53 +51,68 @@ def to_object_id(id_str: str):
 @router.post('/login', tags=['auth'])
 async def login(payload: LoginIn, request: Request):
     """Authenticate staff member and return user data"""
-    db = get_db()
-    coll = db.get_collection('staff')
-    
-    # Find user by email
-    user = await coll.find_one({'email': payload.email.lower()})
-    if not user:
-        raise HTTPException(status_code=401, detail='Invalid email or password')
-    
-    # Check if user is active
-    if not user.get('active', True):
-        raise HTTPException(status_code=401, detail='Account is deactivated. Contact admin.')
-    
-    # Verify password
-    if not verify_password(payload.password, user.get('password_hash', '')):
-        raise HTTPException(status_code=401, detail='Invalid email or password')
+    try:
+        try:
+            db = get_db()
+        except RuntimeError:
+            init_db()
+            db = get_db()
 
-    # Record last login timestamp
-    await coll.update_one(
-        {'_id': user['_id']},
-        {'$set': {'last_login': datetime.utcnow()}}
-    )
+        coll = db.get_collection('staff')
 
-    # Log the login
-    await log_audit(
-        action='login',
-        resource='staff',
-        resourceId=str(user['_id']),
-        userId=str(user['_id']),
-        userName=user.get('name'),
-        details={'email': payload.email},
-        ip=request.client.host if request.client else None
-    )
-    
-    # Return user data (without password)
-    user_data = {
-        'id': str(user['_id']),
-        'email': user['email'],
-        'name': user.get('name', ''),
-        'role': user.get('role', 'waiter'),
-        'phone': user.get('phone'),
-        'shift': user.get('shift'),
-        'department': user.get('department'),
-        'kitchenStation': user.get('kitchenStation'),
-        'last_login': datetime.utcnow().isoformat() + 'Z',
-    }
-    
-    return {'success': True, 'user': user_data}
+        # Find user by email
+        user = await coll.find_one({'email': payload.email.lower()})
+        if not user:
+            raise HTTPException(status_code=401, detail='Invalid email or password')
+
+        # Check if user is active
+        if not user.get('active', True):
+            raise HTTPException(status_code=401, detail='Account is deactivated. Contact admin.')
+
+        # Verify password
+        if not verify_password(payload.password, user.get('password_hash', '')):
+            raise HTTPException(status_code=401, detail='Invalid email or password')
+
+        # Record last login timestamp
+        await coll.update_one(
+            {'_id': user['_id']},
+            {'$set': {'last_login': datetime.utcnow()}}
+        )
+
+        # Audit failure should not fail login.
+        try:
+            await log_audit(
+                action='login',
+                resource='staff',
+                resourceId=str(user['_id']),
+                userId=str(user['_id']),
+                userName=user.get('name'),
+                details={'email': payload.email},
+                ip=request.client.host if request.client else None
+            )
+        except Exception:
+            pass
+
+        # Return user data (without password)
+        user_data = {
+            'id': str(user['_id']),
+            'email': user['email'],
+            'name': user.get('name', ''),
+            'role': user.get('role', 'waiter'),
+            'phone': user.get('phone'),
+            'shift': user.get('shift'),
+            'department': user.get('department'),
+            'kitchenStation': user.get('kitchenStation'),
+            'last_login': datetime.utcnow().isoformat() + 'Z',
+        }
+
+        return {'success': True, 'user': user_data}
+    except HTTPException:
+        raise
+    except PyMongoError:
+        raise HTTPException(status_code=503, detail='Database unavailable')
+    except Exception:
+        raise HTTPException(status_code=500, detail='Login failed')
 
 
 # ============ STAFF CRUD ============

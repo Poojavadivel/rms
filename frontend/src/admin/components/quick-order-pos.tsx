@@ -1422,8 +1422,7 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
                                         <img
                                           src={combo.image}
                                           alt={combo.name}
-                                          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                                          style={{ aspectRatio: '1', objectFit: 'cover' }}
+                                          className="w-full h-full aspect-square object-cover group-hover:scale-110 transition-transform duration-300"
                                         />
                                         {combo.calories && (
                                           <div className="absolute bottom-1 right-1 bg-black/70 text-[#FF7F50] text-xs px-2 py-0.5 rounded">
@@ -1629,8 +1628,7 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
                                       <img
                                         src={item.image}
                                         alt={item.name}
-                                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                                        style={{ aspectRatio: '1', objectFit: 'cover' }}
+                                        className="w-full h-full aspect-square object-cover group-hover:scale-110 transition-transform duration-300"
                                       />
                                       {item.calories && (
                                         <div className="absolute bottom-1 right-1 bg-black/70 text-[#FF7F50] text-xs px-1.5 py-0.5 rounded">
@@ -1753,7 +1751,7 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
             {/* RIGHT PANEL: Live Order Preview */}
             <div className="lg:col-span-5 sticky top-0 self-start">
               {/* Order Preview Card */}
-              <Card className="shadow-md border-2 border-[#8B5E34]/10 flex flex-col" style={{ maxHeight: 'calc(92dvh - 140px)' }}>
+              <Card className="shadow-md border-2 border-[#8B5E34]/10 flex flex-col max-h-[calc(92dvh-140px)]">
                 <CardHeader className="bg-gradient-to-r from-[#F6F2ED] to-white pb-4">
                   <CardTitle className="text-lg flex items-center justify-between text-[#8B5E34]">
                     <div className="flex items-center gap-2">
@@ -1778,7 +1776,7 @@ export function QuickOrderPOS({ open, onOpenChange, onOrderCreated, initialTable
                       </div>
                     </div>
                   ) : (
-                    <div className="overflow-y-auto space-y-3 pr-1" style={{ maxHeight: 'calc(92dvh - 260px)' }}>
+                    <div className="overflow-y-auto space-y-3 pr-1 max-h-[calc(92dvh-260px)]">
                         {orderItems.map((item) => (
                           <div
                             key={item.id}

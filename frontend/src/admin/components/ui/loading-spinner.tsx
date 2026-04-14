@@ -59,12 +59,10 @@ export function LoadingSpinner({
       <div className="text-center">
         <div className="relative">
           {/* Outer ring animation */}
-          <div className="absolute inset-0 rounded-full border-4 border-primary/20 animate-ping" 
-               style={{ width: '80px', height: '80px', margin: 'auto', left: 0, right: 0 }} />
+          <div className="absolute inset-0 m-auto h-20 w-20 rounded-full border-4 border-primary/20 animate-ping" />
           
           {/* Icon container with subtle bounce */}
-          <div className="relative z-10 flex items-center justify-center mx-auto mb-4"
-               style={{ width: '80px', height: '80px' }}>
+          <div className="relative z-10 flex h-20 w-20 items-center justify-center mx-auto mb-4">
             <IconComponent 
               className={cn(
                 "text-muted-foreground animate-pulse",
@@ -78,9 +76,9 @@ export function LoadingSpinner({
         
         {/* Animated dots */}
         <div className="flex items-center justify-center gap-1 mt-3">
-          <span className="w-2 h-2 rounded-full bg-primary/40 animate-bounce" style={{ animationDelay: '0ms' }} />
-          <span className="w-2 h-2 rounded-full bg-primary/40 animate-bounce" style={{ animationDelay: '150ms' }} />
-          <span className="w-2 h-2 rounded-full bg-primary/40 animate-bounce" style={{ animationDelay: '300ms' }} />
+          <span className="w-2 h-2 rounded-full bg-primary/40 animate-bounce [animation-delay:0ms]" />
+          <span className="w-2 h-2 rounded-full bg-primary/40 animate-bounce [animation-delay:150ms]" />
+          <span className="w-2 h-2 rounded-full bg-primary/40 animate-bounce [animation-delay:300ms]" />
         </div>
       </div>
     </div>

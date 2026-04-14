@@ -120,6 +120,7 @@ export function ReportsAnalytics() {
     (best: any, cur: any) => (cur.orders > (best?.orders ?? 0) ? cur : best),
     null
   );
+  const toPercentClass = (value: number) => `ds-w-pct-${Math.max(0, Math.min(100, Math.round(value)))}`;
 
   // Summary stats (all-time from main analytics endpoint — for customers, order types, occupancy)
   const stats = analytics?.data ?? {};
@@ -516,8 +517,7 @@ export function ReportsAnalytics() {
                           <div className="flex items-center justify-end gap-2">
                             <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
                               <div
-                                className="h-full bg-primary"
-                                style={{ width: `${(item.orders / maxOrders) * 100}%` }}
+                                className={`h-full bg-primary ${toPercentClass((item.orders / maxOrders) * 100)}`}
                               />
                             </div>
                             <span className="text-xs text-muted-foreground w-10 text-right">
@@ -680,8 +680,7 @@ export function ReportsAnalytics() {
                             <div className="flex items-center justify-end gap-2">
                               <div className="w-16 h-2 bg-muted rounded-full overflow-hidden">
                                 <div
-                                  className="h-full bg-green-500"
-                                  style={{ width: `${staff.performance_score}%` }}
+                                  className={`h-full bg-green-500 ${toPercentClass(staff.performance_score)}`}
                                 />
                               </div>
                               <span className="font-semibold w-8 text-right">{staff.performance_score}</span>

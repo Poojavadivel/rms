@@ -655,7 +655,7 @@ export default function Reservation({ user, onNavigate }: ReservationProps) {
             <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle className="w-12 h-12 text-green-600" />
             </div>
-            <h2 className="text-3xl font-bold mb-2 text-[#8B5A2B]" style={{ fontFamily: "'Playfair Display', serif" }}>Reservation Confirmed!</h2>
+            <h2 className="text-3xl font-bold mb-2 text-[#8B5A2B]">Reservation Confirmed!</h2>
             <p className="text-gray-700 mb-8">
               Your table has been reserved successfully
             </p>
@@ -722,7 +722,7 @@ export default function Reservation({ user, onNavigate }: ReservationProps) {
           <div className="relative z-10 max-w-4xl mx-auto text-center px-6">
             <h1
               className="reservation-hero-title text-3xl sm:text-5xl md:text-7xl font-bold mb-4 sm:mb-6 text-white drop-shadow-2xl"
-              style={{ fontFamily: "'Playfair Display', serif" }}
+             
             >
               Table Reservation
             </h1>
@@ -770,7 +770,7 @@ export default function Reservation({ user, onNavigate }: ReservationProps) {
             {activeTab === 'check' && uiMode === 'search' && (
               <div>
                 <div className="flex justify-between items-center mb-8">
-                  <h2 className="text-3xl font-bold text-[#8B5A2B]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                  <h2 className="text-3xl font-bold text-[#8B5A2B]">
                     Check Table Availability
                   </h2>
                   <button
@@ -894,7 +894,7 @@ export default function Reservation({ user, onNavigate }: ReservationProps) {
               <div className="space-y-6">
                 <div className="flex justify-between items-center bg-[#FAF7F2] p-6 rounded-2xl border border-[#8B5A2B]/10">
                   <div>
-                    <h2 className="text-3xl font-bold text-[#8B5A2B]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                    <h2 className="text-3xl font-bold text-[#8B5A2B]">
                       {uiMode === 'all' ? 'All Restaurant Tables' : 'Availability Results'}
                     </h2>
                     <p className="text-gray-600 mt-1">
@@ -936,7 +936,7 @@ export default function Reservation({ user, onNavigate }: ReservationProps) {
                   <div className="bg-[#FAF7F2] border border-[#8B5A2B]/10 rounded-2xl p-6">
                     <div className="flex justify-between items-center mb-6">
                       <div>
-                        <h3 className="text-2xl font-bold text-[#3E2723] flex items-center gap-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                        <h3 className="text-2xl font-bold text-[#3E2723] flex items-center gap-2">
                           <LayoutGrid className="w-6 h-6 text-[#8B5A2B]" />
                           Overall Restaurant Availability
                         </h3>
@@ -958,7 +958,7 @@ export default function Reservation({ user, onNavigate }: ReservationProps) {
                           <div className="bg-white border border-green-100 rounded-xl p-6 flex justify-between items-center">
                             <div>
                               <p className="text-green-600 text-xs font-bold uppercase tracking-wider mb-2">Total Available</p>
-                              <span className="text-5xl font-bold text-green-700" style={{ fontFamily: "'Playfair Display', serif" }}>
+                              <span className="text-5xl font-bold text-green-700">
                                 {currentAvailableCount}
                               </span>
                             </div>
@@ -970,7 +970,7 @@ export default function Reservation({ user, onNavigate }: ReservationProps) {
                           <div className="bg-white border border-red-100 rounded-xl p-6 flex justify-between items-center">
                             <div>
                               <p className="text-red-600 text-xs font-bold uppercase tracking-wider mb-2">Total Reserved</p>
-                              <span className="text-5xl font-bold text-red-700" style={{ fontFamily: "'Playfair Display', serif" }}>
+                              <span className="text-5xl font-bold text-red-700">
                                 {currentReservedCount}
                               </span>
                             </div>
@@ -991,7 +991,7 @@ export default function Reservation({ user, onNavigate }: ReservationProps) {
                       {uiMode === 'all' ? <LayoutGrid className="w-5 h-5 text-[#8B5A2B]" /> : <Search className="w-5 h-5 text-[#8B5A2B]" />}
                     </div>
                     <div>
-                      <h3 className="text-2xl font-bold text-[#3E2723]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                      <h3 className="text-2xl font-bold text-[#3E2723]">
                         {uiMode === 'all' ? 'All Restaurant Tables' : 'Matching Tables'}
                       </h3>
                       <p className="text-gray-500 text-sm">
@@ -1095,7 +1095,7 @@ export default function Reservation({ user, onNavigate }: ReservationProps) {
             {/* My Reservations Tab */}
             {activeTab === 'my-reservations' && (
               <div>
-                <h2 className="text-3xl font-bold mb-8 text-[#8B5A2B]" style={{ fontFamily: "'Playfair Display', serif" }}>
+                <h2 className="text-3xl font-bold mb-8 text-[#8B5A2B]">
                   My Reservations
                 </h2>
 
@@ -1186,7 +1186,7 @@ export default function Reservation({ user, onNavigate }: ReservationProps) {
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full border border-[#8B5A2B]/20 overflow-hidden">
             {/* Header with brown background */}
             <div className="bg-[#8B5A2B] px-8 py-6">
-              <h3 className="text-white text-2xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
+              <h3 className="text-white text-2xl font-bold">
                 {confirmDialogData.title}
               </h3>
             </div>
@@ -1219,7 +1219,7 @@ export default function Reservation({ user, onNavigate }: ReservationProps) {
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 px-4">
           <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full border border-[#8B5A2B]/20 overflow-hidden transform transition-all scale-100">
             <div className="bg-[#8B5A2B] px-8 py-6 flex justify-between items-center">
-              <h3 className="text-white text-2xl font-bold" style={{ fontFamily: "'Playfair Display', serif" }}>
+              <h3 className="text-white text-2xl font-bold">
                 Reserve Table
               </h3>
               <button

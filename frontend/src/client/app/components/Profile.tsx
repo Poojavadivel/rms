@@ -65,7 +65,7 @@ export default function Profile({ user, onUpdateUser, onLogout, orders = [], onR
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-2xl sm:text-4xl font-bold mb-2 text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>My Profile</h1>
+          <h1 className="text-2xl sm:text-4xl font-bold mb-2 text-foreground">My Profile</h1>
           <p className="text-muted-foreground">Manage your account information and view order history</p>
         </div>
 
@@ -131,7 +131,7 @@ export default function Profile({ user, onUpdateUser, onLogout, orders = [], onR
               {/* Profile Card */}
               <div className="md:col-span-2 bg-card rounded-xl border border-border shadow-sm p-8">
                 <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Personal Information</h2>
+                  <h2 className="text-2xl font-bold text-foreground">Personal Information</h2>
                   {!isEditing && (
                     <button
                       onClick={() => setIsEditing(true)}
@@ -313,7 +313,7 @@ export default function Profile({ user, onUpdateUser, onLogout, orders = [], onR
                         </div>
                         <div>
                           <p className="text-xs text-[#FAF7F2]/60 uppercase tracking-wider font-bold mb-1">Membership Status</p>
-                          <h3 className="text-2xl font-black text-[#C8A47A] capitalize" style={{ fontFamily: "'Playfair Display', serif" }}>
+                          <h3 className="text-2xl font-black text-[#C8A47A] capitalize">
                             {user.membership.plan}
                           </h3>
                         </div>
@@ -364,7 +364,7 @@ export default function Profile({ user, onUpdateUser, onLogout, orders = [], onR
                   <div className="w-16 h-16 bg-muted rounded-xl flex items-center justify-center mx-auto mb-4">
                     <Crown className="w-8 h-8 text-muted-foreground" />
                   </div>
-                  <h3 className="text-lg font-bold text-foreground mb-2" style={{ fontFamily: "'Playfair Display', serif" }}>
+                  <h3 className="text-lg font-bold text-foreground mb-2">
                     No Active Membership
                   </h3>
                   <p className="text-sm text-muted-foreground mb-4">
@@ -416,7 +416,7 @@ export default function Profile({ user, onUpdateUser, onLogout, orders = [], onR
                 <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
                   <Package className="w-12 h-12 text-muted-foreground" />
                 </div>
-                <h2 className="text-3xl font-bold mb-2 text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>No Order History</h2>
+                <h2 className="text-3xl font-bold mb-2 text-foreground">No Order History</h2>
                 <p className="text-muted-foreground">Your past orders will appear here</p>
               </div>
             ) : (
@@ -525,7 +525,7 @@ export default function Profile({ user, onUpdateUser, onLogout, orders = [], onR
 
                 {/* Summary Card */}
                 <div className="bg-card rounded-xl border border-border shadow-sm p-6">
-                  <h2 className="text-xl font-bold mb-4 text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>Order Statistics</h2>
+                  <h2 className="text-xl font-bold mb-4 text-foreground">Order Statistics</h2>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
                     <div className="text-center">
                       <p className="text-3xl font-bold mb-1 text-primary">{orders.length}</p>
@@ -558,7 +558,7 @@ export default function Profile({ user, onUpdateUser, onLogout, orders = [], onR
                 <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
                   <Heart className="w-12 h-12 text-muted-foreground" />
                 </div>
-                <h2 className="text-3xl font-bold mb-2 text-foreground" style={{ fontFamily: "'Playfair Display', serif" }}>No Favorite Dishes</h2>
+                <h2 className="text-3xl font-bold mb-2 text-foreground">No Favorite Dishes</h2>
                 <p className="text-muted-foreground">You have no favorite dishes yet.</p>
               </div>
             ) : (
