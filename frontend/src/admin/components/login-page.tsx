@@ -50,13 +50,13 @@ export function LoginPage() {
         <Card className="shadow-xl border-0">
           <CardHeader className="space-y-3 pb-2 text-center">
             <div className="flex justify-center">
-              <img src="/favicon.png" alt="logo" className="h-20 w-20 sm:h-24 sm:w-24 rounded-2xl object-contain" />
+              <img src="/favicon.png" alt="logo" className="h-11 w-auto max-w-[48px] rounded-lg object-contain" />
             </div>
             <div>
               {/* Mobile: short brand name */}
               <CardTitle className="text-3xl font-bold tracking-tight sm:hidden">RMS</CardTitle>
               {/* Desktop: full name */}
-              <CardTitle className="hidden sm:block text-2xl">Restaurant Management</CardTitle>
+              <CardTitle className="hidden sm:block text-2xl">Urban Bites</CardTitle>
               <CardDescription className="mt-1.5">Sign in with your staff credentials</CardDescription>
             </div>
           </CardHeader>

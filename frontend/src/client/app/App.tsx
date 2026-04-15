@@ -549,7 +549,7 @@ export default function App() {
         user={appState.user}
         showModuleNav={activeModule !== 'login'}
       />
-      <main className={appState.isLoggedIn && activeModule !== 'login' ? 'pt-20 sm:pt-24' : 'pt-9 sm:pt-10'}>
+      <main className={appState.isLoggedIn && activeModule !== 'login' ? 'pt-[124px]' : 'pt-[68px]'}>
         {renderActiveModule()}
       </main>
     </div>

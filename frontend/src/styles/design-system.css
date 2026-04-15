@@ -19,6 +19,9 @@
   --ds-space-4: 1rem;
   --ds-space-5: 1.25rem;
   --ds-space-6: 1.5rem;
+  --app-header-height: 68px;
+  --app-subnav-height: 56px;
+  --app-logo-height: 44px;
 }
 
 @layer base {
@@ -61,7 +64,44 @@
   }
 
   .app-content-container {
-    @apply mx-auto w-full max-w-[1920px] px-3 sm:px-6;
+    @apply mx-auto w-full max-w-[1200px] px-6;
+  }
+
+  .app-navbar-inner {
+    @apply w-full px-6;
+  }
+
+  .app-navbar-row {
+    @apply flex items-center justify-between gap-3;
+    min-height: var(--app-header-height);
+  }
+
+  .app-navbar-left {
+    @apply min-w-0 flex-1 overflow-hidden flex items-center gap-3;
+  }
+
+  .app-navbar-right {
+    @apply flex-shrink-0 flex items-center justify-end;
+  }
+
+  .app-brand-logo {
+    height: var(--app-logo-height);
+    width: auto;
+    max-width: 48px;
+    object-fit: contain;
+    flex-shrink: 0;
+  }
+
+  .app-brand-title {
+    @apply text-[26px] font-semibold tracking-tight leading-tight;
+  }
+
+  .app-brand-title-mobile {
+    @apply text-base font-semibold tracking-tight leading-tight;
+  }
+
+  .app-subnav-row {
+    min-height: var(--app-subnav-height);
   }
 
   .app-nav-surface {

@@ -50,6 +50,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/admin/components/ui/avata
 import { Badge } from "@/admin/components/ui/badge";
 import { notificationsApi, backupApi } from '@/admin/utils/api';
 import { toast as backupToast } from 'sonner';
+import AppNavbar from '@/shared/components/AppNavbar';
 
 function triggerBackupDownload(data: any, filename: string) {
   const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
@@ -240,6 +241,9 @@ function AppContent() {
   const permittedTabs = ALL_TABS.filter(t =>
     hasPermission(t.value) && !(isChef && t.value === 'dashboard')
   );
+  const headerBrandName = config.restaurantName === 'Restaurant Management System'
+    ? 'Urban Bites'
+    : (config.restaurantName || 'Urban Bites');
 
   const navigate = (value: string) => {
     setActiveTab(value);
@@ -256,17 +260,11 @@ function AppContent() {
 
       {/* Header */}
       <header className="app-header">
-        <div className="app-content-container py-3 sm:py-4">
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 overflow-hidden">
-              <img src="/favicon.png" alt="logo" className="h-10 w-10 sm:h-12 sm:w-12 flex-shrink-0 rounded-lg object-contain" />
-              <div className="min-w-0 overflow-hidden">
-                <h1 className="text-base font-bold tracking-tight leading-tight sm:hidden">RMS</h1>
-                <h1 className="hidden sm:block text-xl font-semibold tracking-tight leading-tight truncate">{config.restaurantName}</h1>
-                <p className="text-xs text-muted-foreground hidden sm:block">Powered by Movicloud Labs</p>
-              </div>
-            </div>
-
+        <AppNavbar
+          title={headerBrandName}
+          mobileTitle="Urban Bites"
+          logoSrc="/favicon.png"
+          rightSlot={(
             <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
               <Button
                 variant="ghost"
@@ -331,15 +329,15 @@ function AppContent() {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
-          </div>
-        </div>
+          )}
+        />
       </header>
 
       {/* Tabs */}
       <Tabs value={activeTab} onValueChange={(v) => hasPermission(v) && setActiveTab(v)} className="app-content-container">
 
         {/* Desktop top nav � hidden on mobile */}
-        <div className="hidden sm:block sticky top-[73px] z-40">
+        <div className="hidden sm:block sticky top-[68px] z-40">
           <div className="my-3 app-nav-surface overflow-x-auto scrollbar-hide">
             <TabsList className="min-w-max w-full justify-center gap-1 flex-nowrap h-auto p-2 bg-transparent border-0">
               {ALL_TABS.map(({ value, icon: Icon, label }) =>
