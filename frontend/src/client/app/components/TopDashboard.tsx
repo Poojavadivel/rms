@@ -1,4 +1,4 @@
-import { Home, User, Calendar, Clock, Menu as MenuIcon, ShoppingCart, Package, Gift, MapPin, History, MessageSquare, Settings, Bell, ShieldCheck } from 'lucide-react';
+import { Home, User, Calendar, Clock, Menu as MenuIcon, ShoppingCart, Gift, MapPin, History, MessageSquare, Settings, Bell, ShieldCheck } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import type { Module, User as UserType } from '@/client/app/App';
 import { useNotifications } from '@/client/context/NotificationsContext';
@@ -42,7 +42,6 @@ export default function TopDashboard({
     { id: 'reservation', label: 'Reservation', icon: <Calendar className="w-4 h-4" /> },
     { id: 'queue', label: 'Queue', icon: <Clock className="w-4 h-4" /> },
     { id: 'menu', label: 'Menu', icon: <MenuIcon className="w-4 h-4" /> },
-    { id: 'orders', label: 'Orders', icon: <Package className="w-4 h-4" /> },
     { id: 'offers', label: 'Offers & Loyalty', icon: <Gift className="w-4 h-4" /> },
     { id: 'tracking', label: 'Order Tracking', icon: <MapPin className="w-4 h-4" /> },
     { id: 'feedback', label: 'Feedback', icon: <MessageSquare className="w-4 h-4" /> },

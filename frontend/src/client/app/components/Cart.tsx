@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Trash2, Plus, Minus, ShoppingBag, CreditCard, Smartphone, Wallet, CheckCircle, Download, Award, Users as UsersIcon, MapPin, Loader2, FileText, ChevronDown, ChevronUp, Clock, Receipt } from 'lucide-react';
-import { ImageWithFallback } from '@/client/app/components/figma/ImageWithFallback';
+import { Trash2, Plus, Minus, ShoppingBag, CreditCard, Smartphone, Wallet, CheckCircle, Download, Award, Users as UsersIcon, MapPin, Loader2, FileText, ChevronDown, ChevronUp, Clock, Receipt, ArrowRight, Sparkles } from 'lucide-react';
+import { MenuItemImage } from '@/client/app/components/MenuItemImage';
 import type { CartItem, Order, User } from '@/client/app/App';
 import { useLoyalty } from '@/client/app/context/LoyaltyContext';
 import type { Offer } from '@/client/app/data/offersData';
@@ -198,18 +198,18 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
 
   // ── Previous Orders & Bills section (reused in both empty and filled views) ──
   const previousOrdersSection = user ? (
-    <div className="mt-10 max-w-3xl mx-auto">
+    <div className="w-full">
       <button
         onClick={() => setShowHistory((p) => !p)}
-        className="w-full flex items-center justify-between px-5 py-4 bg-white border border-gray-200 rounded-xl shadow-sm hover:shadow-md transition-all"
+        className="w-full flex items-center justify-between px-5 py-4 bg-white border border-[#E8DED0] rounded-2xl shadow-sm hover:shadow-md transition-all"
       >
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-full bg-amber-50 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-amber-50 flex items-center justify-center ring-1 ring-amber-100">
             <Receipt className="w-5 h-5 text-amber-600" />
           </div>
           <div className="text-left">
-            <p className="font-semibold text-gray-900 text-sm">Previous Orders &amp; Bills</p>
-            <p className="text-xs text-gray-500">
+            <p className="font-semibold text-gray-900 text-sm sm:text-base">Previous Orders &amp; Bills</p>
+            <p className="text-xs sm:text-sm text-gray-500">
               {loadingHistory ? 'Loading…' : `${invoiceHistory.length} order${invoiceHistory.length !== 1 ? 's' : ''} found`}
             </p>
           </div>
@@ -218,7 +218,7 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
       </button>
 
       {showHistory && (
-        <div className="mt-2 border border-gray-200 rounded-xl overflow-hidden bg-white shadow-sm">
+        <div className="mt-3 border border-[#E8DED0] rounded-2xl overflow-hidden bg-white shadow-sm">
           {loadingHistory ? (
             <div className="flex items-center justify-center py-10 gap-2 text-gray-500">
               <Loader2 className="w-5 h-5 animate-spin" />
@@ -347,16 +347,146 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
 
   if (cart.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 py-8 sm:py-12 px-4 sm:px-6">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-4">
-            <div className="w-20 h-20 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-6">
-              <ShoppingBag className="w-12 h-12 text-gray-400" />
+      <div className="min-h-screen bg-gradient-to-b from-[#F5F0E8] via-[#FAF7F2] to-white py-8 sm:py-12 px-4 sm:px-6">
+        <div className="max-w-7xl mx-auto">
+          <div className="mb-6 flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <p className="text-[11px] font-bold uppercase tracking-[0.28em] text-[#8B5A2B]">Basket / Bills / History</p>
+              <h2 className="mt-2 text-2xl sm:text-3xl font-bold text-[#2D1B10]">A calmer cart experience</h2>
             </div>
-            <h2 className="text-2xl sm:text-3xl font-bold mb-2">Your Cart is Empty</h2>
-            <p className="text-gray-600 mb-6">Add items from the menu to get started</p>
+            <div className="inline-flex items-center gap-2 rounded-full border border-[#E8DED0] bg-white px-4 py-2 text-sm text-[#6D4C41] shadow-sm">
+              <span className="w-2.5 h-2.5 rounded-full bg-[#8B5A2B]" />
+              Empty basket, full control
+            </div>
           </div>
-          {previousOrdersSection}
+
+          <div className="grid grid-cols-1 lg:grid-cols-[1.15fr_0.85fr] gap-6 lg:gap-8 items-start">
+            <div className="relative overflow-hidden rounded-[2rem] border border-[#E8DED0] bg-white shadow-[0_24px_80px_-24px_rgba(62,39,35,0.22)]">
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(200,164,122,0.24),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(62,39,35,0.08),transparent_36%)]" />
+              <div className="relative z-10 p-6 sm:p-10 lg:p-12">
+                <div className="inline-flex items-center gap-2 rounded-full bg-[#F8F1E7] px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.22em] text-[#8B5A2B] border border-[#C8A47A]/40">
+                  <ShoppingBag className="w-3.5 h-3.5" />
+                  Cart Ready
+                </div>
+
+                <div className="mt-7 grid grid-cols-1 md:grid-cols-[auto_1fr] gap-5 md:gap-6 items-center">
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-[1.75rem] bg-[#3E2723] text-[#C8A47A] flex items-center justify-center shadow-lg shadow-[#3E2723]/10 overflow-hidden">
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent" />
+                    <ShoppingBag className="w-10 h-10 sm:w-12 sm:h-12 relative z-10" />
+                  </div>
+
+                  <div>
+                    <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold text-[#2D1B10] leading-tight max-w-xl">
+                      Your cart is empty, but the kitchen is not.
+                    </h2>
+                    <p className="mt-3 text-base sm:text-lg text-[#6D4C41] max-w-2xl leading-relaxed">
+                      Build a fresh order from the menu, or jump back into your bill history and continue where you left off.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex flex-wrap gap-3">
+                  <button
+                    onClick={() => onNavigate('menu')}
+                    className="group inline-flex items-center justify-center gap-2 rounded-full bg-[#8B5A2B] px-6 py-3.5 text-white font-semibold shadow-lg hover:bg-[#6D4C41] transition-all"
+                  >
+                    Browse Menu
+                    <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                  </button>
+                  <button
+                    onClick={() => onNavigate('tracking')}
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-[#C8A47A]/60 bg-white px-6 py-3.5 text-[#5D4037] font-semibold hover:bg-[#F8F1E7] transition-all"
+                  >
+                    Track Order
+                  </button>
+                  <button
+                    onClick={() => onNavigate('reservation')}
+                    className="inline-flex items-center justify-center gap-2 rounded-full border border-[#E8DED0] bg-[#FAF7F2] px-6 py-3.5 text-[#5D4037] font-semibold hover:bg-white transition-all"
+                  >
+                    Reserve Table
+                  </button>
+                </div>
+
+                <div className="mt-9 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {[
+                    { title: 'Fast Checkout', desc: 'Cart, payment, and tracking stay one tap away.' },
+                    { title: 'Saved Bills', desc: 'Revisit invoices without digging through the app.' },
+                    { title: 'Menu Favorites', desc: 'Return to dishes you already know will work.' },
+                  ].map((item) => (
+                    <div key={item.title} className="rounded-2xl border border-[#E8DED0] bg-[#FFFDF9] p-4">
+                      <p className="font-semibold text-[#2D1B10]">{item.title}</p>
+                      <p className="mt-1 text-sm text-[#6D4C41] leading-relaxed">{item.desc}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-[2rem] border border-[#E8DED0] bg-white shadow-[0_20px_60px_-24px_rgba(62,39,35,0.18)] p-5 sm:p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#8B5A2B]">Order Memory</p>
+                    <h3 className="text-xl font-bold text-[#2D1B10] mt-1">Recent activity</h3>
+                  </div>
+                  <div className="w-11 h-11 rounded-full bg-[#F8F1E7] flex items-center justify-center border border-[#C8A47A]/30">
+                    <Receipt className="w-5 h-5 text-[#8B5A2B]" />
+                  </div>
+                </div>
+
+                {user ? (
+                  <div className="space-y-3">
+                    <div className="grid grid-cols-2 gap-3">
+                      <div className="rounded-2xl bg-[#FAF7F2] border border-[#E8DED0] p-4">
+                        <p className="text-[11px] uppercase tracking-[0.2em] text-[#8B5A2B] font-bold">Recent bills</p>
+                        <p className="mt-2 text-2xl font-bold text-[#2D1B10]">{invoiceHistory.length}</p>
+                      </div>
+                      <div className="rounded-2xl bg-[#FAF7F2] border border-[#E8DED0] p-4">
+                        <p className="text-[11px] uppercase tracking-[0.2em] text-[#8B5A2B] font-bold">Last payment</p>
+                        <p className="mt-2 text-2xl font-bold text-[#2D1B10]">
+                          {invoiceHistory[0] ? `₹${Number(invoiceHistory[0].grandTotal).toFixed(0)}` : '—'}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="rounded-2xl border border-[#E8DED0] bg-[#FFFDF9] p-4">
+                      {previousOrdersSection}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-[#E8DED0] bg-[#FFFDF9] p-5">
+                    <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#8B5A2B]">Signed out</p>
+                    <h3 className="text-lg font-bold text-[#2D1B10] mt-1">Log in to see previous bills</h3>
+                    <p className="text-sm text-[#6D4C41] mt-1">Previous orders and invoices appear once you sign in.</p>
+                    <button
+                      onClick={() => onNavigate('login')}
+                      className="mt-4 inline-flex items-center justify-center gap-2 rounded-xl bg-[#3E2723] px-5 py-3 text-white font-semibold hover:bg-[#2D1B10] transition-all"
+                    >
+                      Sign In
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="rounded-[2rem] border border-[#E8DED0] bg-white shadow-[0_20px_60px_-24px_rgba(62,39,35,0.18)] p-5 sm:p-6">
+                <p className="text-[11px] font-bold uppercase tracking-[0.22em] text-[#8B5A2B]">Flow</p>
+                <div className="mt-4 space-y-3">
+                  {[
+                    'Browse the menu and add what you want',
+                    'Review cart and complete payment',
+                    'Track preparation status after checkout',
+                  ].map((step, index) => (
+                    <div key={step} className="flex items-start gap-3 rounded-2xl bg-[#FAF7F2] border border-[#E8DED0] p-4">
+                      <div className="w-8 h-8 rounded-full bg-[#3E2723] text-[#FAF7F2] flex items-center justify-center text-sm font-bold shrink-0">
+                        {index + 1}
+                      </div>
+                      <p className="text-sm text-[#4E342E] leading-relaxed">{step}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -366,36 +496,36 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
     <div className="min-h-screen bg-background py-6 sm:py-8 px-3 sm:px-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-4xl font-bold mb-2">Shopping Cart &amp; Checkout</h1>
-          <p className="text-muted-foreground">{cart.length} items in your cart</p>
+        <div className="mb-5 sm:mb-6">
+          <h1 className="text-2xl font-semibold mb-1">Shopping Cart &amp; Checkout</h1>
+          <p className="text-sm sm:text-base text-muted-foreground">{cart.length} items in your cart</p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.65fr)_minmax(340px,0.95fr)] gap-4 lg:gap-5 items-start">
           {/* Cart Items */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="space-y-4">
             {/* Cart Items List */}
             <div className="space-y-4">
               {cart.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 sm:p-6"
+                  className="bg-white rounded-2xl border border-[#E8D5B5] shadow-sm p-4 sm:p-5"
                 >
-                  <div className="flex gap-4">
+                  <div className="flex items-start gap-4">
                     {/* Item Image */}
-                    <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
-                      <ImageWithFallback
-                        src={`https://source.unsplash.com/featured/400x300/?${encodeURIComponent(item.image)}`}
+                    <div className="w-24 h-24 rounded-xl overflow-hidden bg-[#FAF0E4] flex-shrink-0 ring-1 ring-[#E8D5B5]">
+                      <MenuItemImage
+                        src={item.image}
                         alt={item.name}
                         className="w-full h-full object-cover"
                       />
                     </div>
 
                     {/* Item Details */}
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between mb-2">
                         <div>
-                          <h3 className="font-semibold text-lg">{item.name}</h3>
+                          <h3 className="font-semibold text-base sm:text-lg text-[#3E2723]">{item.name}</h3>
                           <span
                             className={`inline-block px-2 py-1 rounded text-xs font-medium mt-1 ${
                               item.isVeg
@@ -417,7 +547,7 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
 
                       {/* Customizations */}
                       {(item.spiceLevel || item.addons?.length || item.specialInstructions) && (
-                        <div className="mb-3 text-sm text-gray-600 space-y-1">
+                        <div className="mb-3 text-xs sm:text-sm text-gray-600 space-y-1">
                           {item.spiceLevel && (
                             <p>
                               <span className="font-medium">Spice:</span> {item.spiceLevel}
@@ -439,25 +569,25 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
                       )}
 
                       {/* Quantity and Price */}
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between gap-3">
                         <div className="flex items-center gap-3">
                           <button
                             onClick={() => onUpdateQuantity(item.id, item.quantity - 1)}
-                            className="w-8 h-8 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center"
+                            className="w-8 h-8 bg-[#FAF0E4] rounded-lg hover:bg-[#E8D5B5] transition-colors flex items-center justify-center"
                           >
                             <Minus className="w-4 h-4" />
                           </button>
                           <span className="font-semibold w-8 text-center">{item.quantity}</span>
                           <button
                             onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
-                            className="w-8 h-8 bg-gray-200 rounded-lg hover:bg-gray-300 transition-colors flex items-center justify-center"
+                            className="w-8 h-8 bg-[#FAF0E4] rounded-lg hover:bg-[#E8D5B5] transition-colors flex items-center justify-center"
                           >
                             <Plus className="w-4 h-4" />
                           </button>
                         </div>
                         <div className="text-right">
-                          <p className="text-sm text-gray-600">₹{item.price} each</p>
-                          <p className="text-xl font-bold">
+                          <p className="text-xs sm:text-sm text-gray-600">₹{item.price} each</p>
+                          <p className="text-lg sm:text-xl font-bold text-[#8B5A2B]">
                             ₹{(item.price * item.quantity).toFixed(2)}
                           </p>
                         </div>
@@ -469,8 +599,8 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
             </div>
 
             {/* Order Type Selection */}
-            <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-              <h2 className="text-xl font-bold mb-4">Select Order Type</h2>
+            <div className="bg-white rounded-2xl border border-[#E8D5B5] shadow-sm p-5">
+              <h2 className="text-lg font-semibold text-[#3E2723] mb-3">Select Order Type</h2>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => { setOrderType('dine-in'); setTableNumber(''); }}
@@ -496,7 +626,6 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
                 </button>
               </div>
 
-              {/* Real table picker – only for dine-in */}
               {orderType === 'dine-in' && (
                 <div className="mt-4">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -509,7 +638,6 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
                       Loading tables…
                     </div>
                   ) : tables.length === 0 ? (
-                    /* Fallback: manual entry when API returns nothing */
                     <input
                       type="text"
                       placeholder="Enter your table number"
@@ -523,12 +651,8 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
                         const status = (t.status ?? 'available').toLowerCase();
                         const isMyReservation = reservedTableId === t.tableId;
                         const isSelected = tableNumber === t.tableId;
+                        const selectable = status === 'available' || isMyReservation;
 
-                        // Determine if this table is selectable
-                        const selectable =
-                          status === 'available' || isMyReservation;
-
-                        // Colour scheme
                         let cardCls = 'relative flex flex-col items-center justify-center gap-1 p-2 rounded-lg border-2 text-center text-xs transition-all ';
                         if (!selectable) {
                           cardCls += 'border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed opacity-60';
@@ -591,159 +715,11 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
               )}
             </div>
 
-            {/* Payment Method Selection */}
-            {orderType && (
-              <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-                <h2 className="text-xl font-bold mb-4">Payment Method</h2>
-                <div className="space-y-3">
-                  {/* UPI */}
-                  <button
-                    onClick={() => setSelectedPayment('upi')}
-                    className={`w-full flex items-center gap-4 p-4 border-2 rounded-lg transition-colors ${
-                      selectedPayment === 'upi'
-                        ? 'border-black bg-gray-50'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center">
-                      <Smartphone className="w-6 h-6 text-purple-600" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className="font-semibold">UPI Payment</p>
-                      <p className="text-sm text-gray-600">Google Pay, PhonePe, Paytm</p>
-                    </div>
-                    <div
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        selectedPayment === 'upi'
-                          ? 'border-black bg-black'
-                          : 'border-gray-300'
-                      }`}
-                    >
-                      {selectedPayment === 'upi' && (
-                        <div className="w-2 h-2 bg-white rounded-full" />
-                      )}
-                    </div>
-                  </button>
-
-                  {/* Card */}
-                  <button
-                    onClick={() => setSelectedPayment('card')}
-                    className={`w-full flex items-center gap-4 p-4 border-2 rounded-lg transition-colors ${
-                      selectedPayment === 'card'
-                        ? 'border-black bg-gray-50'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                      <CreditCard className="w-6 h-6 text-blue-600" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className="font-semibold">Credit/Debit Card</p>
-                      <p className="text-sm text-gray-600">Visa, Mastercard, Rupay</p>
-                    </div>
-                    <div
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        selectedPayment === 'card'
-                          ? 'border-black bg-black'
-                          : 'border-gray-300'
-                      }`}
-                    >
-                      {selectedPayment === 'card' && (
-                        <div className="w-2 h-2 bg-white rounded-full" />
-                      )}
-                    </div>
-                  </button>
-
-                  {/* Cash */}
-                  <button
-                    onClick={() => setSelectedPayment('cash')}
-                    className={`w-full flex items-center gap-4 p-4 border-2 rounded-lg transition-colors ${
-                      selectedPayment === 'cash'
-                        ? 'border-black bg-gray-50'
-                        : 'border-gray-300 hover:border-gray-400'
-                    }`}
-                  >
-                    <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center">
-                      <Wallet className="w-6 h-6 text-green-600" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <p className="font-semibold">Cash Payment</p>
-                      <p className="text-sm text-gray-600">Pay at restaurant/pickup</p>
-                    </div>
-                    <div
-                      className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                        selectedPayment === 'cash'
-                          ? 'border-black bg-black'
-                          : 'border-gray-300'
-                      }`}
-                    >
-                      {selectedPayment === 'cash' && (
-                        <div className="w-2 h-2 bg-white rounded-full" />
-                      )}
-                    </div>
-                  </button>
-                </div>
-
-                {/* Payment Details Form (shown for card or UPI) */}
-                {selectedPayment === 'card' && (
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <h3 className="font-semibold mb-4">Card Details</h3>
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium mb-2">Card Number</label>
-                        <input
-                          type="text"
-                          placeholder="1234 5678 9012 3456"
-                          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black"
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium mb-2">Expiry Date</label>
-                          <input
-                            type="text"
-                            placeholder="MM/YY"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black"
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium mb-2">CVV</label>
-                          <input
-                            type="text"
-                            placeholder="123"
-                            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                )}
-
-                {selectedPayment === 'upi' && (
-                  <div className="mt-6 pt-6 border-t border-gray-200">
-                    <h3 className="font-semibold mb-4">UPI ID</h3>
-                    <input
-                      type="text"
-                      placeholder="yourname@upi"
-                      value={upiId}
-                      onChange={(e) => {
-                        setUpiId(e.target.value);
-                        if (upiError) setUpiError(null);
-                      }}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-black"
-                    />
-                    {upiError && (
-                      <p className="mt-2 text-sm text-red-600">{upiError}</p>
-                    )}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
 
           {/* Billing Summary - Sticky Sidebar */}
-          <div className="lg:col-span-1">
-            <div className="loyalty-card membership-gradient p-6 sticky top-24">
+          <div>
+            <div className="loyalty-card membership-gradient p-5 sm:p-6 sticky top-20">
               <div className="loyalty-card-decor-1"></div>
               <div className="loyalty-card-decor-2"></div>
 
@@ -799,9 +775,9 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
                   )}
 
                   {offerDiscount > 0 && (
-                    <div className="flex justify-between text-[#FAF7F2]/80">
+                    <div className="flex items-center justify-between text-sm text-[#FAF7F2]/80">
                       <span>Offer Discount</span>
-                      <span className="font-semibold text-[#C8A47A]">-₹{offerDiscount.toFixed(2)}</span>
+                      <span className="font-semibold text-[#C8A47A] tabular-nums">-₹{offerDiscount.toFixed(2)}</span>
                     </div>
                   )}
 
@@ -868,19 +844,19 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
                   </div>
 
                   {loyaltyDiscount > 0 && (
-                    <div className="flex justify-between text-[#FAF7F2]/80">
+                    <div className="flex items-center justify-between text-sm text-[#FAF7F2]/80">
                       <span>Loyalty Discount</span>
-                      <span className="font-semibold text-[#C8A47A]">-₹{loyaltyDiscount.toFixed(2)}</span>
+                      <span className="font-semibold text-[#C8A47A] tabular-nums">-₹{loyaltyDiscount.toFixed(2)}</span>
                     </div>
                   )}
-                  <div className="flex justify-between text-[#FAF7F2]/80">
+                  <div className="flex items-center justify-between text-sm text-[#FAF7F2]/80">
                     <span>GST (5%)</span>
-                    <span className="font-semibold text-[#FAF7F2]">₹{tax.toFixed(2)}</span>
+                    <span className="font-semibold text-[#FAF7F2] tabular-nums">₹{tax.toFixed(2)}</span>
                   </div>
                   <div className="pt-3 border-t border-[#C8A47A]/20">
                     <div className="flex justify-between items-end">
-                      <span className="text-lg font-semibold text-[#FAF7F2]">Total Amount</span>
-                      <span className="text-3xl font-black text-[#C8A47A]">₹{total.toFixed(2)}</span>
+                      <span className="text-base font-semibold text-[#FAF7F2]">Total Amount</span>
+                      <span className="text-2xl font-bold text-[#C8A47A] tabular-nums">₹{total.toFixed(2)}</span>
                     </div>
                   </div>
                 </div>
@@ -892,10 +868,92 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
                   </div>
                 )}
 
-                {selectedPayment && (
-                  <div className="mb-6 p-3 loyalty-panel">
-                    <p className="text-sm text-[#FAF7F2]/70">Payment Method</p>
-                    <p className="font-semibold text-[#FAF7F2] capitalize">{selectedPayment === 'upi' ? 'UPI' : selectedPayment}</p>
+                {orderType && (
+                  <div className="mb-4 p-3 loyalty-panel">
+                    <p className="text-sm text-[#FAF7F2]/70 mb-2">Payment Method</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      <button
+                        onClick={() => { setSelectedPayment('upi'); setUpiError(null); }}
+                        className={`flex flex-col items-center justify-center gap-1 rounded-lg border p-2 text-xs font-semibold transition-colors ${
+                          selectedPayment === 'upi'
+                            ? 'border-[#C8A47A] bg-[#FAF7F2] text-[#3E2723]'
+                            : 'border-[#C8A47A]/40 text-[#FAF7F2] hover:border-[#C8A47A]'
+                        }`}
+                      >
+                        <Smartphone className="w-4 h-4" />
+                        UPI
+                      </button>
+                      <button
+                        onClick={() => { setSelectedPayment('card'); setUpiError(null); }}
+                        className={`flex flex-col items-center justify-center gap-1 rounded-lg border p-2 text-xs font-semibold transition-colors ${
+                          selectedPayment === 'card'
+                            ? 'border-[#C8A47A] bg-[#FAF7F2] text-[#3E2723]'
+                            : 'border-[#C8A47A]/40 text-[#FAF7F2] hover:border-[#C8A47A]'
+                        }`}
+                      >
+                        <CreditCard className="w-4 h-4" />
+                        Card
+                      </button>
+                      <button
+                        onClick={() => { setSelectedPayment('cash'); setUpiError(null); }}
+                        className={`flex flex-col items-center justify-center gap-1 rounded-lg border p-2 text-xs font-semibold transition-colors ${
+                          selectedPayment === 'cash'
+                            ? 'border-[#C8A47A] bg-[#FAF7F2] text-[#3E2723]'
+                            : 'border-[#C8A47A]/40 text-[#FAF7F2] hover:border-[#C8A47A]'
+                        }`}
+                      >
+                        <Wallet className="w-4 h-4" />
+                        Cash
+                      </button>
+                    </div>
+
+                    {selectedPayment === 'upi' && (
+                      <div className="mt-3 space-y-1">
+                        <label className="block text-xs font-semibold text-[#FAF7F2]/85">UPI ID</label>
+                        <input
+                          type="text"
+                          placeholder="yourname@upi"
+                          value={upiId}
+                          onChange={(e) => {
+                            setUpiId(e.target.value);
+                            if (upiError) setUpiError(null);
+                          }}
+                          className="w-full rounded-lg border border-[#C8A47A]/40 bg-[#FAF7F2] px-3 py-2 text-sm text-[#3E2723] placeholder:text-[#8B5A2B]/60 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
+                        />
+                        {upiError && <p className="text-xs text-[#FCA5A5]">{upiError}</p>}
+                      </div>
+                    )}
+
+                    {selectedPayment === 'card' && (
+                      <div className="mt-3 space-y-2">
+                        <div>
+                          <label className="block text-xs font-semibold text-[#FAF7F2]/85 mb-1">Card Number</label>
+                          <input
+                            type="text"
+                            placeholder="1234 5678 9012 3456"
+                            className="w-full rounded-lg border border-[#C8A47A]/40 bg-[#FAF7F2] px-3 py-2 text-sm text-[#3E2723] placeholder:text-[#8B5A2B]/60 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
+                          />
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <label className="block text-xs font-semibold text-[#FAF7F2]/85 mb-1">Expiry</label>
+                            <input
+                              type="text"
+                              placeholder="MM/YY"
+                              className="w-full rounded-lg border border-[#C8A47A]/40 bg-[#FAF7F2] px-3 py-2 text-sm text-[#3E2723] placeholder:text-[#8B5A2B]/60 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-[#FAF7F2]/85 mb-1">CVV</label>
+                            <input
+                              type="text"
+                              placeholder="123"
+                              className="w-full rounded-lg border border-[#C8A47A]/40 bg-[#FAF7F2] px-3 py-2 text-sm text-[#3E2723] placeholder:text-[#8B5A2B]/60 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 

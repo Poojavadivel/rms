@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Calendar, Clock, Users, CheckCircle, RefreshCw, MapPin, LayoutGrid, Phone, User as UserIcon, XCircle, Search, ArrowLeft } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Calendar, Clock, Users, CheckCircle, RefreshCw, MapPin, LayoutGrid, Phone, User as UserIcon, XCircle, Search, ArrowLeft, ArrowRight } from 'lucide-react';
 import type { User } from '@/client/app/App';
 import {
   createReservation,
@@ -119,6 +119,7 @@ function getSampleWaitingQueue(user: User): WaitingQueueEntry[] {
 }
 
 export default function Reservation({ user, onNavigate }: ReservationProps) {
+  const reservationSectionRef = useRef<HTMLElement>(null);
   const [activeTab, setActiveTab] = useState<ReservationTab>('check');
   const [step, setStep] = useState<'form' | 'success'>('form');
   const [uiMode, setUiMode] = useState<'search' | 'results' | 'all'>('search');
@@ -256,6 +257,10 @@ export default function Reservation({ user, onNavigate }: ReservationProps) {
     const segs = [...new Set(allTables.map(t => t.segment).filter(Boolean))];
     return segs.length > 0 ? segs : ['Front', 'Back'];
   }, [allTables]);
+
+  const scrollToReservationSection = () => {
+    reservationSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   // Build a readable time slot label from start/end
   const buildTimeSlot = (startTime: string, endTime: string): string => {
@@ -730,12 +735,19 @@ export default function Reservation({ user, onNavigate }: ReservationProps) {
               No waiting, No worries - just great dining.<br />
               Reserve your table and enjoy every moment.
             </p>
+            <button
+              onClick={scrollToReservationSection}
+              className="group mt-8 bg-[#8B5A2B] text-white px-10 py-4 rounded-lg hover:bg-[#6D4C41] transition-all shadow-lg hover:shadow-xl flex items-center gap-3 mx-auto"
+            >
+              Reserve Table
+              <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </button>
           </div>
         </section>
       )}
 
       {/* SECTION 2 — RESERVATION OPERATIONS (Second Slide - Scrollable) */}
-      <section className="relative py-10 sm:py-20 px-4 sm:px-6 min-h-screen">
+      <section ref={reservationSectionRef} className="relative py-10 sm:py-20 px-4 sm:px-6 min-h-screen">
         <div className="max-w-6xl mx-auto">
           {/* Tab Navigation */}
           {uiMode === 'search' && (

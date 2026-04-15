@@ -199,3 +199,9 @@
     line-height: 1.5;
   }
 }
+
+.settings-title {
+  font-size: 30px !important;
+  font-weight: 600;
+  line-height: 1.2;
+}

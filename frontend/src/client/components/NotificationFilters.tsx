@@ -35,10 +35,10 @@ export function NotificationFilters({
             type="button"
             onClick={() => onChange(f.id)}
             className={cn(
-              "h-9 px-4 rounded-full border text-sm font-medium transition-colors",
+              "h-8 sm:h-9 px-3.5 sm:px-4 rounded-full border text-[11px] sm:text-sm font-medium transition-all",
               active
-                ? "bg-primary text-primary-foreground border-primary"
-                : "bg-secondary text-foreground border-border hover:bg-secondary/70",
+                ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                : "bg-[#F8F1E7] text-[#5D4037] border-[#E8DED0] hover:bg-[#EFE3D2]",
             )}
           >
             {f.label}

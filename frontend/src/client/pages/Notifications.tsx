@@ -34,49 +34,48 @@ export default function NotificationsPage() {
   }, [notifications, filter]);
 
   return (
-    <div className="max-w-[1200px] mx-auto px-6 py-10">
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex items-start gap-3">
-          <div className="w-11 h-11 rounded-xl bg-secondary flex items-center justify-center border">
-            <Bell className="w-6 h-6 text-primary" />
+    <div className="max-w-[1200px] mx-auto px-4 sm:px-6 py-8 sm:py-10">
+      <div className="rounded-3xl border border-[#E8DED0] bg-white shadow-sm p-5 sm:p-7">
+        <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-2xl bg-[#F8F1E7] flex items-center justify-center border border-[#C8A47A]/30 shrink-0">
+              <Bell className="w-5 h-5 text-[#8B5A2B]" />
+            </div>
+            <div>
+              <h1 className="!text-2xl font-semibold text-[#2D1B10]">Notifications</h1>
+              <p className="text-xs sm:text-sm text-[#6D4C41] mt-1">
+                {unreadCount} new notification{unreadCount === 1 ? "" : "s"}
+              </p>
+            </div>
           </div>
-          <div>
-            <h1 className="text-3xl font-bold">Notifications</h1>
-            <p className="text-muted-foreground mt-1">
-              {unreadCount} new notification{unreadCount === 1 ? "" : "s"}
-            </p>
-          </div>
+
+          <Button
+            type="button"
+            variant="secondary"
+            className="h-10 px-4 rounded-xl text-sm"
+            onClick={markAllAsRead}
+            disabled={unreadCount === 0}
+          >
+            Mark all as read
+          </Button>
         </div>
 
-        <Button
-          type="button"
-          variant="secondary"
-          className="h-11 px-5 rounded-xl"
-          onClick={markAllAsRead}
-          disabled={unreadCount === 0}
-        >
-          Mark all as read
-        </Button>
-      </div>
+        <div className="mt-6">
+          <NotificationFilters value={filter} onChange={setFilter} />
+        </div>
 
-      {/* Filters */}
-      <div className="mt-7">
-        <NotificationFilters value={filter} onChange={setFilter} />
-      </div>
-
-      {/* List */}
-      <div className="mt-6 grid grid-cols-1 gap-4">
-        {filtered.length === 0 ? (
-          <div className="border rounded-xl bg-card p-10 text-center">
-            <p className="text-lg font-semibold">No notifications</p>
-            <p className="text-muted-foreground mt-1">You’re all caught up.</p>
-          </div>
-        ) : (
-          filtered.map((n) => (
-            <NotificationCard key={n.id} notification={n} onMarkAsRead={markAsRead} />
-          ))
-        )}
+        <div className="mt-5 grid grid-cols-1 gap-3 sm:gap-4">
+          {filtered.length === 0 ? (
+            <div className="border border-[#E8DED0] rounded-2xl bg-[#FFFDF9] p-8 text-center">
+              <p className="text-base font-semibold text-[#2D1B10]">No notifications</p>
+              <p className="text-sm text-[#6D4C41] mt-1">You are all caught up.</p>
+            </div>
+          ) : (
+            filtered.map((n) => (
+              <NotificationCard key={n.id} notification={n} onMarkAsRead={markAsRead} />
+            ))
+          )}
+        </div>
       </div>
     </div>
   );

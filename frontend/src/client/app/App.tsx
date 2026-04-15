@@ -11,7 +11,6 @@ import Reservation from '@/client/app/components/Reservation';
 import Queue from '@/client/app/components/Queue';
 import Menu from '@/client/app/components/Menu';
 import Cart from '@/client/app/components/Cart';
-import Orders from '@/client/app/components/Orders';
 import Settings from '@/client/app/components/Settings';
 import OffersLoyalty from '@/client/app/components/OffersLoyalty';
 import OrderTracking from '@/client/app/components/OrderTracking';
@@ -20,7 +19,7 @@ import Feedback from '@/client/app/components/Feedback';
 import NotificationsPage from '@/client/pages/Notifications';
 
 export type Module = 'home' | 'login' | 'profile' | 'reservation' | 'queue' |
-  'menu' | 'cart' | 'orders' | 'offers' | 'tracking' | 'history' | 'feedback' | 'settings' | 'notifications';
+  'menu' | 'cart' | 'offers' | 'tracking' | 'history' | 'feedback' | 'settings' | 'notifications';
 
 export interface User {
   name: string;
@@ -83,7 +82,6 @@ export interface AppState {
 type AppRoute =
   | '/'
   | '/dashboard'
-  | '/orders'
   | '/offers'
   | '/loyalty'
   | '/profile'
@@ -105,7 +103,6 @@ function normalizePathname(pathname: string): AppRoute | null {
   const known: AppRoute[] = [
     '/',
     '/dashboard',
-    '/orders',
     '/offers',
     '/loyalty',
     '/profile',
@@ -127,8 +124,6 @@ function normalizePathname(pathname: string): AppRoute | null {
 function moduleFromPath(pathname: string): Module {
   const normalized = normalizePathname(pathname);
   switch (normalized) {
-    case '/orders':
-      return 'orders';
     case '/offers':
     case '/loyalty':
       return 'offers';
@@ -163,8 +158,6 @@ function moduleFromPath(pathname: string): Module {
 
 function pathFromModule(module: Module): AppRoute {
   switch (module) {
-    case 'orders':
-      return '/orders';
     case 'offers':
       return '/offers';
     case 'profile':
@@ -217,6 +210,7 @@ function saveSession(state: AppState) {
       user: state.user,
       isLoggedIn: state.isLoggedIn,
       cart: state.cart,
+      currentOrder: state.currentOrder,
     }));
   } catch { /* storage might be full — ignore */ }
 }
@@ -226,12 +220,18 @@ function loadSession(): Partial<AppState> | null {
   try {
     const raw = localStorage.getItem(SESSION_STORAGE_KEY);
     if (!raw) return null;
-    const data = JSON.parse(raw) as { user: User | null; isLoggedIn: boolean; cart: CartItem[] };
+    const data = JSON.parse(raw) as {
+      user: User | null;
+      isLoggedIn: boolean;
+      cart: CartItem[];
+      currentOrder?: Order | null;
+    };
     if (!data.isLoggedIn || !data.user) return null;
     return {
       isLoggedIn: true,
       user: data.user,
       cart: Array.isArray(data.cart) ? data.cart : [],
+      currentOrder: data.currentOrder ?? null,
     };
   } catch {
     return null;
@@ -287,7 +287,37 @@ export default function App() {
     let cancelled = false;
     fetchOrders(userId)
       .then((orders) => {
-        if (!cancelled) setAppState((prev) => ({ ...prev, orders }));
+        if (!cancelled) {
+          setAppState((prev) => {
+            const isTerminal = (status?: Order['status']) => status === 'served' || status === 'completed';
+
+            let nextCurrentOrder = prev.currentOrder;
+
+            // Keep the currently tracked order synced with backend status while it's active.
+            if (prev.currentOrder) {
+              const updated = orders.find((o) => o.id === prev.currentOrder!.id);
+              if (updated) {
+                nextCurrentOrder = updated;
+              }
+            }
+
+            // If there is no current tracked order, recover the latest active order.
+            if (!nextCurrentOrder) {
+              nextCurrentOrder =
+                [...orders]
+                  .filter((o) => !isTerminal(o.status))
+                  .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())[0] ?? null;
+            }
+
+            // Do not drop active tracking before completion.
+            if (nextCurrentOrder && !isTerminal(nextCurrentOrder.status)) {
+              return { ...prev, orders, currentOrder: nextCurrentOrder };
+            }
+
+            // Once served/completed, allow it to be moved to history (clear current tracking state).
+            return { ...prev, orders, currentOrder: null };
+          });
+        }
       })
       .catch(() => {
         // keep local state if backend isn't running
@@ -460,14 +490,6 @@ export default function App() {
               clearCart();
               handleModuleChange('tracking');
             }}
-          />
-        );
-      case 'orders':
-        return (
-          <Orders
-            currentOrder={appState.currentOrder}
-            onNavigate={handleModuleChange}
-            user={appState.user}
           />
         );
       case 'offers':

@@ -64,20 +64,29 @@ export default function Profile({ user, onUpdateUser, onLogout, orders = [], onR
     <div className="min-h-screen bg-background py-6 sm:py-8 px-3 sm:px-6">
       <div className="max-w-6xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-2xl sm:text-4xl font-bold mb-2 text-foreground">My Profile</h1>
-          <p className="text-muted-foreground">Manage your account information and view order history</p>
+        <div className="mb-6 sm:mb-7 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+          <div>
+            <h1 className="!text-2xl font-semibold mb-2 text-foreground">My Profile</h1>
+            <p className="text-muted-foreground">Manage your account information and view order history</p>
+          </div>
+          <button
+            onClick={onLogout}
+            className="inline-flex items-center justify-center gap-2 bg-[#8B5A2B] text-white px-5 py-2.5 rounded-lg font-semibold hover:bg-[#6D4C41] transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </button>
         </div>
 
         {/* Tabs */}
-        <div className="mb-6 border-b border-border">
-          <div className="flex gap-4">
+        <div className="mb-6 border border-border rounded-2xl bg-card p-2">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setActiveTab('profile')}
-              className={`pb-4 px-2 font-medium transition-colors border-b-2 ${
+              className={`relative px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${
                 activeTab === 'profile'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
+                  ? 'border-primary/40 text-primary bg-secondary shadow-sm'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-secondary/60'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -87,10 +96,10 @@ export default function Profile({ user, onUpdateUser, onLogout, orders = [], onR
             </button>
             <button
               onClick={() => setActiveTab('history')}
-              className={`pb-4 px-2 font-medium transition-colors border-b-2 ${
+              className={`relative px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${
                 activeTab === 'history'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
+                  ? 'border-primary/40 text-primary bg-secondary shadow-sm'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-secondary/60'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -105,10 +114,10 @@ export default function Profile({ user, onUpdateUser, onLogout, orders = [], onR
             </button>
             <button
               onClick={() => setActiveTab('favorites')}
-              className={`pb-4 px-2 font-medium transition-colors border-b-2 ${
+              className={`relative px-4 py-2.5 rounded-xl text-sm font-medium transition-all border ${
                 activeTab === 'favorites'
-                  ? 'border-primary text-primary'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
+                  ? 'border-primary/40 text-primary bg-secondary shadow-sm'
+                  : 'border-transparent text-muted-foreground hover:text-foreground hover:bg-secondary/60'
               }`}
             >
               <div className="flex items-center gap-2">
@@ -127,11 +136,11 @@ export default function Profile({ user, onUpdateUser, onLogout, orders = [], onR
         {/* Profile Tab Content */}
         {activeTab === 'profile' && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-[1.45fr_0.85fr] gap-5 lg:gap-6 items-stretch">
               {/* Profile Card */}
-              <div className="md:col-span-2 bg-card rounded-xl border border-border shadow-sm p-8">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-2xl font-bold text-foreground">Personal Information</h2>
+              <div className="bg-card rounded-xl border border-border shadow-sm px-6 sm:px-7 pt-5 sm:pt-6 pb-6 sm:pb-7 h-full">
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <h2 className="!text-xl !font-semibold text-foreground">Personal Information</h2>
                   {!isEditing && (
                     <button
                       onClick={() => setIsEditing(true)}
@@ -143,7 +152,7 @@ export default function Profile({ user, onUpdateUser, onLogout, orders = [], onR
                   )}
                 </div>
 
-                <div className="space-y-6">
+                <div className="space-y-5 sm:space-y-6">
                   {saveError && (
                     <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                       {saveError}
@@ -270,10 +279,10 @@ export default function Profile({ user, onUpdateUser, onLogout, orders = [], onR
               </div>
 
               {/* Loyalty Points Card */}
-              <div className="bg-gradient-to-br from-primary to-accent text-white rounded-xl shadow-sm p-6">
+              <div className="bg-gradient-to-br from-primary to-accent text-white rounded-xl shadow-sm p-6 h-full">
                 <div className="flex items-center gap-2 mb-4">
                   <Award className="w-6 h-6" />
-                  <h3 className="text-lg font-semibold">Loyalty Points</h3>
+                  <h2 className="!text-xl !font-semibold text-foreground">Loyalty Points</h2>
                 </div>
                 <div className="mb-6">
                   <p className="text-5xl font-bold">{currentPoints}</p>
@@ -377,34 +386,6 @@ export default function Profile({ user, onUpdateUser, onLogout, orders = [], onR
               )}
             </div>
 
-            {/* Account Stats */}
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-4">
-              <div className="bg-card rounded-xl border border-border shadow-sm p-6 text-center">
-                <p className="text-3xl font-bold mb-1 text-primary">{orders.length}</p>
-                <p className="text-muted-foreground text-sm">Total Orders</p>
-              </div>
-              <div className="bg-card rounded-xl border border-border shadow-sm p-6 text-center">
-                <p className="text-3xl font-bold mb-1 text-primary">
-                  ₹{orders.reduce((sum, order) => sum + order.total, 0).toFixed(2)}
-                </p>
-                <p className="text-muted-foreground text-sm">Total Spent</p>
-              </div>
-              <div className="bg-card rounded-xl border border-border shadow-sm p-6 text-center">
-                <p className="text-3xl font-bold mb-1 text-primary">3</p>
-                <p className="text-muted-foreground text-sm">Active Offers</p>
-              </div>
-            </div>
-
-            {/* Logout Button */}
-            <div className="mt-6 text-center">
-              <button
-                onClick={onLogout}
-                className="inline-flex items-center justify-center gap-2 bg-red-500 text-white px-6 py-2.5 rounded-lg font-semibold hover:bg-red-600 transition-colors"
-              >
-                <LogOut className="w-4 h-4" />
-                Logout
-              </button>
-            </div>
           </>
         )}
 
@@ -558,8 +539,8 @@ export default function Profile({ user, onUpdateUser, onLogout, orders = [], onR
                 <div className="w-24 h-24 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
                   <Heart className="w-12 h-12 text-muted-foreground" />
                 </div>
-                <h2 className="text-3xl font-bold mb-2 text-foreground">No Favorite Dishes</h2>
-                <p className="text-muted-foreground">You have no favorite dishes yet.</p>
+                <h2 className="!text-lg font-semibold mb-2 text-foreground">No Favorite Dishes</h2>
+                <p className="text-sm text-muted-foreground">You have no favorite dishes yet.</p>
               </div>
             ) : (
               <>

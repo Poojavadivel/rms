@@ -1,4 +1,22 @@
 @layer components {
+  .offers-loyalty-page h1 {
+    font-size: 1.5rem !important;
+    font-weight: 600 !important;
+    line-height: 1.25 !important;
+  }
+
+  .offers-loyalty-page h2 {
+    font-size: 1.125rem !important;
+    font-weight: 600 !important;
+    line-height: 1.25 !important;
+  }
+
+  .offers-loyalty-page h3 {
+    font-size: 1.125rem !important;
+    font-weight: 600 !important;
+    line-height: 1.25 !important;
+  }
+
   .membership-gradient {
     background: linear-gradient(135deg, #3e2723 0%, #4e342e 45%, #6d4c41 100%);
   }

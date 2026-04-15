@@ -111,17 +111,17 @@ export default function OrderTracking({ order }: OrderTrackingProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-6">
+    <div className="min-h-screen bg-gray-50 py-6 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Track Your Order</h1>
+        <div className="mb-5">
+          <h1 className="order-tracking-title mb-1">Track Your Order</h1>
           <p className="text-gray-600">Order #{order.id}</p>
         </div>
 
         {/* Order Info Card */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mb-5 transition-all duration-200 hover:shadow-md">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <p className="text-sm text-gray-600 mb-1">Order Type</p>
               <p className="font-semibold capitalize">{order.type}</p>
@@ -143,17 +143,17 @@ export default function OrderTracking({ order }: OrderTrackingProps) {
         </div>
 
         {/* Tracking Timeline */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-8">
-          <h2 className="text-xl font-bold mb-8">Order Status</h2>
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 transition-all duration-200 hover:shadow-md">
+          <h2 className="order-status mb-5">Order Status</h2>
 
-          <div className="space-y-8">
+          <div className="space-y-5">
             {steps.map((step, index) => {
               const status = getStepStatus(step.id);
               const Icon = step.icon;
 
               return (
-                <div key={step.id} className="relative">
-                  <div className="flex items-start gap-4">
+                <div key={step.id} className="relative rounded-xl transition-all duration-200 hover:bg-gray-50/70">
+                  <div className="flex items-start gap-3 p-2">
                     {/* Icon Circle */}
                     <div
                       className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 ${
@@ -165,25 +165,25 @@ export default function OrderTracking({ order }: OrderTrackingProps) {
                       }`}
                     >
                       {status === 'completed' ? (
-                        <CheckCircle className="w-6 h-6 text-white" />
+                        <CheckCircle className="w-5 h-5 text-white" />
                       ) : status === 'active' ? (
-                        <Icon className="w-6 h-6 text-white" />
+                        <Icon className="w-5 h-5 text-white" />
                       ) : (
-                        <Clock className="w-6 h-6 text-gray-500" />
+                        <Clock className="w-5 h-5 text-gray-500" />
                       )}
                     </div>
 
                     {/* Content */}
-                    <div className="flex-1 pt-1">
+                    <div className="flex-1 pt-0.5">
                       <h3
-                        className={`text-lg font-semibold mb-1 ${
+                        className={`status-title mb-1 ${
                           status === 'pending' ? 'text-gray-400' : 'text-black'
                         }`}
                       >
                         {step.label}
                       </h3>
                       <p
-                        className={`text-sm ${
+                        className={`text-sm leading-relaxed ${
                           status === 'pending' ? 'text-gray-400' : 'text-gray-600'
                         }`}
                       >
@@ -205,7 +205,7 @@ export default function OrderTracking({ order }: OrderTrackingProps) {
                     {/* Time Estimate */}
                     <div className="text-right">
                       {status === 'active' && (
-                        <span className="text-sm text-gray-600">~5 mins</span>
+                        <span className="text-xs sm:text-sm text-gray-600">~5 mins</span>
                       )}
                     </div>
                   </div>
@@ -213,7 +213,7 @@ export default function OrderTracking({ order }: OrderTrackingProps) {
                   {/* Connector Line */}
                   {index < steps.length - 1 && (
                     <div
-                      className={`absolute left-6 top-12 w-0.5 h-8 -ml-px ${
+                      className={`absolute left-6 top-11 w-0.5 h-6 -ml-px ${
                         status === 'completed' ? 'bg-green-600' : 'bg-gray-300'
                       }`}
                     />
@@ -225,13 +225,13 @@ export default function OrderTracking({ order }: OrderTrackingProps) {
         </div>
 
         {/* Order Items */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 mt-6">
-          <h2 className="text-xl font-bold mb-4">Order Items</h2>
-          <div className="space-y-3">
+        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5 mt-5 transition-all duration-200 hover:shadow-md">
+          <h2 className="order-items mb-3">Order Items</h2>
+          <div className="space-y-2.5">
             {order.items.map((item, index) => (
               <div
                 key={index}
-                className="flex justify-between items-center py-3 border-b border-gray-200 last:border-0"
+                className="flex justify-between items-center py-2.5 border-b border-gray-200 last:border-0"
               >
                 <div>
                   <p className="font-semibold">{item.name}</p>
@@ -244,7 +244,7 @@ export default function OrderTracking({ order }: OrderTrackingProps) {
         </div>
 
         {/* Help Section */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-6">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-5">
           <p className="text-sm text-blue-800">
             <span className="font-semibold">Need Help?</span> Contact our support team or call the
             restaurant at +91-XXXXX-XXXXX

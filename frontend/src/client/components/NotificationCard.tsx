@@ -79,14 +79,14 @@ export function NotificationCard({
         }
       }}
       className={cn(
-        "p-5 transition-colors cursor-pointer",
-        notification.isRead ? "bg-card" : "bg-muted/40 border-primary/30",
+        "p-4 sm:p-5 transition-all cursor-pointer rounded-3xl border shadow-sm hover:shadow-md",
+        notification.isRead ? "bg-card" : "bg-[#FFFDF9] border-[#C8A47A]/35",
       )}
     >
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-3 sm:gap-4">
         <div className="relative mt-0.5">
           <div className={cn(
-            "w-10 h-10 rounded-xl flex items-center justify-center",
+            "w-9 h-9 sm:w-10 sm:h-10 rounded-2xl flex items-center justify-center",
             notification.type === "success" && "bg-emerald-600/10",
             notification.type === "pending" && "bg-amber-500/10",
             notification.type === "failed" && "bg-destructive/10",
@@ -102,30 +102,30 @@ export function NotificationCard({
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className={cn("text-base font-semibold truncate", notification.isRead ? "text-foreground" : "text-foreground")}>
+              <p className={cn("text-xs sm:text-sm font-semibold truncate leading-snug", notification.isRead ? "text-foreground" : "text-foreground") }>
                 {notification.title}
               </p>
-              <p className={cn("text-sm mt-1", notification.isRead ? "text-muted-foreground" : "text-foreground/80")}>
+              <p className={cn("text-[11px] sm:text-xs mt-1 leading-relaxed", notification.isRead ? "text-muted-foreground" : "text-foreground/80") }>
                 {notification.message}
               </p>
             </div>
 
             <div className="flex items-center gap-2 flex-shrink-0">
-              <Badge className={cn("rounded-full px-3 py-1", typeBadgeClass(notification.type))}>
+              <Badge className={cn("rounded-full px-2.5 py-0.5 text-[10px] sm:text-xs", typeBadgeClass(notification.type))}>
                 {typeLabel(notification.type)}
               </Badge>
             </div>
           </div>
 
-          <div className="mt-3 flex items-center justify-between gap-3">
-            <div className="text-sm text-muted-foreground truncate">
+          <div className="mt-2.5 flex items-center justify-between gap-3">
+            <div className="text-[11px] sm:text-xs text-muted-foreground truncate">
               {notification.referenceId ? (
                 <span className="truncate">{notification.referenceId}</span>
               ) : (
                 <span className="truncate">&nbsp;</span>
               )}
             </div>
-            <div className="text-sm text-muted-foreground flex-shrink-0">{timeAgo}</div>
+            <div className="text-[10px] sm:text-[11px] text-muted-foreground flex-shrink-0">{timeAgo}</div>
           </div>
         </div>
       </div>

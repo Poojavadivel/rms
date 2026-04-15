@@ -288,17 +288,17 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
     return totalDiscount;
   };
   return (
-    <div className="min-h-screen bg-[#FAF7F2] py-12 px-6">
+    <div className="offers-loyalty-page min-h-screen bg-[#FAF7F2] py-12 px-6">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-12 text-center">
           <h1 
-            className="text-5xl font-bold mb-3 text-[#3E2723]" 
+            className="text-2xl font-semibold mb-2 text-[#3E2723]" 
            
           >
             Offers & Loyalty Rewards
           </h1>
-          <p className="text-[#6D4C41] text-lg">Earn points with every order and redeem exclusive rewards</p>
+          <p className="text-[#6D4C41]/80 text-sm sm:text-base">Earn points with every order and redeem exclusive rewards</p>
         </div>
 
         {/* Enhanced Loyalty Points Card */}
@@ -383,7 +383,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
               <div className="w-20 h-20 bg-gray-300 rounded-full flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="w-10 h-10 text-gray-500" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-700 mb-2">
+              <h3 className="text-lg font-semibold text-gray-700 mb-2">
                 Loyalty Program Currently Unavailable
               </h3>
               <p className="text-gray-600 text-sm">
@@ -401,7 +401,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
             </div>
             <div>
               <h2 
-                className="text-3xl font-bold text-[#3E2723]" 
+                className="text-lg font-semibold text-[#3E2723]" 
                
               >
                 My Membership
@@ -425,7 +425,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
                     <div>
                       <p className="text-xs text-[#FAF7F2]/60 uppercase tracking-wider font-bold mb-1">Current Plan</p>
                       <h3 
-                        className="text-4xl font-black text-[#C8A47A] capitalize mb-1" 
+                        className="text-xl font-semibold text-[#C8A47A] capitalize mb-1" 
                        
                       >
                         {user.membership.plan} Membership
@@ -502,7 +502,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
                 <Crown className="w-12 h-12 text-[#8B5A2B]/50" />
               </div>
               <h3 
-                className="text-3xl font-bold text-[#3E2723] mb-3" 
+                className="text-lg font-semibold text-[#3E2723] mb-3" 
                
               >
                 No Active Membership
@@ -544,7 +544,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
                 <Crown className="w-6 h-6 text-[#8B5A2B]" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold text-[#3E2723]">
+                <h2 className="text-lg font-semibold text-[#3E2723]">
                   Membership Plans
                 </h2>
                 <p className="text-sm text-[#6D4C41]">Admin-configured plans with exclusive perks</p>
@@ -575,7 +575,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
                           </span>
                         )}
                       </div>
-                      <h3 className="text-2xl font-black capitalize">
+                      <h3 className="text-lg font-semibold capitalize">
                         {plan.name}
                       </h3>
                       <p className="text-white/80 text-lg font-bold mt-1">
@@ -638,7 +638,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
             </div>
             <div>
               <h2 
-                className="text-3xl font-bold text-[#3E2723]" 
+                className="text-lg font-semibold text-[#3E2723]" 
                
               >
                 Available Offers
@@ -684,7 +684,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
                             {coupon.discountType === 'percentage' ? 'Percentage Off' : 'Flat Discount'}
                           </span>
                         </div>
-                        <h3 className="text-2xl font-black text-white mb-1 tracking-tight">
+                        <h3 className="text-lg font-semibold text-white mb-1 tracking-tight">
                           {coupon.code}
                         </h3>
                         <p className="text-sm text-[#FAF7F2]/80">{coupon.description}</p>
@@ -793,7 +793,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
             </div>
             <div>
               <h2 
-                className="text-3xl font-bold text-[#3E2723]" 
+                className="text-lg font-semibold text-[#3E2723]" 
                
               >
                 Rewards Catalog
@@ -897,7 +897,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
             </div>
             <div>
               <h2 
-                className="text-2xl font-bold text-[#3E2723]" 
+                className="text-lg font-semibold text-[#3E2723]" 
                
               >
                 Checkout Preview - Example Order
@@ -1032,7 +1032,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
                 <Award className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h2 className="text-3xl font-bold text-[#3E2723]">
+                <h2 className="text-lg font-semibold text-[#3E2723]">
                   Loyalty Points History
                 </h2>
                 <p className="text-sm text-[#6D4C41]">Track earned, redeemed, and expired points</p>
@@ -1129,7 +1129,7 @@ export default function OffersLoyalty({ user, onUpdateUser }: OffersLoyaltyProps
         <div className="bg-white rounded-3xl border-2 border-[#E8DED0] shadow-lg p-8">
           <div className="text-center mb-8">
             <h2 
-              className="text-3xl font-bold text-[#3E2723] mb-2" 
+              className="text-lg font-semibold text-[#3E2723] mb-2" 
              
             >
               How to Earn Points

@@ -26,8 +26,8 @@ interface MenuProps {
 }
 
 export default function Menu({ isLoggedIn, user, cart, onAddToCart, onUpdateQuantity, onRemoveItem, onNavigate, onToggleFavorite }: MenuProps) {
-  const [categories, setCategories] = useState<string[]>(['All']);
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [categories, setCategories] = useState<string[]>(sampleCategories);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(menuData);
 
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [filterVeg, setFilterVeg] = useState<'all' | 'veg' | 'non-veg' | 'special'>('all');
@@ -47,21 +47,31 @@ export default function Menu({ isLoggedIn, user, cart, onAddToCart, onUpdateQuan
     const cuisineLookup = new Map<string, MenuItem['cuisine']>(
       menuData.map(m => [m.name.toLowerCase(), m.cuisine])
     );
-    Promise.all([fetchMenuCategories(), fetchMenuItems()])
-      .then(([cats, items]) => {
-        if (cancelled) return;
-        setCategories(cats);
+
+    // Keep the page responsive immediately using local data.
+    setCategories(sampleCategories);
+    setMenuItems(menuData);
+
+    // Refresh categories and items in the background when the API responds.
+    fetchMenuCategories()
+      .then((cats) => {
+        if (!cancelled && Array.isArray(cats) && cats.length > 0) {
+          setCategories(cats);
+        }
+      })
+      .catch(() => {});
+
+    fetchMenuItems()
+      .then((items) => {
+        if (cancelled || !Array.isArray(items) || items.length === 0) return;
         // Enrich items that came back without a cuisine field
         const enriched = items.map(item =>
           item.cuisine ? item : { ...item, cuisine: cuisineLookup.get(item.name.toLowerCase()) }
         );
         setMenuItems(enriched);
       })
-      .catch(() => {
-        if (cancelled) return;
-        setCategories(sampleCategories);
-        setMenuItems(menuData);
-      });
+      .catch(() => {});
+
     return () => {
       cancelled = true;
     };
