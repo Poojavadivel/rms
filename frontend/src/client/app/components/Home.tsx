@@ -1,4 +1,4 @@
-import { ArrowRight, ChefHat, Sparkles, Users, ShoppingBag } from "lucide-react";
+import { ArrowRight, CalendarDays, ChefHat, Sparkles, Users, ShoppingBag } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import type { Module } from "@/client/app/App";
 import type { MenuItem } from "@/client/app/data/menuData";
@@ -244,71 +244,81 @@ export default function Home({
         </div>
       </section>
 
-      {/* SECTION: HAPPY PARTNERS */}
-      <section className="pt-2 sm:pt-4 pb-12 sm:pb-20 px-4 sm:px-6 bg-[#F5F0E8]">
-        <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-10 sm:mb-16">
-            <div className="inline-block mb-4 sm:mb-6 p-1 bg-[#C8A47A] rounded-full px-4">
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-[#3E2723]">Happy Partners</span>
-            </div>
+      {/* SECTION: RESTAURANT STATS DASHBOARD */}
+      <section className="pt-3 sm:pt-5 pb-12 sm:pb-20 px-3 sm:px-4 md:px-6 bg-[#f8f5f1]">
+        <div className="max-w-7xl mx-auto w-full">
+          <div className="text-center mb-8 sm:mb-12">
             <h2
-              className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#3E2723] mb-4"
+              className="text-[28px] sm:text-[30px] md:text-[32px] font-bold text-[#3E2723] mb-3"
               style={{ fontFamily: "'Playfair Display', serif" }}
             >
-              Trusted Delivery Partners
+              Our Restaurant Today
             </h2>
-            <p className="text-lg text-[#6D4C41] font-light max-w-2xl mx-auto">
-              Serving every craving faster with our partner platforms
+            <p className="text-[15px] sm:text-base text-[#6D4C41] font-light max-w-2xl mx-auto">
+              Real-time numbers straight from our kitchen
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 md:gap-6 w-full">
             {[
               {
-                icon: ShoppingBag,
-                name: 'Swiggy',
-                description: 'Fast doorstep delivery with live order tracking.',
-                color: '#FC8019',
-                bg: 'from-orange-50 to-orange-100/50',
-                border: '#FCB27A',
+                icon: ChefHat,
+                value: '200+',
+                label: 'Dishes on Menu',
+                iconColor: '#8B5A2B',
+                border: '#c89b6d',
+                bg: '#f5ece3',
+                iconBg: '#efe1d3',
               },
               {
                 icon: Users,
-                name: 'Zomato',
-                description: 'Reliable online ordering for your favorite meals.',
-                color: '#E23744',
-                bg: 'from-rose-50 to-rose-100/50',
-                border: '#F29AA0',
+                value: '120+',
+                label: 'Happy Customers',
+                iconColor: '#d97706',
+                border: '#f4a261',
+                bg: '#fdf1e6',
+                iconBg: '#f9e3cf',
               },
               {
-                icon: ChefHat,
-                name: 'Blinkit',
-                description: 'Quick commerce support for instant food moments.',
-                color: '#1A5276',
-                bg: 'from-blue-50 to-blue-100/50',
-                border: '#7EB0D4',
+                icon: CalendarDays,
+                value: '25',
+                label: 'Tables Available',
+                iconColor: '#2f855a',
+                border: '#52b788',
+                bg: '#ebf7f0',
+                iconBg: '#d8efe2',
               },
-            ].map((partner) => (
+              {
+                icon: ShoppingBag,
+                value: '45',
+                label: 'Orders Today',
+                iconColor: '#1f6fa3',
+                border: '#4ea8de',
+                bg: '#edf6fd',
+                iconBg: '#dbeffc',
+              },
+            ].map((stat) => (
               <div
-                key={partner.name}
-                className="group relative bg-white rounded-[24px] overflow-hidden border-2 shadow-lg hover:shadow-2xl hover:-translate-y-2 transition-all duration-500"
-                style={{ borderColor: partner.border }}
+                key={stat.label}
+                className="rounded-[16px] border p-5 sm:p-6 shadow-[0_8px_24px_rgba(62,39,35,0.08)]"
+                style={{ borderColor: stat.border, backgroundColor: stat.bg }}
               >
-                <div className={`absolute inset-0 bg-gradient-to-br ${partner.bg} opacity-50 group-hover:opacity-70 transition-opacity duration-500`} />
-                <div className="relative z-10 p-4 sm:p-8 flex flex-col items-center text-center">
+                <div className="flex flex-col items-center text-center">
                   <div
-                    className="w-12 h-12 sm:w-16 sm:h-16 mb-4 sm:mb-5 rounded-2xl flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-500"
-                    style={{ backgroundColor: `${partner.color}18` }}
+                    className="w-12 h-12 rounded-full flex items-center justify-center mb-4"
+                    style={{ backgroundColor: stat.iconBg }}
                   >
-                    <partner.icon className="w-6 h-6 sm:w-8 sm:h-8" style={{ color: partner.color }} />
+                    <stat.icon className="w-6 h-6" style={{ color: stat.iconColor }} />
                   </div>
                   <div
-                    className="text-2xl sm:text-4xl font-black mb-2"
-                    style={{ color: partner.color, fontFamily: "'Playfair Display', serif" }}
+                    className="text-[32px] sm:text-[34px] md:text-[36px] font-bold leading-none mb-2 text-[#3E2723]"
+                    style={{ fontFamily: "'Playfair Display', serif" }}
                   >
-                    {partner.name}
+                    {stat.value}
                   </div>
-                  <p className="text-[#6D4C41] text-sm font-medium">{partner.description}</p>
+                  <p className="text-sm sm:text-[15px] md:text-base text-[#6D4C41] font-medium">
+                    {stat.label}
+                  </p>
                 </div>
               </div>
             ))}
