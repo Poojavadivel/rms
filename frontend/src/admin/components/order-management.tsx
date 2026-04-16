@@ -740,80 +740,69 @@ export function OrderManagement() {
   }
 
   return (
-    <div className="bg-order-management-module min-h-screen p-6 space-y-6">
+    <div className="min-h-screen bg-[#f8f6f3] p-4 sm:p-5 space-y-4 text-[#2c2c2c]">
       {/* Header Section */}
-      <div className="module-container flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">
-            {isWaiter ? `Your Orders` : 'Orders'}
-          </h1>
-          <p className="text-gray-200">
-            {isWaiter
-              ? `Showing orders assigned to you, ${user?.name || ''}`
-              : 'View, manage, and track all customer orders'}
-          </p>
-        </div>
-        
+      <div className="flex items-center justify-end">
         {/* Quick Order Button */}
-        <Button onClick={() => setQuickOrderOpen(true)} size="lg" className="gap-2 shadow-md">
-          <Zap className="h-5 w-5" />
+        <Button onClick={() => setQuickOrderOpen(true)} size="sm" className="h-9 rounded-md gap-2 shadow-sm">
+          <Zap className="h-4 w-4" />
           Quick Order
         </Button>
       </div>
 
       {/* Mini Order Insights */}
-      <div className="grid gap-4 md:grid-cols-3">
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Active Orders</CardTitle>
+      <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+        <Card className="rounded-xl border border-[#ece5dc] bg-white shadow-[0_4px_10px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-transform">
+          <CardHeader className="p-3 pb-1">
+            <CardTitle className="text-[14px] font-medium text-muted-foreground">Active Orders</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-orange-600" />
-              <span className="text-2xl font-bold">{activeOrders}</span>
+          <CardContent className="p-3 pt-0">
+            <div className="flex h-[50px] items-center justify-between">
+              <Activity className="h-4 w-4 text-orange-600" />
+              <span className="text-[20px] leading-none font-bold">{activeOrders}</span>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Avg Prep Time</CardTitle>
+        <Card className="rounded-xl border border-[#ece5dc] bg-white shadow-[0_4px_10px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-transform">
+          <CardHeader className="p-3 pb-1">
+            <CardTitle className="text-[14px] font-medium text-muted-foreground">Avg Prep Time</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-purple-600" />
-              <span className="text-2xl font-bold">{avgPrepTime} min</span>
+          <CardContent className="p-3 pt-0">
+            <div className="flex h-[50px] items-center justify-between">
+              <Clock className="h-4 w-4 text-purple-600" />
+              <span className="text-[20px] leading-none font-bold">{avgPrepTime} min</span>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Served Today</CardTitle>
+        <Card className="rounded-xl border border-[#ece5dc] bg-white shadow-[0_4px_10px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 transition-transform">
+          <CardHeader className="p-3 pb-1">
+            <CardTitle className="text-[14px] font-medium text-muted-foreground">Served Today</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-green-600" />
-              <span className="text-2xl font-bold">{servedToday}</span>
+          <CardContent className="p-3 pt-0">
+            <div className="flex h-[50px] items-center justify-between">
+              <TrendingUp className="h-4 w-4 text-green-600" />
+              <span className="text-[20px] leading-none font-bold">{servedToday}</span>
             </div>
           </CardContent>
         </Card>
       </div>
 
       {/* Innovation #8: Kitchen Load Meter */}
-      <Card className={`border-2 ${kitchenLoad.bgColor} border-opacity-50`}>
-        <CardContent className="pt-6">
+      <Card className="rounded-xl border border-[#ece5dc] bg-white shadow-[0_4px_10px_rgba(0,0,0,0.06)]">
+        <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <Gauge className={`h-6 w-6 ${kitchenLoad.color}`} />
+              <Gauge className={`h-5 w-5 ${kitchenLoad.color}`} />
               <div>
-                <p className="text-sm font-medium text-muted-foreground">Kitchen Load</p>
-                <p className={`text-lg font-bold ${kitchenLoad.color}`}>
+                <p className="text-[14px] font-medium text-muted-foreground">Kitchen Load</p>
+                <p className={`text-base font-semibold ${kitchenLoad.color}`}>
                   {kitchenLoad.label} ({activeOrders} active orders)
                 </p>
               </div>
             </div>
-            <div className="w-48 h-3 bg-gray-200 rounded-full overflow-hidden">
+            <div className="w-40 h-2.5 bg-gray-200 rounded-full overflow-hidden">
               <div 
                 className={`h-full transition-all duration-500 ${
                   kitchenLoad.level === 'high' ? 'bg-red-500' :
@@ -826,21 +815,21 @@ export function OrderManagement() {
       </Card>
 
       {/* Smart Filters & Search */}
-      <Card>
-        <CardContent className="pt-6">
-          <div className="grid gap-4 md:grid-cols-6">
-            <div className="relative">
+      <Card className="rounded-[10px] border border-[#ece5dc] bg-white shadow-[0_4px_10px_rgba(0,0,0,0.06)]">
+        <CardContent className="p-4">
+          <div className="flex flex-wrap items-center gap-2.5">
+            <div className="relative w-full sm:w-[220px]">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 placeholder="Search Order ID..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9"
+                className="h-9 pl-9 rounded-md"
               />
             </div>
 
             <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger>
+              <SelectTrigger className="h-9 w-[160px] rounded-md">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -854,7 +843,7 @@ export function OrderManagement() {
             </Select>
 
             <Select value={filterType} onValueChange={setFilterType}>
-              <SelectTrigger>
+              <SelectTrigger className="h-9 w-[160px] rounded-md">
                 <SelectValue placeholder="Order Type" />
               </SelectTrigger>
               <SelectContent>
@@ -866,7 +855,7 @@ export function OrderManagement() {
             </Select>
 
             <Select value={filterTable} onValueChange={setFilterTable}>
-              <SelectTrigger>
+              <SelectTrigger className="h-9 w-[140px] rounded-md">
                 <SelectValue placeholder="Table" />
               </SelectTrigger>
               <SelectContent>
@@ -882,7 +871,7 @@ export function OrderManagement() {
             {/* Only admins/managers can filter by waiter */}
             {!isWaiter && (
               <Select value={filterWaiter} onValueChange={setFilterWaiter}>
-                <SelectTrigger>
+                <SelectTrigger className="h-9 w-[170px] rounded-md">
                   <SelectValue placeholder="Waiter" />
                 </SelectTrigger>
                 <SelectContent>
@@ -898,6 +887,7 @@ export function OrderManagement() {
 
             <Button 
               variant="outline" 
+              className="h-9 rounded-md"
               onClick={() => {
                 setFilterStatus('all');
                 setFilterType('all');
@@ -911,7 +901,7 @@ export function OrderManagement() {
 
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="gap-2">
+                <Button variant="outline" className="h-9 rounded-md gap-2">
                   <ArrowUpDown className="h-4 w-4" />
                   Sort
                 </Button>
@@ -939,13 +929,13 @@ export function OrderManagement() {
 
       {/* Innovation #9: Undo Last Action Toast */}
       {lastAction && undoCountdown > 0 && (
-        <Card className="border-2 border-yellow-400 bg-yellow-50">
-          <CardContent className="pt-6">
+        <Card className="rounded-xl border border-[#f1d2a6] bg-[#fff8e8] shadow-[0_2px_6px_rgba(0,0,0,0.04)]">
+          <CardContent className="p-3.5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <AlertCircle className="h-5 w-5 text-yellow-600" />
+                <AlertCircle className="h-4 w-4 text-yellow-700" />
                 <div>
-                  <p className="text-sm font-medium">
+                  <p className="text-xs sm:text-sm font-medium">
                     Order status changed to <strong>{lastAction.newStatus}</strong>
                   </p>
                   <p className="text-xs text-muted-foreground">
@@ -957,9 +947,9 @@ export function OrderManagement() {
                 size="sm"
                 variant="outline"
                 onClick={undoLastAction}
-                className="gap-2 border-yellow-600 text-yellow-700 hover:bg-yellow-100"
+                className="h-8 rounded-md gap-1.5 border-yellow-700 text-yellow-800 hover:bg-yellow-100"
               >
-                <Undo2 className="h-4 w-4" />
+                <Undo2 className="h-3.5 w-3.5" />
                 Undo
               </Button>
             </div>
@@ -969,14 +959,14 @@ export function OrderManagement() {
 
       {/* Orders Grid */}
       {sortedOrders.length === 0 ? (
-        <Card>
+        <Card className="rounded-xl border border-[#ece5dc] bg-white shadow-[0_4px_10px_rgba(0,0,0,0.06)]">
           <CardContent className="flex flex-col items-center justify-center py-12">
             <Package className="h-12 w-12 text-muted-foreground mb-4" />
             <p className="text-muted-foreground">No orders found.</p>
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
           {sortedOrders.map((order) => {
             const orderItems = Array.isArray(order.items) ? order.items : [];
             const totalItems = orderItems.reduce((sum, item) => sum + item.quantity, 0);
@@ -988,27 +978,27 @@ export function OrderManagement() {
             return (
               <Card 
                 key={order.id} 
-                className={`hover:shadow-lg transition-all duration-300 ${
-                  delayLevel === 'bottleneck' ? 'border-red-500 border-2 shadow-lg shadow-red-200 ring-2 ring-red-200' :
-                  delayLevel === 'critical' ? 'border-red-400 border-2 shadow-md shadow-red-100' :
-                  delayLevel === 'warning' ? 'border-yellow-400 border-2' : ''
+                className={`rounded-xl border bg-white shadow-[0_4px_10px_rgba(0,0,0,0.06)] hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(0,0,0,0.08)] transition-all duration-200 ${
+                  delayLevel === 'bottleneck' ? 'border-red-300' :
+                  delayLevel === 'critical' ? 'border-red-200' :
+                  delayLevel === 'warning' ? 'border-amber-200' : 'border-[#ece5dc]'
                 }`}
               >
-                <CardHeader className="pb-3 relative">
+                <CardHeader className="p-4 pb-2 relative">
                   {/* Delete Button - Top Right Corner */}
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={() => deleteOrder(order.id, generateOrderDisplayId(order.id, order.orderNumber))}
-                    className="absolute top-2 right-2 h-8 w-8 p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                    className="absolute top-2 right-2 h-7 w-7 rounded-md p-0 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Trash2 className="h-3.5 w-3.5" />
                   </Button>
                   
                   <div className="flex justify-between items-start mb-2 pr-10">
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-2">
-                        <CardTitle className="text-lg font-semibold">
+                        <CardTitle className="text-base font-semibold leading-tight">
                           {generateOrderDisplayId(order.id, order.orderNumber)}
                         </CardTitle>
                         {/* Innovation #3: Priority Badge */}
@@ -1036,10 +1026,10 @@ export function OrderManagement() {
 
                   {/* Innovation #5: Bottleneck Alert */}
                   {delayLevel === 'bottleneck' && (
-                    <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded-md">
-                      <div className="flex items-center gap-2 text-red-700">
-                        <AlertCircle className="h-4 w-4 animate-pulse" />
-                        <p className="text-xs font-medium">Kitchen Bottleneck - Priority Attention Needed!</p>
+                    <div className="mt-2 p-1.5 bg-[#fdecea] border border-[#f6c7c2] rounded-md">
+                      <div className="flex items-center gap-1.5 text-[#b54444]">
+                        <AlertCircle className="h-3.5 w-3.5" />
+                        <p className="text-[11px] font-medium">Kitchen Bottleneck - Priority attention needed</p>
                       </div>
                     </div>
                   )}
@@ -1063,24 +1053,24 @@ export function OrderManagement() {
 
                   {/* Smart Order Status Timeline */}
                   <div className="mt-3 pt-3 border-t">
-                    <div className="flex items-center justify-between text-xs">
+                    <div className="flex items-center justify-between text-[11px] leading-none">
                       <div className={`flex flex-col items-center gap-1 ${order.status === 'placed' ? 'text-foreground font-medium' : order.status === 'cancelled' ? 'text-muted-foreground' : 'text-muted-foreground/50'}`}>
-                        <Clock className="h-3.5 w-3.5" />
+                        <Clock className="h-3 w-3" />
                         <span>Placed</span>
                       </div>
                       <div className="flex-1 h-0.5 mx-1 bg-muted" />
                       <div className={`flex flex-col items-center gap-1 ${order.status === 'preparing' ? 'text-foreground font-medium' : ['ready', 'served', 'completed'].includes(order.status) ? 'text-muted-foreground/50' : 'text-muted-foreground/30'}`}>
-                        <Package className="h-3.5 w-3.5" />
+                        <Package className="h-3 w-3" />
                         <span>Preparing</span>
                       </div>
                       <div className="flex-1 h-0.5 mx-1 bg-muted" />
                       <div className={`flex flex-col items-center gap-1 ${order.status === 'ready' ? 'text-foreground font-medium' : ['served', 'completed'].includes(order.status) ? 'text-muted-foreground/50' : 'text-muted-foreground/30'}`}>
-                        <AlertCircle className="h-3.5 w-3.5" />
+                        <AlertCircle className="h-3 w-3" />
                         <span>Ready</span>
                       </div>
                       <div className="flex-1 h-0.5 mx-1 bg-muted" />
                       <div className={`flex flex-col items-center gap-1 ${['served', 'completed'].includes(order.status) ? 'text-foreground font-medium' : 'text-muted-foreground/30'}`}>
-                        <CheckCircle className="h-3.5 w-3.5" />
+                        <CheckCircle className="h-3 w-3" />
                         <span>Served</span>
                       </div>
                     </div>
@@ -1122,7 +1112,7 @@ export function OrderManagement() {
                   </div>
                 </CardHeader>
                 
-                <CardContent className="space-y-4">
+                <CardContent className="p-4 pt-0 space-y-3">
                   {/* Order Items */}
                   <div>
                     <p className="text-xs font-medium text-muted-foreground mb-2">
@@ -1183,7 +1173,7 @@ export function OrderManagement() {
                           setQuickOrderExistingOrderId(order.id);
                           setQuickOrderOpen(true);
                         }}
-                        className="w-full gap-2 bg-emerald-600 hover:bg-emerald-700"
+                        className="w-full h-8 rounded-md text-xs gap-2 bg-emerald-600 hover:bg-emerald-700"
                       >
                         <ClipboardList className="h-4 w-4" />
                         Take Order
@@ -1195,7 +1185,7 @@ export function OrderManagement() {
                       <Button
                         size="sm"
                         onClick={() => updateOrderStatus(order.id, 'preparing')}
-                        className="w-full gap-2"
+                        className="w-full h-8 rounded-md text-xs gap-2"
                       >
                         <MoveRight className="h-4 w-4" />
                         Accept Order
@@ -1205,7 +1195,7 @@ export function OrderManagement() {
                       <Button
                         size="sm"
                         onClick={() => updateOrderStatus(order.id, 'ready')}
-                        className="w-full gap-2"
+                        className="w-full h-8 rounded-md text-xs gap-2"
                       >
                         <CheckCircle className="h-4 w-4" />
                         Mark as Ready
@@ -1215,7 +1205,7 @@ export function OrderManagement() {
                       <Button
                         size="sm"
                         onClick={() => updateOrderStatus(order.id, 'served')}
-                        className="w-full gap-2"
+                        className="w-full h-8 rounded-md text-xs gap-2"
                       >
                         <UtensilsCrossed className="h-4 w-4" />
                         Mark as Served
@@ -1229,7 +1219,7 @@ export function OrderManagement() {
                           <Button
                             size="sm"
                             variant="outline"
-                            className="flex-1"
+                            className="flex-1 h-8 rounded-md text-xs"
                           >
                             <Eye className="mr-1.5 h-3.5 w-3.5" />
                             Details
@@ -1303,6 +1293,7 @@ export function OrderManagement() {
                         <Button
                           size="sm"
                           variant="outline"
+                          className="h-8 rounded-md"
                           onClick={() => duplicateOrder(order)}
                         >
                           <Repeat className="h-3.5 w-3.5" />
@@ -1313,7 +1304,7 @@ export function OrderManagement() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="border-red-200 text-red-700 hover:bg-red-50"
+                          className="h-8 rounded-md border-red-200 text-red-700 hover:bg-red-50"
                           onClick={() => updateOrderStatus(order.id, 'cancelled')}
                         >
                           <Ban className="h-3.5 w-3.5" />

@@ -178,6 +178,65 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
     setFiltersOpen(false);
   };
 
+  const renderFiltersMenu = (isSidebar = false) => {
+    const wrapperClass = isSidebar
+      ? 'space-y-3'
+      : 'grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4';
+    const sectionClass = isSidebar
+      ? 'rounded-xl bg-[#FCFAF7] border border-[#EFE6DA] p-3'
+      : 'rounded-lg bg-[#FCFAF7] border border-[#EFE6DA] p-2.5';
+
+    return (
+      <div className={wrapperClass}>
+        <div className={sectionClass}>
+          <div className="text-[11px] uppercase tracking-wide font-bold text-[#8B5A2B] mb-2 flex items-center gap-1.5">
+            <Grid3X3 className="w-3.5 h-3.5" /> Categories
+          </div>
+          <div className="space-y-1">
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => selectCategory(cat)}
+                className={`${navBtnBase} hover:bg-[#f5f5f5] ${selectedCategory === cat ? 'bg-[#8B5A2B] text-white border-[#8B5A2B]' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-[#C8A47A]'}`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className={sectionClass}>
+          <div className="text-[11px] uppercase tracking-wide font-bold text-[#8B5A2B] mb-2 flex items-center gap-1.5">
+            <Leaf className="w-3.5 h-3.5" /> Diet & Specials
+          </div>
+          <div className="space-y-1">
+            <button onClick={() => selectVeg('all')} className={`${navBtnBase} hover:bg-[#f5f5f5] ${filterVeg === 'all' ? 'bg-[#3E2723] text-white border-[#3E2723]' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-[#3E2723]/40'}`}>All</button>
+            <button onClick={() => selectVeg('veg')} className={`${navBtnBase} hover:bg-[#f5f5f5] ${filterVeg === 'veg' ? 'bg-green-700 text-white border-green-700' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-green-700'}`}>Veg</button>
+            <button onClick={() => selectVeg('non-veg')} className={`${navBtnBase} hover:bg-[#f5f5f5] ${filterVeg === 'non-veg' ? 'bg-red-700 text-white border-red-700' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-red-700'}`}>Non-Veg</button>
+            <button onClick={() => selectVeg('special')} className={`${navBtnBase} inline-flex items-center gap-1.5 hover:bg-[#f5f5f5] ${filterVeg === 'special' ? 'bg-[#C8A47A] text-[#2D1B10] border-[#C8A47A]' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-[#C8A47A]'}`}><Sparkles className="w-3 h-3" /> Special</button>
+          </div>
+        </div>
+
+        <div className={sectionClass}>
+          <div className="text-[11px] uppercase tracking-wide font-bold text-[#8B5A2B] mb-2 flex items-center gap-1.5">
+            <Globe className="w-3.5 h-3.5" /> Cuisine
+          </div>
+          <div className="space-y-1">
+            {cuisines.map((cuisine) => (
+              <button
+                key={cuisine}
+                onClick={() => selectCuisine(cuisine)}
+                className={`${navBtnBase} hover:bg-[#f5f5f5] ${filterCuisine === cuisine ? 'bg-[#8B5A2B] text-white border-[#8B5A2B]' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-[#C8A47A]'}`}
+              >
+                {cuisine === 'all' ? 'All Cuisines' : cuisine}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className={`min-h-screen bg-[#FAF7F2] transition-opacity duration-700 ${mounted ? 'opacity-100' : 'opacity-0'}`}>
       <section className="relative py-4 sm:py-6 px-3 sm:px-5 min-h-screen overflow-hidden">
@@ -220,7 +279,7 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
                 <div className="flex items-center gap-1.5 sm:gap-2">
                   <button
                     onClick={() => setFiltersOpen((v) => !v)}
-                    className={`inline-flex items-center gap-1 px-2 py-1.5 rounded-lg border text-[11px] sm:text-xs font-semibold transition-colors whitespace-nowrap ${
+                    className={`md:hidden inline-flex items-center gap-1 px-2 py-1.5 rounded-lg border text-[11px] sm:text-xs font-semibold transition-colors whitespace-nowrap ${
                       filtersOpen
                         ? 'bg-[#8B5A2B] text-white border-[#8B5A2B]'
                         : 'bg-[#FCFAF7] text-[#6D4C41] border-[#E8DED0] hover:border-[#C8A47A] hover:text-[#8B5A2B]'
@@ -249,63 +308,24 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
               }
             />
 
-            {/* Filter Dropdown */}
-            <div ref={filterWrapRef} className="relative">
+            {/* Mobile Filter Dropdown */}
+            <div ref={filterWrapRef} className="relative md:hidden">
               {filtersOpen && (
-                <div className="absolute inset-x-0 md:inset-x-auto md:right-0 md:w-[min(92vw,960px)] mt-2 bg-white border border-[#E8DED0] rounded-xl shadow-[0_12px_40px_rgba(62,39,35,0.18)] p-3 sm:p-4 z-30">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
-                    <div className="rounded-lg bg-[#FCFAF7] border border-[#EFE6DA] p-2.5">
-                      <div className="text-[11px] uppercase tracking-wide font-bold text-[#8B5A2B] mb-2 flex items-center gap-1.5">
-                        <Grid3X3 className="w-3.5 h-3.5" /> Categories
-                      </div>
-                      <div className="space-y-1">
-                        {categories.map((cat) => (
-                          <button
-                            key={cat}
-                            onClick={() => selectCategory(cat)}
-                            className={`${navBtnBase} ${selectedCategory === cat ? 'bg-[#8B5A2B] text-white border-[#8B5A2B]' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-[#C8A47A]'}`}
-                          >
-                            {cat}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    <div className="rounded-lg bg-[#FCFAF7] border border-[#EFE6DA] p-2.5">
-                      <div className="text-[11px] uppercase tracking-wide font-bold text-[#8B5A2B] mb-2 flex items-center gap-1.5">
-                        <Leaf className="w-3.5 h-3.5" /> Diet & Specials
-                      </div>
-                      <div className="space-y-1">
-                        <button onClick={() => selectVeg('all')} className={`${navBtnBase} ${filterVeg === 'all' ? 'bg-[#3E2723] text-white border-[#3E2723]' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-[#3E2723]/40'}`}>All</button>
-                        <button onClick={() => selectVeg('veg')} className={`${navBtnBase} ${filterVeg === 'veg' ? 'bg-green-700 text-white border-green-700' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-green-700'}`}>Veg</button>
-                        <button onClick={() => selectVeg('non-veg')} className={`${navBtnBase} ${filterVeg === 'non-veg' ? 'bg-red-700 text-white border-red-700' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-red-700'}`}>Non-Veg</button>
-                        <button onClick={() => selectVeg('special')} className={`${navBtnBase} inline-flex items-center gap-1.5 ${filterVeg === 'special' ? 'bg-[#C8A47A] text-[#2D1B10] border-[#C8A47A]' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-[#C8A47A]'}`}><Sparkles className="w-3 h-3" /> Special</button>
-                      </div>
-                    </div>
-
-                    <div className="rounded-lg bg-[#FCFAF7] border border-[#EFE6DA] p-2.5">
-                      <div className="text-[11px] uppercase tracking-wide font-bold text-[#8B5A2B] mb-2 flex items-center gap-1.5">
-                        <Globe className="w-3.5 h-3.5" /> Cuisine
-                      </div>
-                      <div className="space-y-1">
-                        {cuisines.map((cuisine) => (
-                          <button
-                            key={cuisine}
-                            onClick={() => selectCuisine(cuisine)}
-                            className={`${navBtnBase} ${filterCuisine === cuisine ? 'bg-[#8B5A2B] text-white border-[#8B5A2B]' : 'bg-white text-[#5D4037] border-[#E8DED0] hover:border-[#C8A47A]'}`}
-                          >
-                            {cuisine === 'all' ? 'All Cuisines' : cuisine}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
+                <div className="absolute inset-x-0 mt-2 bg-white border border-[#E8DED0] rounded-xl shadow-[0_12px_40px_rgba(62,39,35,0.18)] p-3 sm:p-4 z-30">
+                  {renderFiltersMenu(false)}
                 </div>
               )}
             </div>
 
-            <div>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pb-5 mt-3">
+            <div className="flex gap-5 items-start mt-3">
+              <aside className="hidden md:block w-[260px] shrink-0">
+                <div className="sticky top-20 h-[calc(100vh-80px)] overflow-y-auto bg-white p-4 rounded-xl border border-[#E8DED0] shadow-[0_2px_8px_rgba(0,0,0,0.08)]">
+                  {renderFiltersMenu(true)}
+                </div>
+              </aside>
+
+              <div className="flex-1 min-w-0">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 pb-5">
             {filteredItems.map((item) => {
               const qty = getCartQuantity(item.id);
               return (
@@ -414,24 +434,25 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
                 </div>
               );
             })}
-              </div>
-
-              {filteredItems.length === 0 && (
-                <div className="text-center py-14 bg-white/10 backdrop-blur-md rounded-3xl border-2 border-dashed border-[#E8DED0] mt-4">
-                  <div className="flex flex-col items-center">
-                    <Search className="w-8 h-8 text-[#8B5A2B] mb-5" />
-                    <h3 className="text-2xl font-semibold text-[#3E2723] mb-2">No dishes found</h3>
-                    <p className="text-[#6D4C41] text-sm mb-6 max-w-md">We could not find any menu items matching these filters.</p>
-                    <button
-                      onClick={resetFilters}
-                      className="px-6 py-3 bg-[#8B5A2B] text-white rounded-full font-semibold uppercase tracking-wider hover:bg-[#3E2723] transition-all inline-flex items-center gap-2 text-xs"
-                    >
-                      <RotateCcw className="w-4 h-4" />
-                      View Full Menu
-                    </button>
-                  </div>
                 </div>
-              )}
+
+                {filteredItems.length === 0 && (
+                  <div className="text-center py-14 bg-white/10 backdrop-blur-md rounded-3xl border-2 border-dashed border-[#E8DED0] mt-4">
+                    <div className="flex flex-col items-center">
+                      <Search className="w-8 h-8 text-[#8B5A2B] mb-5" />
+                      <h3 className="text-2xl font-semibold text-[#3E2723] mb-2">No dishes found</h3>
+                      <p className="text-[#6D4C41] text-sm mb-6 max-w-md">We could not find any menu items matching these filters.</p>
+                      <button
+                        onClick={resetFilters}
+                        className="px-6 py-3 bg-[#8B5A2B] text-white rounded-full font-semibold uppercase tracking-wider hover:bg-[#3E2723] transition-all inline-flex items-center gap-2 text-xs"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                        View Full Menu
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>

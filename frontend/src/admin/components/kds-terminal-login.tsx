@@ -42,13 +42,13 @@ interface ChefRecord {
 }
 
 export const TERMINAL_STATIONS: StationCard[] = [
-  { id: 'FRY', name: 'Fry Station', icon: <Flame className="h-10 w-10" />, colorClass: 'bg-[#FF6B35]', description: 'Deep-fry, saute, tempura' },
-  { id: 'CURRY', name: 'Curry Station', icon: <Soup className="h-10 w-10" />, colorClass: 'bg-[#D4A574]', description: 'Gravies, curries, sauces' },
-  { id: 'RICE', name: 'Rice Station', icon: <UtensilsCrossed className="h-10 w-10" />, colorClass: 'bg-[#8B7355]', description: 'Biryani, pulao, fried rice' },
-  { id: 'PREP', name: 'Prep Station', icon: <Salad className="h-10 w-10" />, colorClass: 'bg-[#4CAF50]', description: 'Salads, cold items, plating' },
-  { id: 'GRILL', name: 'Grill Station', icon: <ChefHat className="h-10 w-10" />, colorClass: 'bg-[#E63946]', description: 'Tandoor, BBQ, grills' },
-  { id: 'DESSERT', name: 'Dessert Station', icon: <Coffee className="h-10 w-10" />, colorClass: 'bg-[#F4A261]', description: 'Sweets, beverages, desserts' },
-  { id: 'HEAD_CHEF', name: 'Head Chef', icon: <Crown className="h-10 w-10" />, colorClass: 'bg-[#8B5A2B]', description: 'Global oversight across all stations', isHeadChef: true },
+  { id: 'FRY', name: 'Fry Station', icon: <Flame className="h-5 w-5" />, colorClass: 'bg-[#f4eadf]', description: 'Deep-fry, saute, tempura' },
+  { id: 'CURRY', name: 'Curry Station', icon: <Soup className="h-5 w-5" />, colorClass: 'bg-[#f4eadf]', description: 'Gravies, curries, sauces' },
+  { id: 'RICE', name: 'Rice Station', icon: <UtensilsCrossed className="h-5 w-5" />, colorClass: 'bg-[#f4eadf]', description: 'Biryani, pulao, fried rice' },
+  { id: 'PREP', name: 'Prep Station', icon: <Salad className="h-5 w-5" />, colorClass: 'bg-[#f4eadf]', description: 'Salads, cold items, plating' },
+  { id: 'GRILL', name: 'Grill Station', icon: <ChefHat className="h-5 w-5" />, colorClass: 'bg-[#f4eadf]', description: 'Tandoor, BBQ, grills' },
+  { id: 'DESSERT', name: 'Dessert Station', icon: <Coffee className="h-5 w-5" />, colorClass: 'bg-[#f4eadf]', description: 'Sweets, beverages, desserts' },
+  { id: 'HEAD_CHEF', name: 'Head Chef', icon: <Crown className="h-5 w-5" />, colorClass: 'bg-[#f4eadf]', description: 'Global oversight across all stations', isHeadChef: true },
 ];
 
 interface KDSTerminalLoginProps {
@@ -98,63 +98,84 @@ export function KDSTerminalLogin({ onLogin }: KDSTerminalLoginProps) {
   };
 
   return (
-    <div className="bg-kitchen-display-module min-h-screen flex items-center justify-center p-8 max-w-full overflow-x-hidden">
-      <div className="w-full max-w-5xl">
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center p-4 bg-[#8B5A2B] rounded-2xl mb-4 shadow-2xl">
-            <ChefHat className="h-14 w-14 text-white" />
+    <div className="relative min-h-screen bg-[#f8f6f3] p-4 sm:p-6 max-w-full overflow-x-hidden">
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_10%_15%,rgba(139,94,52,0.08),transparent_30%),radial-gradient(circle_at_90%_10%,rgba(111,69,35,0.06),transparent_28%)]" />
+      <div className="relative w-full max-w-[1220px] mx-auto">
+        <div className="mb-4 sm:mb-5 text-center">
+          <div className="inline-flex items-center justify-center p-2 bg-[#f4eadf] rounded-lg mb-2 border border-[#eadfce] shadow-[0_4px_10px_rgba(0,0,0,0.06)]">
+            <ChefHat className="h-5 w-5 text-[#8B5E3C]" />
           </div>
-          <h1 className="text-4xl font-bold mb-2 text-[#F5E6D3]">
-            Kitchen Display System
-          </h1>
-          <p className="text-lg text-white/70">Tap the station to enter</p>
+          <p className="text-[12px] uppercase tracking-[0.14em] text-[#7b746c]">Select Station</p>
         </div>
 
         {loadingChefs ? (
           <LoadingKitchen />
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
-            {visibleStations.map((station) => {
+          <div className="grid gap-4 sm:gap-5" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))' }}>
+            {visibleStations.map((station, index) => {
               const assignedChefs = getChefsForStation(station.id);
               return (
                 <button
                   key={station.id}
                   onClick={() => handleEnterStation(station)}
                   className={cn(
-                    'group relative flex flex-col items-center justify-center gap-3 p-6 rounded-2xl border-2 border-white/10',
-                    'bg-white/10 backdrop-blur-sm hover:bg-white/20 hover:border-white/30',
-                    'transition-all duration-200 hover:scale-[1.03] hover:shadow-2xl active:scale-[0.98]',
-                    'text-white cursor-pointer'
+                    'group relative overflow-hidden flex h-full min-h-[210px] flex-col items-start justify-between gap-3 p-5 rounded-[18px] border',
+                    station.isHeadChef
+                      ? 'border-[#d9b16f] shadow-[0_8px_18px_rgba(159,114,36,0.13)]'
+                      : 'border-[#e8dfd2] shadow-[0_8px_16px_rgba(0,0,0,0.07),0_2px_6px_rgba(0,0,0,0.03)]',
+                    'transition-[transform,box-shadow,border-color,background-position] duration-300 ease-out',
+                    'hover:scale-[1.03] hover:-translate-y-[4px] hover:shadow-[0_14px_28px_rgba(0,0,0,0.14),0_4px_12px_rgba(0,0,0,0.08)] hover:border-[#8b5e34] active:scale-[0.985]',
+                    'text-[#2c2c2c] cursor-pointer animate-kds-fade-up'
                   )}
+                  style={{
+                    backgroundImage: station.isHeadChef
+                      ? 'linear-gradient(135deg, #fff9ee 0%, #f8e8ca 100%)'
+                      : 'linear-gradient(135deg, #ffffff 0%, #f4f0ea 100%)',
+                    animationDelay: `${index * 70}ms`,
+                  }}
                 >
+                  <span className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_top_right,rgba(139,94,52,0.14),transparent_45%)]" />
+                  <span className="pointer-events-none absolute -inset-x-10 -bottom-16 h-20 bg-white/40 blur-xl opacity-0 group-active:opacity-100 transition-opacity duration-150" />
                   <div
-                    className={cn("p-4 rounded-xl flex items-center justify-center shadow-lg transition-transform duration-200 group-hover:scale-110", station.colorClass)}
+                    className={cn(
+                      'relative z-10 p-3 rounded-full flex items-center justify-center transition-all duration-300',
+                      'group-hover:scale-110 group-hover:shadow-[0_0_0_6px_rgba(139,94,52,0.10)]',
+                      'group-hover:-rotate-6 group-active:scale-95',
+                      station.isHeadChef ? 'bg-[#f6deb4]' : station.colorClass
+                    )}
                   >
-                    {station.icon}
+                    <span className="text-[#8B5E3C] transition-colors duration-300 group-hover:text-[#6f4523]">{station.icon}</span>
                   </div>
-                  <div className="text-center">
-                    <div className="flex items-center justify-center gap-1.5 mb-0.5">
-                      <h3 className="font-bold text-base leading-tight">{station.name}</h3>
+                  <div className="relative z-10 text-left">
+                    <div className="flex items-center gap-1.5 mb-0.5">
+                      <h3 className="font-semibold text-[16px] sm:text-[17px] leading-tight">{station.name}</h3>
                       {station.isHeadChef && (
-                        <Badge className="bg-amber-500 text-white text-[10px] px-1.5 py-0">SENIOR</Badge>
+                        <Badge className="bg-amber-100 text-amber-700 border border-amber-300 text-[10px] px-2 py-0 shadow-[0_0_0_2px_rgba(245,158,11,0.12)]">SENIOR</Badge>
                       )}
                     </div>
-                    <p className="text-xs text-white/60">{station.description}</p>
+                    <p className="text-[12px] sm:text-[13px] text-[#6b665f]">{station.description}</p>
                   </div>
                   {assignedChefs.length > 0 && (
-                    <p className="text-xs text-emerald-300 font-medium text-center leading-snug">
-                      ????? {assignedChefs.map((c) => c.name).join(', ')}
+                    <p className="relative z-10 text-[11px] text-emerald-700 font-medium leading-snug">
+                      Assigned: {assignedChefs.map((c) => c.name).join(', ')}
                     </p>
                   )}
-                  <div className="absolute inset-0 flex items-center justify-center rounded-2xl bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                    <span className="text-white font-semibold text-sm tracking-wide">Tap to Enter</span>
-                  </div>
                 </button>
               );
             })}
           </div>
         )}
       </div>
+
+      <style>{`
+        @keyframes kds-fade-up {
+          from { opacity: 0; transform: translateY(10px) scale(0.985); }
+          to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .animate-kds-fade-up {
+          animation: kds-fade-up 420ms ease-out both;
+        }
+      `}</style>
     </div>
   );
 }

@@ -36,6 +36,7 @@ type OrderStatus = "NEW" | "COOKING" | "READY" | "DELIVERED";
 type OrderType = "DINE_IN" | "PARCEL";
 type StationType = "FRY" | "CURRY" | "RICE" | "PREP" | "GRILL" | "DESSERT" | "HEAD_CHEF";
 type ViewMode = "ORDERS" | "BATCH" | "STATS";
+type OrdersTab = "NEW" | "COOKING" | "READY";
 
 interface OrderItem {
   id: string;
@@ -313,6 +314,7 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
   const [currentTime, setCurrentTime] = useState(new Date());
   const [activeFilter, setActiveFilter] = useState<OrderType | "ALL">("ALL");
   const [viewMode, setViewMode] = useState<ViewMode>("ORDERS");
+  const [activeOrdersTab, setActiveOrdersTab] = useState<OrdersTab>("NEW");
   const [isRecallOpen, setIsRecallOpen] = useState(false);
   const [recallInput, setRecallInput] = useState("");
   const [selectedOrder, setSelectedOrder] = useState<KitchenOrder | null>(null);
@@ -322,6 +324,16 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
   // Track item statuses and start times locally (for KDS-specific state)
   const [itemStatuses, setItemStatuses] = useState<Map<string, "PENDING" | "PREPARING" | "COMPLETED">>(new Map());
   const [itemStartTimes, setItemStartTimes] = useState<Map<string, Date>>(new Map());
+  const itemStatusesRef = useRef(itemStatuses);
+  const itemStartTimesRef = useRef(itemStartTimes);
+
+  useEffect(() => {
+    itemStatusesRef.current = itemStatuses;
+  }, [itemStatuses]);
+
+  useEffect(() => {
+    itemStartTimesRef.current = itemStartTimes;
+  }, [itemStartTimes]);
 
   // Menu item ID → category lookup (fetched once on mount)
   const [menuCategoryMap, setMenuCategoryMap] = useState<Map<string, string>>(new Map());
@@ -355,7 +367,9 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
   // Load orders from API
   const loadOrders = useCallback(async () => {
     try {
-      setIsLoading(true);
+      if (isInitialLoad.current) {
+        setIsLoading(true);
+      }
       const result = await ordersApi.list();
       const allOrders: APIOrder[] = result.data || [];
       
@@ -366,7 +380,7 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
 
       // Convert to kitchen orders
       let kitchenOrders = activeOrders.map(order => 
-        convertToKitchenOrder(order, itemStatuses, itemStartTimes, menuCategoryMap, menuStationMap)
+        convertToKitchenOrder(order, itemStatusesRef.current, itemStartTimesRef.current, menuCategoryMap, menuStationMap)
       );
 
       // Filter by station: only show orders with items for this station (except head chef sees all)
@@ -382,12 +396,14 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
       setOrders(kitchenOrders);
     } catch (error) {
       console.error('Error loading orders:', error);
-      toast.error('Failed to load orders');
+      if (isInitialLoad.current) {
+        toast.error('Failed to load orders');
+      }
     } finally {
       setIsLoading(false);
       isInitialLoad.current = false;
     }
-  }, [itemStatuses, itemStartTimes, station, isHeadChef, menuCategoryMap, menuStationMap]);
+  }, [station, isHeadChef, menuCategoryMap, menuStationMap]);
 
   useEffect(() => {
     // Load initial orders
@@ -446,6 +462,21 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
     if (elapsed < 300) return "#4CAF50"; // Green < 5 mins
     if (elapsed < 600) return "#FFA500"; // Orange < 10 mins
     return "#E63946"; // Red >= 10 mins
+  };
+
+  const getTimeColorClass = (createdAt: Date): string => {
+    const elapsed = Math.floor((currentTime.getTime() - createdAt.getTime()) / 1000);
+    if (elapsed < 300) return "text-green-600";
+    if (elapsed < 600) return "text-orange-600";
+    return "text-red-600";
+  };
+
+  const getItemElapsedColorClass = (item: OrderItem): string => {
+    if (!item.startedAt) return "text-gray-400";
+    const elapsed = Math.floor((currentTime.getTime() - item.startedAt.getTime()) / 1000);
+    if (elapsed < 300) return "text-green-600";
+    if (elapsed < 600) return "text-orange-600";
+    return "text-red-600";
   };
 
   const getPriorityColor = (priority: string): string => {
@@ -742,83 +773,73 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
   }
 
   return (
-    <div className="min-h-screen bg-kitchen-display-module max-w-full overflow-x-hidden">
-      <style>{`
-        @keyframes pulse-border {
-          0%, 100% { border-color: rgba(230, 57, 70, 0.5); }
-          50% { border-color: rgba(230, 57, 70, 1); }
-        }
-        .urgent-pulse {
-          animation: pulse-border 1.5s ease-in-out infinite;
-        }
-        @keyframes blink {
-          0%, 50%, 100% { opacity: 1; }
-          25%, 75% { opacity: 0.3; }
-        }
-        .blink {
-          animation: blink 2s infinite;
-        }
-      `}</style>
-
+    <div className="min-h-screen bg-[#f8f6f3] max-w-full overflow-x-hidden text-[#2c2c2c]">
       {/* Header */}
-      <div className="bg-white border-b shadow-sm sticky top-0 z-50">
-        <div className="container mx-auto px-3 sm:px-6 py-3 sm:py-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-            <div className="flex items-center gap-3 sm:gap-4">
-              <div 
-                className={cn("p-2 sm:p-3 rounded-xl flex items-center justify-center flex-shrink-0", stationBadgeClasses[station])}
-              >
-                <ChefHat className="h-5 w-5 sm:h-6 sm:w-6 text-white" />
+      <div className="sticky top-0 z-50 bg-transparent border-b-0 shadow-none">
+        <div className={cn("w-full px-4 sm:px-6 py-2.5", isHeadChef && "!px-3 sm:!px-4 !py-1")}>
+          <div className={cn("flex items-start justify-between gap-3", isHeadChef && "gap-2")}>
+            <div className="flex items-center gap-3 sm:gap-4 min-w-0">
+              <div className="p-1.5 rounded-lg flex items-center justify-center flex-shrink-0 bg-[#f4eadf] border border-[#eadfce]">
+                <ChefHat className="h-4 w-4 sm:h-5 sm:w-5 text-[#8B5E3C]" />
               </div>
-              <div>
-                <h1 className="text-lg sm:text-2xl font-bold text-gray-900" >
+              <div className="min-w-0">
+                <h1 className={cn("font-semibold text-[#2c2c2c] leading-tight", isHeadChef ? "!text-[20px]" : "text-[17px] sm:text-[19px]")}>
                   {station} STATION
                 </h1>
-                <p className="text-xs sm:text-sm text-gray-500" >
+                <p className="text-[11px] sm:text-xs text-[#6b665f] leading-tight" >
                   Production Queue • Live Orders
                 </p>
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center gap-2 sm:gap-4">
-              {/* Order Type Filters */}
-              <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+            {/* Logout */}
+            <Button
+              onClick={onLogout}
+              variant="outline"
+              className={cn("h-10 px-4 border border-gray-300 shrink-0", isHeadChef && "h-8 px-3 text-xs")}
+            >
+              Logout
+            </Button>
+          </div>
+
+          <div className="header-row flex items-center justify-between gap-5 flex-wrap">
+            <div className="left-group flex items-center gap-4 flex-wrap">
+              <section className="filters-section flex items-center gap-[10px] w-auto bg-white px-[14px] py-[10px] rounded-[12px] shadow-[0_2px_6px_rgba(0,0,0,0.06)]">
                 <Button
                   variant={activeFilter === "ALL" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setActiveFilter("ALL")}
-                  className={cn("gap-1", activeFilter === "ALL" && "bg-[#8B5A2B] text-white")}
+                  className={cn("h-[34px] px-3 py-[6px] text-[13px] gap-1 rounded-[10px] w-auto flex-none transition-all duration-200 ease-in-out", activeFilter === "ALL" ? "bg-[#8B5E34] text-white" : "bg-[#f3f3f3] text-[#333]")}
                 >
-                  <LayoutGrid className="h-4 w-4" />
+                  <LayoutGrid className="h-3.5 w-3.5" />
                   All
                 </Button>
                 <Button
                   variant={activeFilter === "DINE_IN" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setActiveFilter("DINE_IN")}
-                  className={cn("gap-1", activeFilter === "DINE_IN" && "bg-[#8B5A2B] text-white")}
+                  className={cn("h-[34px] px-3 py-[6px] text-[13px] gap-1 rounded-[10px] w-auto flex-none transition-all duration-200 ease-in-out", activeFilter === "DINE_IN" ? "bg-[#8B5E34] text-white" : "bg-[#f3f3f3] text-[#333]")}
                 >
-                  <Utensils className="h-4 w-4" />
+                  <Utensils className="h-3.5 w-3.5" />
                   Dine In
                 </Button>
                 <Button
                   variant={activeFilter === "PARCEL" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setActiveFilter("PARCEL")}
-                  className={cn("gap-1", activeFilter === "PARCEL" && "bg-[#8B5A2B] text-white")}
+                  className={cn("h-[34px] px-3 py-[6px] text-[13px] gap-1 rounded-[10px] w-auto flex-none transition-all duration-200 ease-in-out", activeFilter === "PARCEL" ? "bg-[#8B5E34] text-white" : "bg-[#f3f3f3] text-[#333]")}
                 >
-                  <ShoppingBag className="h-4 w-4" />
+                  <ShoppingBag className="h-3.5 w-3.5" />
                   Parcel
                 </Button>
-              </div>
+              </section>
 
-              {/* View Mode Tabs */}
-              <div className="flex items-center gap-1 bg-gray-100 p-1 rounded-lg">
+              <section className="controls-section flex items-center gap-[10px] w-auto bg-white px-[14px] py-[10px] rounded-[12px] shadow-[0_2px_6px_rgba(0,0,0,0.06)]">
                 <Button
                   variant={viewMode === "ORDERS" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("ORDERS")}
-                  className={cn(viewMode === "ORDERS" && "bg-[#8B5A2B] text-white")}
+                  className={cn("h-[34px] px-3 py-[6px] text-[13px] rounded-[10px] w-auto flex-none transition-all duration-200 ease-in-out", viewMode === "ORDERS" ? "bg-[#8B5E34] text-white" : "bg-[#f3f3f3] text-[#333]")}
                 >
                   Orders
                 </Button>
@@ -826,54 +847,42 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
                   variant={viewMode === "BATCH" ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setViewMode("BATCH")}
-                  className={cn(viewMode === "BATCH" && "bg-[#8B5A2B] text-white")}
+                  className={cn("h-[34px] px-3 py-[6px] text-[13px] rounded-[10px] w-auto flex-none transition-all duration-200 ease-in-out", viewMode === "BATCH" ? "bg-[#8B5E34] text-white" : "bg-[#f3f3f3] text-[#333]")}
                 >
-                  <Layers className="h-4 w-4 mr-1" />
+                  <Layers className="h-3.5 w-3.5 mr-1" />
                   Batch
                 </Button>
-              </div>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setIsRecallOpen(true)}
+                  className="h-[34px] px-3 py-[6px] text-[13px] gap-1 rounded-[10px] w-auto flex-none border border-gray-300 shrink-0 transition-all duration-200 ease-in-out bg-[#f3f3f3] text-[#333]"
+                >
+                  <Search className="h-3.5 w-3.5" />
+                  Recall
+                </Button>
+              </section>
+            </div>
 
-              {/* Recall Search */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setIsRecallOpen(true)}
-                className="gap-2 border-2"
-              >
-                <Search className="h-4 w-4" />
-                Recall
-              </Button>
-
-              {/* Stats */}
-              <div className="flex items-center gap-3 sm:gap-6 px-3 sm:px-6 py-2 sm:py-3 bg-gray-100 rounded-lg">
-                <div>
-                  <p className="text-xs text-black mb-1" >NEW</p>
-                  <p className="text-2xl font-bold text-blue-600" >{newOrders.length}</p>
+            <div className="right-group ml-auto">
+              <section className="status-section flex items-center gap-3 w-auto bg-white px-[14px] py-[10px] rounded-[12px] shadow-[0_2px_6px_rgba(0,0,0,0.06)]">
+                <div className="inline-block rounded-[10px] bg-white px-3 py-2 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                  <p className="text-[10px] text-gray-500 mb-0.5 tracking-wide">NEW</p>
+                  <p className="text-lg font-bold text-blue-600">{newOrders.length}</p>
                 </div>
-                <div className="w-px h-10 bg-gray-300" />
-                <div>
-                  <p className="text-xs text-black mb-1" >COOKING</p>
-                  <p className="text-2xl font-bold text-orange-600" >{cookingOrders.length}</p>
+                <div className="inline-block rounded-[10px] bg-white px-3 py-2 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                  <p className="text-[10px] text-gray-500 mb-0.5 tracking-wide">COOKING</p>
+                  <p className="text-lg font-bold text-orange-600">{cookingOrders.length}</p>
                 </div>
-                <div className="w-px h-10 bg-gray-300" />
-                <div>
-                  <p className="text-xs text-black mb-1" >READY</p>
-                  <p className="text-2xl font-bold text-green-600" >{readyOrders.length}</p>
+                <div className="inline-block rounded-[10px] bg-white px-3 py-2 shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                  <p className="text-[10px] text-gray-500 mb-0.5 tracking-wide">READY</p>
+                  <p className="text-lg font-bold text-green-600">{readyOrders.length}</p>
                 </div>
-              </div>
-
-              {/* Logout */}
-              <Button 
-                onClick={onLogout}
-                variant="outline"
-                className="h-11 px-6 border-2 border-gray-300 hover:border-[#8B5A2B] hover:bg-[#8B5A2B]/10 hover:text-[#8B5A2B]"
-              >
-                Logout
-              </Button>
+              </section>
             </div>
           </div>
+          </div>
         </div>
-      </div>
 
       {/* Recall Search Modal */}
       {isRecallOpen && (
@@ -910,7 +919,7 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
               ))}
             </div>
             <Button
-              className="w-full h-12 bg-[#8B5A2B] hover:bg-[#6D421E] text-white text-lg"
+              className="w-full h-12 bg-[#8B5A2B] text-white text-lg"
               onClick={() => handleRecallSearch(recallInput)}
             >
               <Search className="h-5 w-5 mr-2" />
@@ -921,49 +930,62 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
       )}
 
       {/* Main Content */}
-      <div className="container mx-auto px-3 sm:px-6 py-4 sm:py-8">
+      <div className={cn("w-full px-4 sm:px-5 py-3 sm:py-4", isHeadChef && "!px-3 sm:!px-4 !py-2 sm:!py-2")}>
         {viewMode === "ORDERS" ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          
-          {/* NEW ORDERS */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-white" >
+          <div className="w-full transition-all duration-200 ease-in-out">
+            <div className="flex gap-[10px] mb-4">
+              <button
+                type="button"
+                onClick={() => setActiveOrdersTab("NEW")}
+                className={cn(
+                  "h-8 px-3 rounded-md text-xs font-semibold transition-all duration-200 ease-in-out",
+                  activeOrdersTab === "NEW" ? "bg-[#8B5E34] text-white" : "bg-[#f5f5f5] text-[#333]"
+                )}
+              >
                 New Orders
-              </h2>
-              <Badge className="bg-[#8B5A2B] text-white">{newOrders.length}</Badge>
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveOrdersTab("COOKING")}
+                className={cn(
+                  "h-8 px-3 rounded-md text-xs font-semibold transition-all duration-200 ease-in-out",
+                  activeOrdersTab === "COOKING" ? "bg-[#8B5E34] text-white" : "bg-[#f5f5f5] text-[#333]"
+                )}
+              >
+                In Progress
+              </button>
+              <button
+                type="button"
+                onClick={() => setActiveOrdersTab("READY")}
+                className={cn(
+                  "h-8 px-3 rounded-md text-xs font-semibold transition-all duration-200 ease-in-out",
+                  activeOrdersTab === "READY" ? "bg-[#8B5E34] text-white" : "bg-[#f5f5f5] text-[#333]"
+                )}
+              >
+                Ready to Serve
+              </button>
             </div>
-            <div className="space-y-4">
+
+          {/* NEW ORDERS */}
+          {activeOrdersTab === "NEW" && (
+          <section className="w-full rounded-xl border border-[#ece5dc] bg-white px-3 pt-2 pb-2.5 shadow-[0_1px_4px_rgba(0,0,0,0.04)] transition-all duration-200 ease-in-out">
+            <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1 pt-2">
               {newOrders.map((order) => (
                 <Card 
                   key={order.id} 
                   className={cn(
-                    "border-l-4 shadow-md hover:shadow-lg transition-all duration-200",
-                    order.priority === "urgent" && "urgent-pulse border-l-red-600",
+                    "rounded-lg border-l-4 border border-[#ece5dc] bg-white p-0 shadow-[0_1px_4px_rgba(0,0,0,0.04)]",
+                    order.priority === "urgent" && "border-l-red-600",
                     order.priority !== "urgent" && getPriorityBorderClass(order.priority)
                   )}
                   
                 >
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Badge 
-                          className="text-white font-bold"
-                          className={cn("p-2 sm:p-3 rounded-xl flex items-center justify-center flex-shrink-0", stationBadgeClasses[station])}
-                        >
+                  <CardHeader className="p-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Badge className={cn("px-2 py-1 rounded-md flex items-center justify-center flex-shrink-0 text-white font-bold text-xs", stationBadgeClasses[station])}>
                           {order.orderNumber}
                         </Badge>
-                        {order.priority === "urgent" && (
-                          <Badge className="bg-red-600 text-white blink">
-                            URGENT
-                          </Badge>
-                        )}
-                        {order.priority === "high" && (
-                          <Badge className="bg-orange-600 text-white">
-                            HIGH
-                          </Badge>
-                        )}
-                        {/* Order Type Badge */}
                         <Badge variant="outline" className={cn(
                           "text-xs",
                           order.orderType === "DINE_IN" && "border-blue-400 text-blue-600",
@@ -973,31 +995,36 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
                           {order.orderType === "PARCEL" && <ShoppingBag className="h-3 w-3 mr-1" />}
                           {order.orderType.replace("_", " ")}
                         </Badge>
+                        {order.priority === "high" && (
+                          <Badge className="bg-orange-600 text-white">
+                            HIGH
+                          </Badge>
+                        )}
                       </div>
-                      <div 
-                        className={cn("flex items-center gap-1 font-bold text-sm", getTimeColorClass(order.createdAt))}
+                      <div
+                        className={cn("flex items-center gap-1 font-bold text-xs", getTimeColorClass(order.createdAt))}
                       >
-                        <Clock className="h-4 w-4" />
+                        <Clock className="h-3.5 w-3.5" />
                         {getElapsedTime(order.createdAt)}
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                      <span className="flex items-center gap-1" >
-                        <Users className="h-4 w-4" />
-                        {order.tableNumber}
+                    <div className="flex items-center justify-between gap-2 mt-1.5 text-xs text-gray-500">
+                      <span className="flex items-center gap-1 truncate" >
+                        <Users className="h-3.5 w-3.5" />
+                        {order.tableNumber || 'N/A'}
                       </span>
-                      <span >
+                      <span className="truncate">
                         {order.guestCount} guests
                       </span>
                     </div>
                   </CardHeader>
 
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-2 p-2 pt-0">
                     {order.items.filter(item => isHeadChef || item.station === station).map((item) => (
-                      <div key={item.id} className="p-3 bg-gray-50 rounded-lg">
-                        <div className="flex items-start justify-between mb-1">
-                          <p className="font-semibold text-gray-800" >
+                      <div key={item.id} className="p-2 bg-gray-50 rounded-lg border border-[#ece5dc]">
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <p className="font-semibold text-gray-800 text-sm leading-snug" >
                             {item.quantity}x {item.name}
                           </p>
                           <div className="flex items-center gap-2">
@@ -1016,7 +1043,7 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
                         {item.status === "PENDING" && (
                           <Button
                             size="sm"
-                            className="mt-2 w-full bg-[#8B5A2B] hover:bg-[#6D421E] text-white"
+                            className="mt-1 w-full h-8 text-xs bg-[#8B5A2B] text-white transition-all duration-200 ease-in-out"
                             onClick={() => handleStartItem(order.id, item.id)}
                           >
                             <Play className="h-3 w-3 mr-1" />
@@ -1026,23 +1053,24 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
                       </div>
                     ))}
 
-                    <div className="flex gap-2 pt-2">
+                    <div className="flex flex-col gap-2 pt-1">
                       {/* Accept Order button - available to head chef and station chefs with items for their station */}
                       {(isHeadChef || order.items.some(item => item.station === station)) && (
                         <Button
                           onClick={() => handleStartCooking(order.id)}
-                          className="flex-1 bg-[#8B5A2B] hover:bg-[#6D421E] text-white"
+                          className="w-full h-8 text-xs bg-[#8B5A2B] text-white transition-all duration-200 ease-in-out"
                         >
                           <Check className="h-4 w-4 mr-2" />
                           Accept Order
                         </Button>
                       )}
-                      <Button
-                        onClick={() => handleRejectOrder(order.id)}
-                        variant="outline"
-                        className="border-[#8B5A2B]/30 text-[#8B5A2B] hover:bg-[#8B5A2B]/10"
-                      >
-                        <X className="h-4 w-4" />
+                        <Button
+                          onClick={() => handleRejectOrder(order.id)}
+                          variant="outline"
+                          className="w-full h-8 text-xs border-[#8B5A2B]/30 text-[#8B5A2B] transition-all duration-200 ease-in-out"
+                        >
+                        <X className="h-4 w-4 mr-2" />
+                        Reject Order
                       </Button>
                     </div>
                   </CardContent>
@@ -1050,33 +1078,26 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
               ))}
               
               {newOrders.length === 0 && (
-                <Card className="p-8 text-center border-dashed">
+                <Card className="p-4 text-center border-dashed rounded-lg border border-[#ece5dc] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
                   <p className="text-gray-400" >
                     No new orders
                   </p>
                 </Card>
               )}
             </div>
-          </div>
+          </section>
+          )}
 
           {/* COOKING */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-white" >
-                In Progress
-              </h2>
-              <Badge className="bg-[#8B5A2B] text-white">{cookingOrders.length}</Badge>
-            </div>
-            <div className="space-y-4">
+          {activeOrdersTab === "COOKING" && (
+          <section className="w-full rounded-xl border border-[#ece5dc] bg-white px-3 pt-2 pb-2.5 shadow-[0_1px_4px_rgba(0,0,0,0.04)] transition-all duration-200 ease-in-out">
+            <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1 pt-2">
               {cookingOrders.map((order) => (
-                <Card key={order.id} className="border-l-4 border-l-orange-600 shadow-md">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Badge 
-                          className="text-white font-bold"
-                          className={cn("p-2 sm:p-3 rounded-xl flex items-center justify-center flex-shrink-0", stationBadgeClasses[station])}
-                        >
+                <Card key={order.id} className="rounded-lg border border-[#ece5dc] border-l-4 border-l-orange-600 bg-white p-0 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+                  <CardHeader className="p-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Badge className={cn("px-2 py-1 rounded-md flex items-center justify-center flex-shrink-0 text-white font-bold text-xs", stationBadgeClasses[station])}>
                           {order.orderNumber}
                         </Badge>
                         <Badge variant="outline" className={cn(
@@ -1087,36 +1108,37 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
                           {order.orderType.replace("_", " ")}
                         </Badge>
                       </div>
-                      <div 
-                        className={cn("flex items-center gap-1 font-bold text-sm", getTimeColorClass(order.createdAt))}
+                      <div
+                        className={cn("flex items-center gap-1 font-bold text-xs", getTimeColorClass(order.createdAt))}
                       >
-                        <Flame className="h-4 w-4" />
+                        <Flame className="h-3.5 w-3.5" />
                         {getElapsedTime(order.createdAt)}
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                      <span className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        {order.tableNumber}
+                    <div className="flex items-center justify-between gap-2 mt-1.5 text-xs text-gray-500">
+                      <span className="flex items-center gap-1 truncate">
+                        <Users className="h-3.5 w-3.5" />
+                        {order.tableNumber || 'N/A'}
                       </span>
+                      <span className="truncate">{order.guestCount} guests</span>
                     </div>
                   </CardHeader>
 
-                  <CardContent className="space-y-3">
+                  <CardContent className="space-y-2 p-2 pt-0">
                     {order.items.filter(item => isHeadChef || item.station === station).map((item) => (
                       <div 
                         key={item.id} 
                         className={cn(
-                          "p-3 rounded-lg border",
+                          "p-2 rounded-lg border",
                           item.status === "PENDING" && "bg-gray-50 border-gray-200",
                           item.status === "PREPARING" && "bg-orange-50 border-orange-200",
                           item.status === "COMPLETED" && "bg-green-50 border-green-200"
                         )}
                       >
-                        <div className="flex items-start justify-between mb-2">
-                          <p className="font-semibold text-gray-800" >
-                            {item.status === "COMPLETED" && <Check className="h-4 w-4 inline mr-1 text-green-600" />}
+                        <div className="flex items-start justify-between gap-2 mb-1">
+                          <p className="font-semibold text-gray-800 text-sm leading-snug" >
+                            {item.status === "COMPLETED" && <Check className="h-3.5 w-3.5 inline mr-1 text-green-600" />}
                             {item.quantity}x {item.name}
                           </p>
                           <div className="flex items-center gap-2">
@@ -1136,10 +1158,10 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
                         
                         {/* Progress bar for PREPARING items — fills over 10 minutes, colour shifts green→orange→red */}
                         {item.status === "PREPARING" && item.startedAt && (
-                          <div className="w-full bg-gray-200 rounded-full h-2 mb-2">
+                          <div className="w-full bg-gray-200 rounded-full h-1.5 mb-2">
                             <div
                               className={cn(
-                                "h-2 rounded-full transition-all duration-1000",
+                                "h-1.5 rounded-full",
                                 toPercentClass(Math.min(100, ((currentTime.getTime() - item.startedAt.getTime()) / 1000 / 600) * 100)),
                                 getItemElapsedColorClass(item).replace("text-", "bg-")
                               )}
@@ -1148,11 +1170,11 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
                         )}
 
                         {/* Item-level actions */}
-                        <div className="flex gap-2 mt-2">
+                        <div className="flex gap-2 mt-1.5">
                           {item.status === "PENDING" && (
                             <Button
                               size="sm"
-                              className="flex-1 bg-[#8B5A2B] hover:bg-[#6D421E] text-white"
+                              className="flex-1 h-8 text-xs bg-[#8B5A2B] text-white transition-all duration-200 ease-in-out"
                               onClick={() => handleStartItem(order.id, item.id)}
                             >
                               <Play className="h-3 w-3 mr-1" />
@@ -1162,7 +1184,7 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
                           {item.status === "PREPARING" && (
                             <Button
                               size="sm"
-                              className="flex-1 bg-[#8B5A2B] hover:bg-[#6D421E] text-white"
+                              className="flex-1 h-8 text-xs bg-[#8B5A2B] text-white transition-all duration-200 ease-in-out"
                               onClick={() => handleFinishItem(order.id, item.id)}
                             >
                               <Check className="h-3 w-3 mr-1" />
@@ -1175,10 +1197,10 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
 
                     {/* Mark Ready button - available to head chef and station chefs */}
                     {(isHeadChef || order.items.some(item => item.station === station)) && (
-                      <Button
-                        onClick={() => handleMarkReady(order.id)}
-                        className="w-full bg-[#8B5A2B] hover:bg-[#6D421E] text-white"
-                      >
+                        <Button
+                          onClick={() => handleMarkReady(order.id)}
+                          className="w-full h-8 text-xs bg-[#8B5A2B] text-white transition-all duration-200 ease-in-out"
+                        >
                         <CheckCircle2 className="h-4 w-4 mr-2" />
                         Mark Ready
                       </Button>
@@ -1188,33 +1210,26 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
               ))}
               
               {cookingOrders.length === 0 && (
-                <Card className="p-8 text-center border-dashed">
+                <Card className="p-4 text-center border-dashed rounded-lg border border-[#ece5dc] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
                   <p className="text-gray-400" >
                     No orders in progress
                   </p>
                 </Card>
               )}
             </div>
-          </div>
+          </section>
+          )}
 
           {/* READY */}
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <h2 className="text-xl font-bold text-white" >
-                Ready to Serve
-              </h2>
-              <Badge className="bg-[#8B5A2B] text-white">{readyOrders.length}</Badge>
-            </div>
-            <div className="space-y-4">
+          {activeOrdersTab === "READY" && (
+          <section className="w-full rounded-xl border border-[#ece5dc] bg-white px-3 pt-2 pb-2.5 shadow-[0_1px_4px_rgba(0,0,0,0.04)] transition-all duration-200 ease-in-out">
+            <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1 pt-2">
               {readyOrders.map((order) => (
-                <Card key={order.id} className="border-l-4 border-l-green-600 shadow-md bg-green-50">
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Badge 
-                          className="text-white font-bold"
-                          className={cn("p-2 sm:p-3 rounded-xl flex items-center justify-center flex-shrink-0", stationBadgeClasses[station])}
-                        >
+                <Card key={order.id} className="rounded-lg border border-[#ece5dc] border-l-4 border-l-green-600 bg-white p-0 shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
+                  <CardHeader className="p-2">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <Badge className={cn("px-2 py-1 rounded-md flex items-center justify-center flex-shrink-0 text-white font-bold text-xs", stationBadgeClasses[station])}>
                           {order.orderNumber}
                         </Badge>
                         <Badge variant="outline" className={cn(
@@ -1228,27 +1243,28 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
                       <CheckCircle2 className="h-5 w-5 text-green-600" />
                     </div>
                     
-                    <div className="flex items-center gap-4 mt-2 text-sm text-gray-500">
-                      <span className="flex items-center gap-1">
-                        <Users className="h-4 w-4" />
-                        {order.tableNumber}
+                    <div className="flex items-center justify-between gap-2 mt-1.5 text-xs text-gray-500">
+                      <span className="flex items-center gap-1 truncate">
+                        <Users className="h-3.5 w-3.5" />
+                        {order.tableNumber || 'N/A'}
                       </span>
+                      <span className="truncate">{order.guestCount} guests</span>
                     </div>
                   </CardHeader>
 
-                  <CardContent className="space-y-2">
+                  <CardContent className="space-y-2 p-2 pt-0">
                     {order.items.filter(item => isHeadChef || item.station === station).map((item) => (
-                      <div key={item.id} className="p-3 bg-white rounded-lg border border-green-200">
-                        <p className="font-semibold text-gray-800 flex items-center gap-2" >
-                          <Check className="h-4 w-4 text-green-600" />
+                      <div key={item.id} className="p-2 bg-white rounded-lg border border-green-200">
+                        <p className="font-semibold text-gray-800 flex items-center gap-2 text-sm leading-snug" >
+                          <Check className="h-3.5 w-3.5 text-green-600" />
                           {item.quantity}x {item.name}
                         </p>
                       </div>
                     ))}
 
-                    <div className="pt-2 flex gap-2">
-                      <div className="flex-1 flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-sm font-medium">
-                        <Utensils className="h-4 w-4" />
+                    <div className="pt-1 flex gap-2">
+                      <div className="flex-1 flex items-center justify-center gap-2 h-8 px-3 rounded-lg bg-green-50 border border-green-200 text-green-700 text-xs font-medium transition-all duration-200 ease-in-out">
+                        <Utensils className="h-3.5 w-3.5" />
                         Awaiting waiter pickup
                       </div>
                     </div>
@@ -1257,62 +1273,63 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
               ))}
               
               {readyOrders.length === 0 && (
-                <Card className="p-8 text-center border-dashed">
+                <Card className="p-4 text-center border-dashed rounded-lg border border-[#ece5dc] bg-white shadow-[0_1px_4px_rgba(0,0,0,0.04)]">
                   <p className="text-gray-400" >
                     No ready orders
                   </p>
                 </Card>
               )}
             </div>
-          </div>
+          </section>
+          )}
 
         </div>
         ) : (
           /* BATCH VIEW */
           <div>
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-white" >
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="!text-[18px] !font-semibold text-[#2c2c2c] mt-[10px] mb-0" >
                 Batch Production View
               </h2>
-              <Badge className="bg-[#8B5A2B] text-white px-4 py-2 text-lg">
+              <Badge className="bg-[#8B5A2B] text-white text-[14px] px-3 py-[6px] rounded-[20px]">
                 {batchedItems.length} Items to Prepare
               </Badge>
             </div>
 
-            <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+            <div className="grid grid-cols-[repeat(auto-fit,minmax(320px,1fr))] gap-4">
               {batchedItems.map((batch, index) => (
                 <Card 
                   key={index} 
                   className={cn(
-                    "border-l-4 shadow-md hover:shadow-lg transition-all",
+                    "w-[320px] max-w-[340px] flex-none justify-self-start rounded-lg border border-[#ece5dc] border-l-4 bg-white shadow-[0_1px_4px_rgba(0,0,0,0.04)]",
                     batch.preparingCount > 0 && "border-l-orange-600 bg-orange-50",
                     batch.preparingCount === 0 && stationBorderClasses[batch.station]
                   )}
                   
                 >
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
+                  <CardHeader className="p-4 pb-3">
+                    <div className="flex items-center justify-between gap-3">
                       <Badge 
-                        className={cn("text-white font-bold", stationBadgeClasses[batch.station])}
+                        className={cn("text-white font-bold text-[10px] px-[6px] py-[3px]", stationBadgeClasses[batch.station])}
                       >
                         {batch.station}
                       </Badge>
-                      <Badge className="bg-gray-800 text-white text-lg px-3">
+                      <Badge className="h-7 w-7 rounded-full bg-gray-800 text-white text-[12px] px-0 flex items-center justify-center flex-none">
                         x{batch.total}
                       </Badge>
                     </div>
-                    <p className="text-lg font-bold text-gray-800 mt-2" >
+                    <p className="text-[14px] font-bold text-gray-800 mt-2 leading-snug" >
                       {batch.name}
                     </p>
                   </CardHeader>
 
-                  <CardContent className="space-y-3">
-                    <div className="flex gap-2 text-sm">
-                      <Badge variant="outline" className="bg-gray-100">
+                  <CardContent className="space-y-3 p-4 pt-0">
+                    <div className="flex gap-3 text-sm flex-wrap">
+                      <Badge variant="outline" className="bg-gray-100 text-[11px] px-2 py-1">
                         {batch.pendingCount} pending
                       </Badge>
                       {batch.preparingCount > 0 && (
-                        <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-300">
+                        <Badge variant="outline" className="bg-orange-100 text-orange-700 border-orange-300 text-[11px] px-2 py-1">
                           {batch.preparingCount} cooking
                         </Badge>
                       )}
@@ -1324,20 +1341,20 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
                         {batch.pendingCount > 0 && (
                           <Button
                             size="sm"
-                            className="flex-1 bg-[#8B5A2B] hover:bg-[#6D421E] text-white"
+                            className="h-9 px-3 py-1.5 text-[13px] bg-[#8B5A2B] text-white flex-1 transition-all duration-200 ease-in-out"
                             onClick={() => handleStartBatch(batch.instances)}
                           >
-                            <Play className="h-3 w-3 mr-1" />
+                            <Play className="h-3.5 w-3.5 mr-1" />
                             START ALL
                           </Button>
                         )}
                         {batch.preparingCount > 0 && (
                           <Button
                             size="sm"
-                            className="flex-1 bg-[#8B5A2B] hover:bg-[#6D421E] text-white"
+                            className="h-9 px-3 py-1.5 text-[13px] bg-[#8B5A2B] text-white flex-1 transition-all duration-200 ease-in-out"
                             onClick={() => handleFinishBatch(batch.instances)}
                           >
-                            <Check className="h-3 w-3 mr-1" />
+                            <Check className="h-3.5 w-3.5 mr-1" />
                             FINISH ALL
                           </Button>
                         )}
@@ -1348,7 +1365,7 @@ export function KDSProductionQueue({ station, onLogout }: KDSProductionQueueProp
               ))}
 
               {batchedItems.length === 0 && (
-                <Card className="col-span-full p-12 text-center border-dashed">
+                <Card className="col-span-full p-12 text-center border-dashed rounded-xl border border-[#ece5dc] bg-white shadow-[0_4px_10px_rgba(0,0,0,0.06)]">
                   <ChefHat className="h-12 w-12 mx-auto mb-4 text-gray-400" />
                   <p className="text-xl text-gray-400" >
                     No items to prepare

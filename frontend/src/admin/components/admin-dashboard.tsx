@@ -87,16 +87,14 @@ export function AdminDashboard() {
   }
 
   const toPercentClass = (value: number) => `ds-w-pct-${Math.max(0, Math.min(100, Math.round(value)))}`;
+  const dashboardCardClass = 'rounded-xl border border-[#ece5dc] bg-white shadow-[0_4px_12px_rgba(0,0,0,0.06)] transition-transform duration-200 hover:-translate-y-0.5';
 
   return (
-    <div className="bg-admin-module min-h-screen p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-full overflow-x-hidden">
+    <div className="min-h-screen p-4 sm:p-5 space-y-3 sm:space-y-4 max-w-full overflow-x-hidden bg-[#f8f6f3] text-[#2c2c2c]">
       {/* Header with Live Indicator */}
-      <div className="module-container flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">Admin Dashboard</h1>
-          <p className="text-gray-200">Restaurant management overview</p>
-        </div>
-        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-lg shadow-sm border self-start">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <p className="text-sm text-[#6c665d]">Restaurant management overview</p>
+        <div className="flex items-center gap-2 px-3 py-2 bg-white rounded-xl border border-[#ece5dc] shadow-[0_4px_12px_rgba(0,0,0,0.06)] self-start">
           <Radio className="h-4 w-4 text-green-600 animate-pulse" />
           <div className="text-sm">
             <span className="font-medium text-green-600">Live status</span>
@@ -125,49 +123,49 @@ export function AdminDashboard() {
       )}
 
       {/* Stats Cards - Row 1: Financial & Orders */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
-        <Card className="bg-white">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Revenue</CardTitle>
+      <div className="grid gap-4" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))' }}>
+        <Card className={dashboardCardClass}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+            <CardTitle className="text-sm sm:text-[15px] font-medium">Total Revenue</CardTitle>
             <IndianRupee className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-black">₹{(analytics?.totalRevenue ?? 0).toFixed(2)}</div>
+          <CardContent className="p-4 pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-[#2c2c2c]">₹{(analytics?.totalRevenue ?? 0).toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">
               {analytics?.invoiceCount || 0} invoices made
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-white">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Orders</CardTitle>
+        <Card className={dashboardCardClass}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+            <CardTitle className="text-sm sm:text-[15px] font-medium">Active Orders</CardTitle>
             <ShoppingCart className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-black">{analytics?.activeOrders || 0}</div>
+          <CardContent className="p-4 pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-[#2c2c2c]">{analytics?.activeOrders || 0}</div>
             <p className="text-xs text-muted-foreground">Currently processing</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-white">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Avg Order Value</CardTitle>
+        <Card className={dashboardCardClass}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+            <CardTitle className="text-sm sm:text-[15px] font-medium">Avg Order Value</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-black">₹{(analytics?.avgOrderValue ?? 0).toFixed(2)}</div>
+          <CardContent className="p-4 pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-[#2c2c2c]">₹{(analytics?.avgOrderValue ?? 0).toFixed(2)}</div>
             <p className="text-xs text-muted-foreground">Per completed order</p>
           </CardContent>
         </Card>
 
-        <Card className="bg-white">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Table Occupancy</CardTitle>
+        <Card className={dashboardCardClass}>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+            <CardTitle className="text-sm sm:text-[15px] font-medium">Table Occupancy</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-black">{(analytics?.tableOccupancy ?? 0).toFixed(0)}%</div>
+          <CardContent className="p-4 pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-[#2c2c2c]">{(analytics?.tableOccupancy ?? 0).toFixed(0)}%</div>
             <p className="text-xs text-muted-foreground">Current capacity</p>
           </CardContent>
         </Card>
@@ -176,18 +174,18 @@ export function AdminDashboard() {
       {/* Stats Cards - Row 2: Staff Status */}
       <div className="grid gap-4 md:grid-cols-1">
         {/* Staff Status Card */}
-        <Card className="border-l-4 border-l-[#8B5A2B] bg-white">
-          <CardHeader className="pb-3">
+        <Card className={`${dashboardCardClass} border-l-2 border-l-[#8B5E3C]`}>
+          <CardHeader className="p-4 pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold text-black">Staff Status</CardTitle>
-              <UserCog className="h-5 w-5 text-[#8B5A2B]" />
+              <CardTitle className="text-sm sm:text-[15px] font-semibold text-[#2c2c2c]">Staff Status</CardTitle>
+              <UserCog className="h-4 w-4 text-[#8B5E3C]" />
             </div>
             <CardDescription>Workforce summary linked to Staff Management</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="p-4 pt-0 space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium text-muted-foreground">Total Workers</span>
-              <span className="text-2xl font-bold text-black">{analytics?.totalStaff || 0}</span>
+              <span className="text-xl sm:text-2xl font-bold text-[#2c2c2c]">{analytics?.totalStaff || 0}</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -195,7 +193,7 @@ export function AdminDashboard() {
                   On Duty
                 </Badge>
               </div>
-              <span className="text-xl font-bold text-green-700">{analytics?.onDutyStaff || 0}</span>
+              <span className="text-lg sm:text-xl font-bold text-green-700">{analytics?.onDutyStaff || 0}</span>
             </div>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -203,13 +201,12 @@ export function AdminDashboard() {
                   On Leave
                 </Badge>
               </div>
-              <span className="text-xl font-bold text-orange-700">{analytics?.onLeaveStaff || 0}</span>
+              <span className="text-lg sm:text-xl font-bold text-orange-700">{analytics?.onLeaveStaff || 0}</span>
             </div>
             {/* Progress Bar */}
-            <div className="pt-2">
+            <div className="pt-1">
               <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-green-600 transition-all duration-500"
                   className={`h-full bg-green-600 transition-all duration-500 ${toPercentClass(analytics?.totalStaff ? (analytics.onDutyStaff / analytics.totalStaff) * 100 : 0)}`}
                 />
               </div>
@@ -224,23 +221,23 @@ export function AdminDashboard() {
       {/* Enhanced Popular Menu Items & Order Statistics */}
       <div className="grid gap-4 md:grid-cols-2 w-full min-w-0">
         {/* Enhanced Popular Menu Items */}
-        <Card className="col-span-1 md:col-span-2 overflow-hidden bg-white">
-          <CardHeader>
+        <Card className={`col-span-1 md:col-span-2 overflow-hidden ${dashboardCardClass}`}>
+          <CardHeader className="p-4 pb-2">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-black">Popular Menu Items</CardTitle>
+                <CardTitle className="text-sm sm:text-[15px] text-[#2c2c2c]">Popular Menu Items</CardTitle>
                 <CardDescription>Top 5 most ordered items linked to Orders module</CardDescription>
               </div>
-              <Badge variant="outline" className="text-[#8B5A2B] border-[#8B5A2B]">
+              <Badge variant="outline" className="text-[#8B5E3C] border-[#8B5E3C]">
                 Live Updates
               </Badge>
             </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-4 pt-0">
             {analytics?.popularItems && analytics.popularItems.length > 0 ? (
-              <div className="space-y-6">
+              <div className="space-y-4">
                 {/* Bar Chart */}
-                <ResponsiveContainer width="99%" height={250}>
+                <ResponsiveContainer width="99%" height={220}>
                   <BarChart data={analytics.popularItems}>
                     <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                     <XAxis 
@@ -271,7 +268,7 @@ export function AdminDashboard() {
                 </ResponsiveContainer>
 
                 {/* Detailed Table */}
-                <div className="border rounded-lg overflow-x-auto">
+                <div className="border border-[#ece5dc] rounded-lg overflow-x-auto">
                   <table className="w-full min-w-[400px]">
                     <thead className="bg-[#F7F3EE]">
                       <tr>
@@ -296,7 +293,7 @@ export function AdminDashboard() {
                               {item.count || 0}
                             </Badge>
                           </td>
-                          <td className="p-3 text-center font-semibold text-[#8B5A2B]">
+                          <td className="p-3 text-center font-semibold text-[#8B5E3C]">
                             ₹{(item.revenue ?? 0).toFixed(2)}
                           </td>
                           <td className="p-3 text-center">
@@ -321,27 +318,26 @@ export function AdminDashboard() {
         </Card>
 
         {/* Order Statistics */}
-        <Card className="bg-white">
-          <CardHeader>
-            <CardTitle className="text-black">Order Statistics</CardTitle>
+        <Card className={dashboardCardClass}>
+          <CardHeader className="p-4 pb-2">
+            <CardTitle className="text-sm sm:text-[15px] text-[#2c2c2c]">Order Statistics</CardTitle>
             <CardDescription>Overview of order processing</CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="p-4 pt-0 space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Total Orders</span>
-              <span className="text-2xl font-bold text-black">{analytics?.invoiceCount || 0}</span>
+              <span className="text-xl sm:text-2xl font-bold text-[#2c2c2c]">{analytics?.invoiceCount || 0}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Completed</span>
-              <span className="text-2xl font-bold text-green-600">{analytics?.completedOrders || 0}</span>
+              <span className="text-xl sm:text-2xl font-bold text-green-600">{analytics?.completedOrders || 0}</span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">In Progress</span>
-              <span className="text-2xl font-bold text-blue-600">{analytics?.activeOrders || 0}</span>
+              <span className="text-xl sm:text-2xl font-bold text-blue-600">{analytics?.activeOrders || 0}</span>
             </div>
             <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
               <div
-                className="h-full bg-green-600 transition-all duration-500"
                 className={`h-full bg-green-600 transition-all duration-500 ${toPercentClass(analytics?.invoiceCount ? Math.min((analytics.completedOrders / analytics.invoiceCount) * 100, 100) : 0)}`}
               />
             </div>

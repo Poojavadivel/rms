@@ -598,33 +598,27 @@ export function BillingPayment() {
   if (loading) return <LoadingBilling />;
 
   return (
-    <div className="bg-billing-module min-h-screen space-y-4 sm:space-y-6 p-3 sm:p-6 max-w-full overflow-x-hidden">
-      <div className="module-container flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">Billing & Payment</h2>
-          <p className="text-sm text-gray-200 mt-1">
-            Generate bills, manage payments, and process refunds
-          </p>
-        </div>
-        <Button onClick={fetchOrders} size="sm" className="self-start font-semibold shadow-sm bg-white text-[#8B5A2B] border-2 border-white hover:bg-white/90">
+    <div className="min-h-screen bg-[#f8f8f8] space-y-4 sm:space-y-5 px-4 py-4 sm:px-6 sm:py-5 max-w-full overflow-x-hidden">
+      <div className="flex flex-wrap items-center justify-end gap-3">
+        <Button onClick={fetchOrders} size="sm" className="font-semibold shadow-sm bg-white text-[#8B5A2B] border border-[#e7ded4] hover:bg-gray-50">
           <RefreshCcw className="h-4 w-4 mr-2" />
           Refresh
         </Button>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3 sm:w-[500px] bg-[#F5EDE5] p-1 rounded-xl">
+        <TabsList className="grid w-full grid-cols-3 sm:w-[500px] bg-white border border-[#e7ded4] p-1 rounded-xl shadow-sm">
           <TabsTrigger value="generate" className="rounded-xl font-medium text-[#6B5B4F] transition-all duration-300 hover:bg-[#F5EDE5] hover:text-[#8B5A2B] data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#8B5A2B] data-[state=active]:to-[#A0694B] data-[state=active]:!text-white data-[state=active]:shadow-md data-[state=active]:shadow-[#8B5A2B]/25">Bill Generation</TabsTrigger>
           <TabsTrigger value="invoices" className="rounded-xl font-medium text-[#6B5B4F] transition-all duration-300 hover:bg-[#F5EDE5] hover:text-[#8B5A2B] data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#8B5A2B] data-[state=active]:to-[#A0694B] data-[state=active]:!text-white data-[state=active]:shadow-md data-[state=active]:shadow-[#8B5A2B]/25">Invoices</TabsTrigger>
           <TabsTrigger value="refunds" className="rounded-xl font-medium text-[#6B5B4F] transition-all duration-300 hover:bg-[#F5EDE5] hover:text-[#8B5A2B] data-[state=active]:bg-gradient-to-r data-[state=active]:from-[#8B5A2B] data-[state=active]:to-[#A0694B] data-[state=active]:!text-white data-[state=active]:shadow-md data-[state=active]:shadow-[#8B5A2B]/25">Refunds</TabsTrigger>
         </TabsList>
 
         {/* Bill Generation Tab */}
-        <TabsContent value="generate" className="space-y-6">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <TabsContent value="generate" className="space-y-4 sm:space-y-5">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 items-stretch">
             {/* Order Selection */}
-            <Card>
-              <CardHeader>
+            <Card className="h-full shadow-sm border border-[#ebe2d8] rounded-2xl bg-white flex flex-col">
+              <CardHeader className="pb-3">
                 <CardTitle className="text-lg flex items-center gap-2">
                   Select Order
                   {orders.filter(o => o.status === 'bill_requested').length > 0 && (
@@ -635,13 +629,13 @@ export function BillingPayment() {
                 </CardTitle>
                 <CardDescription>Bill-requested orders appear first</CardDescription>
               </CardHeader>
-              <CardContent>
-                <ScrollArea className="h-[500px] pr-4">
-                  <div className="space-y-3">
+              <CardContent className="flex-1 pt-0">
+                <ScrollArea className="h-[360px] pr-3">
+                  <div className="space-y-2.5">
                     {orders.map(order => (
                       <Card
                         key={order.id}
-                        className={`cursor-pointer transition-all hover:shadow-md ${
+                        className={`cursor-pointer transition-all hover:shadow-md rounded-xl ${
                           selectedOrder?.id === order.id
                             ? 'border-primary bg-primary/5'
                             : order.status === 'bill_requested'
@@ -650,8 +644,8 @@ export function BillingPayment() {
                         }`}
                         onClick={() => loadOrderIntoBill(order)}
                       >
-                        <CardContent className="p-4">
-                          <div className="flex items-center justify-between mb-2">
+                        <CardContent className="p-3 sm:p-3.5">
+                          <div className="flex items-center justify-between mb-1.5">
                             <span className="font-medium">
                               {order.order_type === 'takeaway' ? 'Takeaway' : `Table ${order.table_number}`}
                             </span>
@@ -662,7 +656,7 @@ export function BillingPayment() {
                               {order.status === 'bill_requested' ? '⚑ Bill Requested' : order.status}
                             </Badge>
                           </div>
-                          <p className="text-sm text-muted-foreground mb-2">{order.customer_name}</p>
+                          <p className="text-sm text-muted-foreground mb-1.5">{order.customer_name}</p>
                           <p className="text-sm font-medium">
                             <IndianRupee className="h-3 w-3 inline" />
                             {order.total}
@@ -683,8 +677,8 @@ export function BillingPayment() {
             </Card>
 
             {/* Bill Items */}
-            <Card className="lg:col-span-2">
-              <CardHeader>
+            <Card className="lg:col-span-2 h-full shadow-sm border border-[#ebe2d8] rounded-2xl bg-white flex flex-col">
+              <CardHeader className="pb-3">
                 <CardTitle className="text-lg">Bill Items</CardTitle>
                 <CardDescription>
                   {selectedOrder 
@@ -692,11 +686,11 @@ export function BillingPayment() {
                     : 'No order selected'}
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-6">
+              <CardContent className="flex-1 space-y-4 pt-0">
                 {/* Items List */}
-                <div className="space-y-3">
+                <div className="space-y-2.5">
                   {billItems.map(item => (
-                    <div key={item.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div key={item.id} className="flex items-center justify-between p-3 border rounded-xl bg-white">
                       <div className="flex-1">
                         <p className="font-medium">{item.name}</p>
                         <p className="text-sm text-muted-foreground">
@@ -730,7 +724,7 @@ export function BillingPayment() {
                     </div>
                   ))}
                   {billItems.length === 0 && (
-                    <div className="text-center py-12 text-muted-foreground">
+                    <div className="text-center py-8 text-muted-foreground">
                       <Calculator className="h-12 w-12 mx-auto mb-3 opacity-50" />
                       <p>Select an order to start billing</p>
                     </div>

@@ -71,6 +71,14 @@
     @apply w-full px-6;
   }
 
+  .app-admin-navbar-inner {
+    @apply w-full px-6;
+  }
+
+  .app-admin-content {
+    @apply w-full px-6;
+  }
+
   .app-navbar-row {
     @apply flex items-center justify-between gap-3;
     min-height: var(--app-header-height);

@@ -324,39 +324,27 @@ export function InventoryManagement({ triggerStockManagement }: { triggerStockMa
   if (loading) return <LoadingInventory />;
 
   return (
-    <div className="bg-inventory-module min-h-screen pb-20 max-w-full overflow-x-hidden">
-      <div className="max-w-[1800px] mx-auto p-6 space-y-8">
-        
-        {/* Header */}
-        <div className="module-container flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-           <div>
-             <h1 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">Inventory Management</h1>
-             <p className="text-gray-200 flex items-center gap-2 mt-1">
-               <span className="flex h-2 w-2 rounded-full bg-green-300 animate-pulse" />
-               {loading ? 'Loading inventory data...' : 'Connected to backend • Order-Driven mode active'}
-             </p>
-           </div>
-           
-           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-             <Button variant="outline" onClick={fetchData} disabled={loading} className="bg-white/10 hover:bg-white/20 text-white border-white/30 hover:text-white backdrop-blur-sm">
-               {loading ? (
-                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-               ) : (
-                 <RefreshCcw className="mr-2 h-4 w-4" />
-               )}
-               Refresh
-             </Button>
-             {isSimulating ? (
-               <Button variant="destructive" onClick={() => setIsSimulating(false)} className="shadow-lg shadow-red-200">
-                 <Pause className="mr-2 h-4 w-4" /> Stop Live Sync
-               </Button>
-             ) : (
-               <Button onClick={() => setIsSimulating(true)} className="bg-emerald-600 hover:bg-emerald-700 shadow-lg shadow-emerald-200 text-white">
-                 <Play className="mr-2 h-4 w-4" /> Start Live Sync
-               </Button>
-             )}
-             <AddPurchaseDialog ingredients={ingredients} suppliers={suppliers} onSave={handleAddPurchase} />
-           </div>
+    <div className="min-h-screen bg-[#f8f6f3] pb-20 max-w-full overflow-x-hidden">
+      <div className="max-w-[1800px] mx-auto px-4 sm:px-6 pt-4 sm:pt-5 space-y-6">
+        <div className="flex flex-wrap items-center justify-end gap-3">
+          <Button variant="outline" onClick={fetchData} disabled={loading} className="bg-white hover:bg-gray-50 text-foreground border-border">
+            {loading ? (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            ) : (
+              <RefreshCcw className="mr-2 h-4 w-4" />
+            )}
+            Refresh
+          </Button>
+          {isSimulating ? (
+            <Button variant="destructive" onClick={() => setIsSimulating(false)} className="shadow-sm">
+              <Pause className="mr-2 h-4 w-4" /> Stop Live Sync
+            </Button>
+          ) : (
+            <Button onClick={() => setIsSimulating(true)} className="bg-emerald-600 hover:bg-emerald-700 shadow-sm text-white">
+              <Play className="mr-2 h-4 w-4" /> Start Live Sync
+            </Button>
+          )}
+          <AddPurchaseDialog ingredients={ingredients} suppliers={suppliers} onSave={handleAddPurchase} />
         </div>
 
         <div className="w-full overflow-x-auto pb-2">
@@ -390,9 +378,6 @@ export function InventoryManagement({ triggerStockManagement }: { triggerStockMa
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-          {/* TabsList removed and replaced by horizontal nav above */}
-
-          {/* DASHBOARD TAB */}
           <TabsContent value="dashboard" className="space-y-6 animate-in fade-in-50 duration-500">
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                <KPICard title="Total Ingredients" value={stats.total} icon={Package} />

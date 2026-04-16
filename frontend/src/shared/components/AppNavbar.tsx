@@ -6,6 +6,7 @@ interface AppNavbarProps {
   mobileTitle?: string;
   rightSlot?: ReactNode;
   className?: string;
+  innerClassName?: string;
 }
 
 export default function AppNavbar({
@@ -14,10 +15,11 @@ export default function AppNavbar({
   mobileTitle,
   rightSlot,
   className,
+  innerClassName = 'app-navbar-inner',
 }: AppNavbarProps) {
   return (
     <div className={className}>
-      <div className="app-navbar-inner">
+      <div className={innerClassName}>
         <div className="app-navbar-row">
           <div className="app-navbar-left">
             <img

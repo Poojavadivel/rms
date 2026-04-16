@@ -247,17 +247,42 @@ export function ReportsAnalytics() {
   }
 
   return (
-    <div className="bg-analytics-module min-h-screen px-4 md:px-6 py-6 space-y-6 max-w-full overflow-x-hidden">
-      <div className="module-container flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">Reports & Analytics</h2>
-          <p className="text-sm text-gray-200 mt-1">
-            Comprehensive insights and performance metrics
-          </p>
+    <div className="min-h-screen bg-[#f8f8f8] px-4 py-4 sm:px-6 sm:py-5 space-y-4 sm:space-y-5 max-w-full overflow-x-hidden">
+      {/* Top Bar: Tabs (left) + Filters (right) */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0 flex-1 overflow-x-auto pb-1">
+          <nav className="flex items-center gap-2 min-w-max">
+            {[
+              { id: 'sales', label: 'Sales', icon: TrendingUp, description: 'Revenue & orders' },
+              { id: 'items', label: 'Popular Items', icon: ShoppingBag, description: 'Top performing dishes' },
+              { id: 'peak', label: 'Peak Hours', icon: Clock, description: 'Busy time analysis' },
+              { id: 'staff', label: 'Staff', icon: Users, description: 'Employee performance' },
+            ].map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setActiveTab(item.id)}
+                  title={item.description}
+                  className={cn(
+                    'inline-flex h-10 items-center gap-2 rounded-xl border px-4 text-sm font-medium shadow-sm transition-colors whitespace-nowrap',
+                    isActive
+                      ? 'bg-[#e8f0ff] border-[#c9d9ff] text-[#2D2D2D]'
+                      : 'bg-white border-[#e7ded4] text-[#4f4f4f] hover:bg-gray-50'
+                  )}
+                >
+                  <Icon className={cn('h-4 w-4 flex-shrink-0', isActive ? 'text-[#2D2D2D]' : 'text-muted-foreground')} />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
         </div>
-        <div className="flex gap-2 sm:gap-3 flex-wrap">
+
+        <div className="flex items-center gap-2 shrink-0">
           <Select value={timeRange} onValueChange={setTimeRange}>
-            <SelectTrigger className="w-36 sm:w-40 !bg-white !text-gray-700 border border-white/90 hover:!bg-white shadow-sm">
+            <SelectTrigger className="h-10 w-36 sm:w-40 bg-white text-gray-700 border border-[#e7ded4] hover:bg-gray-50 shadow-sm">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -269,7 +294,7 @@ export function ReportsAnalytics() {
           </Select>
           <Button
             variant="outline"
-            className="!bg-white !text-gray-700 border border-white/90 hover:!bg-white shadow-sm"
+            className="h-10 bg-white text-gray-700 border border-[#e7ded4] hover:bg-gray-50 shadow-sm"
             onClick={handleExportReport}
             disabled={loading || exporting}
           >
@@ -277,41 +302,6 @@ export function ReportsAnalytics() {
             {exporting ? 'Exporting...' : 'Export Report'}
           </Button>
         </div>
-      </div>
-
-      {/* Tab Navigation */}
-      <div className="w-full overflow-x-auto pb-4">
-        <nav className="flex gap-3 min-w-max p-1">
-          {[
-            { id: 'sales', label: 'Sales', icon: TrendingUp, description: 'Revenue & orders' },
-            { id: 'items', label: 'Popular Items', icon: ShoppingBag, description: 'Top performing dishes' },
-            { id: 'peak', label: 'Peak Hours', icon: Clock, description: 'Busy time analysis' },
-            { id: 'staff', label: 'Staff', icon: Users, description: 'Employee performance' },
-          ].map((item) => {
-            const Icon = item.icon;
-            const isActive = activeTab === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                className={cn(
-                  'flex items-start gap-3 p-3 rounded-lg transition-colors text-left min-w-[220px]',
-                  isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-card border border-border hover:bg-muted shadow-sm'
-                )}
-              >
-                <Icon className={cn('h-5 w-5 mt-0.5 flex-shrink-0', isActive ? '' : 'text-muted-foreground')} />
-                <div className="flex-1 min-w-0">
-                  <p className={cn('text-sm font-medium', isActive ? '' : '')}>{item.label}</p>
-                  <p className={cn('text-xs mt-0.5', isActive ? 'text-primary-foreground/80' : 'text-muted-foreground')}>
-                    {item.description}
-                  </p>
-                </div>
-              </button>
-            );
-          })}
-        </nav>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>

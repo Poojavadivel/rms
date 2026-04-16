@@ -715,21 +715,10 @@ export function OffersLoyalty() {
   if (loading) return <LoadingOffers />;
 
   return (
-    <div className="bg-offers-module min-h-screen p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-full overflow-x-hidden">
-      {/* Header */}
-      <div className="module-container flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">
-            Offers & Loyalty
-          </h1>
-          <p className="text-gray-200 mt-1">
-            Manage coupons, memberships, and loyalty programs
-          </p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-[#f8f8f8] px-4 py-4 sm:px-6 sm:py-5 space-y-4 sm:space-y-5 max-w-full overflow-x-hidden">
 
       {/* Tab Navigation */}
-      <div className="w-full overflow-x-auto pb-4">
+      <div className="w-full overflow-x-auto pb-2">
         <nav className="flex gap-3 min-w-max p-1">
           {[
             {
@@ -765,23 +754,23 @@ export function OffersLoyalty() {
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 className={cn(
-                  "flex items-start gap-3 p-3 rounded-lg transition-colors text-left min-w-[200px]",
+                  "flex items-start gap-3 p-3 rounded-xl transition-colors text-left min-w-[200px] border shadow-sm",
                   isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-card border border-border hover:bg-muted shadow-sm",
+                    ? "bg-primary text-primary-foreground border-primary"
+                    : "bg-white border-border hover:bg-gray-50",
                 )}
               >
                 <Icon
                   className={cn(
                     "h-5 w-5 mt-0.5 flex-shrink-0",
-                    isActive ? "" : "text-muted-foreground",
+                    isActive ? "text-primary-foreground" : "text-muted-foreground",
                   )}
                 />
                 <div className="flex-1 min-w-0">
                   <p
                     className={cn(
                       "text-sm font-medium",
-                      isActive ? "" : "",
+                      isActive ? "text-primary-foreground" : "text-foreground",
                     )}
                   >
                     {item.label}
@@ -806,19 +795,19 @@ export function OffersLoyalty() {
       <Tabs
         value={activeTab}
         onValueChange={setActiveTab}
-        className="mt-6"
+        className="mt-0"
       >
         {/* ==================== TAB 1: COUPONS (EXISTING) ==================== */}
         <TabsContent value="coupons" className="space-y-4">
           {/* Search & Create Button */}
-          <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center justify-between gap-4 flex-wrap bg-white border border-[#e7ded4] rounded-2xl shadow-sm p-3 sm:p-4">
             <div className="relative flex-1 max-w-md">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
               <Input
                 placeholder="Search coupons by code / type / status..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 bg-input-background text-foreground placeholder:text-muted-foreground border-input dark:bg-input-background"
+                className="pl-9 bg-white text-foreground placeholder:text-muted-foreground border border-border shadow-sm"
               />
             </div>
 
@@ -830,7 +819,7 @@ export function OffersLoyalty() {
               }}
             >
               <DialogTrigger asChild>
-                <Button size="lg" className="gap-2">
+                <Button size="lg" className="gap-2 shadow-sm bg-white text-[#8B5A2B] border border-[#e7ded4] hover:bg-gray-50">
                   <Plus className="h-5 w-5" />
                   Create Coupon
                 </Button>
@@ -1200,15 +1189,15 @@ export function OffersLoyalty() {
           </Card>
 
           {/* Coupon Statistics */}
-          <div className="grid gap-4 md:grid-cols-3">
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+          <div className="grid gap-4 md:grid-cols-3 items-stretch">
+            <Card className="h-full rounded-2xl border border-[#e7ded4] shadow-sm bg-white">
+              <CardHeader className="pb-2 pt-4">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
                   Total Coupons
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
+              <CardContent className="pt-0 pb-4">
+                <div className="text-xl sm:text-2xl font-bold text-[#2D2D2D]">
                   {coupons.length}
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -1217,14 +1206,14 @@ export function OffersLoyalty() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+            <Card className="h-full rounded-2xl border border-[#e7ded4] shadow-sm bg-white">
+              <CardHeader className="pb-2 pt-4">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
                   Active Coupons
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">
+              <CardContent className="pt-0 pb-4">
+                <div className="text-xl sm:text-2xl font-bold text-green-600">
                   {
                     coupons.filter((c) => c.status === "active")
                       .length
@@ -1236,14 +1225,14 @@ export function OffersLoyalty() {
               </CardContent>
             </Card>
 
-            <Card>
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
+            <Card className="h-full rounded-2xl border border-[#e7ded4] shadow-sm bg-white">
+              <CardHeader className="pb-2 pt-4">
+                <CardTitle className="text-xs sm:text-sm font-medium text-muted-foreground uppercase tracking-wider">
                   Total Usage
                 </CardTitle>
               </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
+              <CardContent className="pt-0 pb-4">
+                <div className="text-xl sm:text-2xl font-bold text-[#2D2D2D]">
                   {coupons.reduce(
                     (sum, c) => sum + c.usage_count,
                     0,

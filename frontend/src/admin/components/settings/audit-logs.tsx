@@ -237,7 +237,7 @@ export function AuditLogs() {
   }
 
   return (
-    <div className="bg-settings-module min-h-screen space-y-6 p-6">
+    <div className="space-y-6 p-2 sm:p-3">
       {/* API Error Banner */}
       {apiError && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center gap-3">

@@ -497,7 +497,7 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-5 sm:mb-6">
-          <h1 className="text-2xl font-semibold mb-1">Shopping Cart &amp; Checkout</h1>
+          <h1 className="!text-[24px] !font-semibold mb-1">Shopping Cart &amp; Checkout</h1>
           <p className="text-sm sm:text-base text-muted-foreground">{cart.length} items in your cart</p>
         </div>
 
@@ -600,7 +600,7 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
 
             {/* Order Type Selection */}
             <div className="bg-white rounded-2xl border border-[#E8D5B5] shadow-sm p-5">
-              <h2 className="text-lg font-semibold text-[#3E2723] mb-3">Select Order Type</h2>
+              <h2 className="!text-[22px] !font-semibold text-[#3E2723] mb-3">Select Order Type</h2>
               <div className="grid grid-cols-2 gap-3">
                 <button
                   onClick={() => { setOrderType('dine-in'); setTableNumber(''); }}
@@ -724,7 +724,7 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
               <div className="loyalty-card-decor-2"></div>
 
               <div className="relative z-10">
-                <h2 className="text-xl font-bold mb-6 text-[#FAF7F2]">
+                <h2 className="!text-[22px] !font-semibold mb-6 text-[#FAF7F2]">
                   Bill Summary
                 </h2>
 

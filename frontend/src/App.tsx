@@ -119,6 +119,16 @@ const router = createBrowserRouter(
       ),
     },
     {
+      path: '/kitchen/*',
+      element: (
+        <ChunkErrorBoundary>
+          <Suspense fallback={<Fallback />}>
+            <AdminApp />
+          </Suspense>
+        </ChunkErrorBoundary>
+      ),
+    },
+    {
       // Client app owns every non-admin path (/, /menu, /cart, /orders …)
       path: '/*',
       element: (

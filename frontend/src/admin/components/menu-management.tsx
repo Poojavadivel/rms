@@ -539,45 +539,11 @@ useEffect(() => {
   if (loading) return <LoadingMenu />;
 
   return (
-    <div className="min-h-screen bg-menu-management-module flex justify-center p-8">
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-8px); }
-        }
-        @keyframes shine {
-          0% { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
-        .animate-float {
-          animation: float 3s ease-in-out infinite;
-        }
-        .animate-shine {
-          background: linear-gradient(90deg, transparent, rgba(139,90,43,0.08), transparent);
-          background-size: 200% 100%;
-          animation: shine 3s infinite;
-        }
-        .card-float {
-          transition: transform 0.3s ease;
-        }
-        .card-float:hover {
-          animation: float 2s ease-in-out infinite;
-        }
-      `}</style>
-      
-      <div className="w-full max-w-[1200px] mx-auto min-h-[720px]">
-        
-        {/* Header Section with Buttons */}
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-3 mb-6">
-          <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">
-              Restaurant Menu
-            </h1>
-            <p className="text-base text-gray-200 mt-1">
-              Manage your menu items and combo deals
-            </p>
-          </div>
-          <div className="flex gap-3 flex-wrap">
+    <div className="min-h-screen bg-[#f8f6f3] flex justify-center p-4 sm:p-5">
+      <div className="w-full max-w-[1200px] mx-auto">
+
+        {/* Top Action Buttons */}
+        <div className="flex justify-end gap-3 flex-wrap mb-3">
             <Button 
               onClick={() => { setEditingItem(null); setSelectedAddons([]); setIngredientRows([]); setDialogOpen(true); }}
               className="h-11 px-6 bg-[#8B5A2B] hover:bg-[#6D421E] text-white rounded-lg font-medium shadow-md hover:shadow-lg transition-all duration-200"
@@ -591,13 +557,10 @@ useEffect(() => {
               <Plus className="mr-2 h-4 w-4" /> Add Combo
             </Button>
           </div>
-        </div>
 
-        {/* Main White Container with Shine Effect */}
-        <Card className="bg-[#F5F3F0] rounded-2xl shadow-lg border-none overflow-hidden animate-float mb-8">
-          <div className="p-8 space-y-6 relative overflow-hidden">
-            {/* Shine effect overlay */}
-            <div className="absolute inset-0 animate-shine pointer-events-none"></div>
+        {/* Search + Filters */}
+        <Card className="bg-white rounded-xl shadow-sm border border-[#ece5dc] overflow-hidden mb-4">
+          <div className="p-4 sm:p-5 space-y-4">
             
             {/* Search Bar */}
             <div className="relative">

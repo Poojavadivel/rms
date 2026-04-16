@@ -108,19 +108,10 @@ export function SecuritySettings() {
   if (loading) return <LoadingSettings />;
 
   return (
-    <div className="bg-settings-module min-h-screen space-y-6 max-w-full overflow-x-hidden">
-      {/* Header */}
-      <div className="module-container flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-6 pl-8">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">Settings</h2>
-          <p className="text-sm text-white mt-1">
-            Manage system configuration, security, and preferences
-          </p>
-        </div>
-      </div>
+    <div className="min-h-screen bg-[#f8f8f8] px-4 py-4 sm:px-6 sm:py-5 space-y-4 sm:space-y-5 max-w-full overflow-x-hidden">
 
       {/* Settings Navigation */}
-      <div className="w-full overflow-x-auto pb-4">
+      <div className="w-full overflow-x-auto pb-2">
         <nav className="flex gap-3 min-w-max p-1">
           {navigationItems.map((item) => {
             const Icon = item.icon;
@@ -131,18 +122,18 @@ export function SecuritySettings() {
                 key={item.id}
                 onClick={() => setActiveSection(item.id)}
                 className={cn(
-                  'flex items-start gap-3 p-3 rounded-lg transition-colors text-left min-w-[240px]',
+                  'flex items-start gap-3 p-3 rounded-xl transition-colors text-left min-w-[240px] border shadow-sm',
                   isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'bg-card border border-border hover:bg-muted'
+                    ? 'bg-[#e8f0ff] border-[#c9d9ff] text-[#2D2D2D]'
+                    : 'bg-white border-[#e7ded4] text-[#4f4f4f] hover:bg-gray-50'
                 )}
               >
-                <Icon className={cn('h-5 w-5 mt-0.5 flex-shrink-0', isActive ? '' : 'text-muted-foreground')} />
+                <Icon className={cn('h-5 w-5 mt-0.5 flex-shrink-0', isActive ? 'text-[#2D2D2D]' : 'text-muted-foreground')} />
                 <div className="flex-1 min-w-0">
-                  <p className={cn('text-sm font-medium', isActive ? '' : '')}>
+                  <p className={cn('text-sm font-medium', isActive ? 'text-[#2D2D2D]' : 'text-foreground')}>
                     {item.label}
                   </p>
-                  <p className={cn('text-xs mt-0.5', isActive ? 'text-primary-foreground/80' : 'text-muted-foreground')}>
+                  <p className={cn('text-xs mt-0.5', isActive ? 'text-[#5f5f5f]' : 'text-muted-foreground')}>
                     {item.description}
                   </p>
                 </div>
@@ -153,7 +144,7 @@ export function SecuritySettings() {
       </div>
 
       {/* Main Content Area */}
-      <div className="w-full">
+      <div className="w-full rounded-2xl border border-[#e7ded4] bg-white shadow-sm p-3 sm:p-4">
         {renderContent()}
       </div>
     </div>

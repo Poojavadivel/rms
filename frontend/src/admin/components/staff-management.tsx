@@ -53,29 +53,20 @@ export function StaffManagement() {
   if (loading) return <LoadingStaff />;
 
   return (
-    <div className="bg-staff-module min-h-screen p-3 sm:p-6 space-y-4 sm:space-y-6 max-w-full overflow-x-hidden">
-      {/* Module Header */}
-      <div className="module-container flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-white drop-shadow-lg">Staff Management</h1>
-          <p className="text-gray-200 mt-1">Manage employees, attendance, shifts & reports</p>
-        </div>
-      </div>
-
-      {/* Filters */}
+    <div className="min-h-screen bg-[#f8f6f3] px-4 py-4 sm:px-6 sm:py-5 space-y-4 sm:space-y-5 max-w-full overflow-x-hidden">
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative w-full sm:w-[300px]">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search staff..."
             value={globalSearch}
             onChange={(e) => setGlobalSearch(e.target.value)}
-            className="pl-10 bg-white/10 border-white/20 rounded-xl h-10 text-sm text-white placeholder:text-white/50 focus-visible:ring-1 focus-visible:ring-[#8B5A2B]"
+            className="pl-10 bg-white border border-border rounded-xl h-10 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-[#8B5A2B]"
           />
         </div>
         <Select value={roleFilter} onValueChange={setRoleFilter}>
-          <SelectTrigger className="w-auto min-w-[140px] max-w-[200px] bg-white/10 border-white/20 text-white rounded-xl h-10">
-            <Filter className="h-4 w-4 mr-2 text-white/60 flex-shrink-0" />
+          <SelectTrigger className="w-auto min-w-[140px] max-w-[200px] bg-white border-border text-foreground rounded-xl h-10">
+            <Filter className="h-4 w-4 mr-2 text-muted-foreground flex-shrink-0" />
             <SelectValue placeholder="Role" className="whitespace-normal" />
           </SelectTrigger>
           <SelectContent>
@@ -88,8 +79,8 @@ export function StaffManagement() {
           </SelectContent>
         </Select>
         <Select value={shiftFilter} onValueChange={setShiftFilter}>
-          <SelectTrigger className="w-auto min-w-[140px] max-w-[200px] bg-white/10 border-white/20 text-white rounded-xl h-10">
-            <Clock className="h-4 w-4 mr-2 text-white/60 flex-shrink-0" />
+          <SelectTrigger className="w-auto min-w-[140px] max-w-[200px] bg-white border-border text-foreground rounded-xl h-10">
+            <Clock className="h-4 w-4 mr-2 text-muted-foreground flex-shrink-0" />
             <SelectValue placeholder="Shift" className="whitespace-normal" />
           </SelectTrigger>
           <SelectContent>
@@ -101,8 +92,7 @@ export function StaffManagement() {
         </Select>
       </div>
 
-      {/* Custom Tab Navigation */}
-      <div className="w-full overflow-x-auto pb-4">
+      <div className="w-full overflow-x-auto pb-2">
         <nav className="flex gap-3 min-w-max p-1">
           {tabs.map((item) => {
             const Icon = item.icon;
@@ -113,18 +103,18 @@ export function StaffManagement() {
                 key={item.id}
                 onClick={() => setActiveTab(item.id)}
                 className={cn(
-                  'flex items-start gap-3 p-3 rounded-lg transition-colors text-left min-w-[180px]',
+                  'flex items-start gap-3 p-3 rounded-lg transition-colors text-left min-w-[180px] border shadow-sm',
                   isActive
-                    ? 'bg-primary text-primary-foreground shadow-lg'
-                    : 'bg-white/10 border border-white/20 text-white hover:bg-white/20 shadow-sm backdrop-blur-sm'
+                    ? 'bg-primary text-primary-foreground border-primary shadow-md'
+                    : 'bg-white text-foreground border-border hover:bg-gray-50'
                 )}
               >
-                <Icon className="h-5 w-5 mt-0.5 flex-shrink-0 text-white" />
+                <Icon className={cn('h-5 w-5 mt-0.5 flex-shrink-0', isActive ? 'text-primary-foreground' : 'text-muted-foreground')} />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-white">
+                  <p className={cn('text-sm font-medium', isActive ? 'text-primary-foreground' : 'text-foreground')}>
                     {item.label}
                   </p>
-                  <p className={cn('text-xs mt-0.5', isActive ? 'text-white/80' : 'text-white/60')}>
+                  <p className={cn('text-xs mt-0.5', isActive ? 'text-primary-foreground/80' : 'text-muted-foreground')}>
                     {item.description}
                   </p>
                 </div>

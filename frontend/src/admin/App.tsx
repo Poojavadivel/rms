@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, lazy, Suspense } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 const AdminDashboard = lazy(() => import('@/admin/components/admin-dashboard').then(m => ({ default: m.AdminDashboard })));
 const MenuManagement = lazy(() => import('@/admin/components/menu-management').then(m => ({ default: m.MenuManagement })));
 const OrderManagement = lazy(() => import('@/admin/components/order-management').then(m => ({ default: m.OrderManagement })));
@@ -86,18 +87,9 @@ const TAB_CLASS =
 function AppContent() {
   const { config } = useSystemConfig();
   const { user, isAuthenticated, logout, hasPermission } = useAuth();
-  const [activeTab, setActiveTab] = useState(() => {
-    const savedUser = localStorage.getItem('rms_current_user');
-    if (savedUser) {
-      try {
-        const userData = JSON.parse(savedUser);
-        return DEFAULT_TAB[userData.role as keyof typeof DEFAULT_TAB] || 'dashboard';
-      } catch {
-        return 'dashboard';
-      }
-    }
-    return 'dashboard';
-  });
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [notificationCount, setNotificationCount] = useState(0);
   const [triggerStockManagement, setTriggerStockManagement] = useState(false);
   const lastAutoBackupIdRef = useRef<string | null>(null);
@@ -128,13 +120,25 @@ function AppContent() {
   }, [user]);
 
   useEffect(() => {
-    if (user) {
-      const defaultTab = DEFAULT_TAB[user.role];
-      if (defaultTab && !hasPermission(activeTab)) {
-        setActiveTab(defaultTab);
-      }
+    if (!user) return;
+
+    const path = location.pathname.replace(/\/+$/, '');
+    const parts = path.split('/').filter(Boolean);
+    const adminIndex = parts.indexOf('admin');
+    const rootIndex = adminIndex >= 0 ? adminIndex : -1;
+    const tabCandidate = parts[rootIndex + 1] || '';
+    const knownTab = ALL_TABS.some((t) => t.value === tabCandidate) ? tabCandidate : null;
+    const nextTab = knownTab || DEFAULT_TAB[user.role] || 'dashboard';
+
+    if (hasPermission(nextTab)) {
+      setActiveTab(nextTab);
+      return;
     }
-  }, [user]);
+
+    const fallback = DEFAULT_TAB[user.role] || 'dashboard';
+    setActiveTab(fallback);
+    navigate(`/admin/${fallback}`, { replace: true });
+  }, [location.pathname, user, hasPermission, navigate]);
 
   // ─── Global auto-backup poller ────────────────────────────────────────
   useEffect(() => {
@@ -245,8 +249,9 @@ function AppContent() {
     ? 'Urban Bites'
     : (config.restaurantName || 'Urban Bites');
 
-  const navigate = (value: string) => {
+  const navigateTab = (value: string) => {
     setActiveTab(value);
+    navigate(`/admin/${value}`);
   };
 
   // Chef lands directly on kitchen � skips dashboard cards
@@ -264,13 +269,14 @@ function AppContent() {
           title={headerBrandName}
           mobileTitle="Urban Bites"
           logoSrc="/favicon.png"
+          innerClassName="app-admin-navbar-inner"
           rightSlot={(
             <div className="flex items-center gap-1 sm:gap-3 flex-shrink-0">
               <Button
                 variant="ghost"
                 size="icon"
                 className="relative app-icon-button"
-                onClick={() => navigate('notifications')}
+                onClick={() => navigateTab('notifications')}
               >
                 <Bell className="h-5 w-5" />
                 {notificationCount > 0 && (
@@ -290,11 +296,11 @@ function AppContent() {
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuLabel>Settings &amp; Configuration</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate('settings')}><Shield className="mr-2 h-4 w-4" />Security &amp; Settings</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('settings')}><Users className="mr-2 h-4 w-4" />Role &amp; Permissions</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('settings')}><FileText className="mr-2 h-4 w-4" />Audit Logs</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('settings')}><Database className="mr-2 h-4 w-4" />Backup &amp; Recovery</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('settings')}><Wrench className="mr-2 h-4 w-4" />System Configuration</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigateTab('settings')}><Shield className="mr-2 h-4 w-4" />Security &amp; Settings</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigateTab('settings')}><Users className="mr-2 h-4 w-4" />Role &amp; Permissions</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigateTab('settings')}><FileText className="mr-2 h-4 w-4" />Audit Logs</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigateTab('settings')}><Database className="mr-2 h-4 w-4" />Backup &amp; Recovery</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigateTab('settings')}><Wrench className="mr-2 h-4 w-4" />System Configuration</DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem className="text-red-600" onClick={logout}><LogOut className="mr-2 h-4 w-4" />Logout</DropdownMenuItem>
                   </DropdownMenuContent>
@@ -322,7 +328,7 @@ function AppContent() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {hasPermission('settings') && (
-                    <DropdownMenuItem onClick={() => navigate('settings')}><Settings className="mr-2 h-4 w-4" />Preferences</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigateTab('settings')}><Settings className="mr-2 h-4 w-4" />Preferences</DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem className="text-red-600" onClick={logout}><LogOut className="mr-2 h-4 w-4" />Logout</DropdownMenuItem>
@@ -334,12 +340,12 @@ function AppContent() {
       </header>
 
       {/* Tabs */}
-      <Tabs value={activeTab} onValueChange={(v) => hasPermission(v) && setActiveTab(v)} className="app-content-container">
+      <Tabs value={activeTab} onValueChange={(v) => hasPermission(v) && navigateTab(v)} className="app-admin-content">
 
         {/* Desktop top nav � hidden on mobile */}
         <div className="hidden sm:block sticky top-[68px] z-40">
-          <div className="my-3 app-nav-surface overflow-x-auto scrollbar-hide">
-            <TabsList className="min-w-max w-full justify-center gap-1 flex-nowrap h-auto p-2 bg-transparent border-0">
+          <div className="my-3 app-nav-surface">
+            <TabsList className="w-full justify-start gap-1 flex-wrap h-auto p-2 bg-transparent border-0">
               {ALL_TABS.map(({ value, icon: Icon, label }) =>
                 hasPermission(value) ? (
                   <TabsTrigger key={value} value={value} className={TAB_CLASS}>
@@ -371,7 +377,7 @@ function AppContent() {
 
       {/* Footer � desktop only */}
       <footer className="border-t mt-8 py-4 bg-white hidden sm:block">
-        <div className="app-content-container text-center">
+        <div className="app-admin-content text-center">
           <p className="text-sm text-muted-foreground">{config.restaurantName}  Movicloud Labs</p>
         </div>
       </footer>
@@ -384,7 +390,7 @@ function AppContent() {
             return (
               <button
                 key={value}
-                onClick={() => navigate(value)}
+                onClick={() => navigateTab(value)}
                 className={`[webkit-tap-highlight-color:transparent] min-w-16 app-mobile-nav-button flex flex-col items-center justify-center gap-0.5 transition-colors ${
                   isActive ? 'text-[#8B5A2B]' : 'text-gray-500'
                 }`}
