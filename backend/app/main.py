@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 BASE_DIR = Path(__file__).resolve().parent.parent
 load_dotenv(BASE_DIR / '.env')
+load_dotenv(BASE_DIR / 'app' / '.env')
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
