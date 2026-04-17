@@ -47,7 +47,7 @@ from .client.routes import stats as client_stats_router
 
 app = FastAPI(title='RMS Full Stack App')
 
-# CORS
+# ── CORS ──
 cors_env = os.getenv('CORS_ORIGINS', '*')
 origins = [o.strip() for o in cors_env.split(',') if o.strip()]
 allow_all = '*' in origins
@@ -110,23 +110,30 @@ async def health_check():
     return {"status": "healthy"}
 
 # ============================================================
-# 🔥 FRONTEND SERVING (IMPORTANT PART)
+# 🔥 FRONTEND SERVING (FINAL FIX)
 # ============================================================
 
-# Path to frontend build
-frontend_path = os.path.join(BASE_DIR, "frontend", "dist")
+# Correct path for Render
+frontend_path = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), "../../frontend/dist")
+)
 
-# Serve static files
-app.mount("/assets", StaticFiles(directory=os.path.join(frontend_path, "assets")), name="assets")
+print(f"📁 Frontend path: {frontend_path}")
 
-# Serve React app
+# Serve static assets
+app.mount(
+    "/assets",
+    StaticFiles(directory=os.path.join(frontend_path, "assets")),
+    name="assets"
+)
+
+# Serve React app (ALL routes)
 @app.get("/{full_path:path}")
 async def serve_frontend(full_path: str):
     index_file = os.path.join(frontend_path, "index.html")
     if os.path.exists(index_file):
         return FileResponse(index_file)
-    return {"error": "Frontend not built. Run npm build."}
-
+    return {"error": "Frontend not found. Check build path."}
 
 # ── RUN ──
 if __name__ == '__main__':
