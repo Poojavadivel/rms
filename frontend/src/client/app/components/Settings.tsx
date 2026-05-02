@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Bell, CheckCircle, Clock, CreditCard, Globe, HelpCircle, Key, Languages, Lock, LogOut, Mail, MapPin, Moon, Phone, Plus, ShieldCheck, Smartphone, Sparkles, SunMedium, ToggleLeft, Trash2, User, Wallet } from 'lucide-react';
+import { Bell, CheckCircle, Clock, CreditCard, HelpCircle, Key, Languages, Lock, LogOut, Mail, MapPin, Phone, Plus, ShieldCheck, Smartphone, Sparkles, Trash2, User, Wallet } from 'lucide-react';
 import type { User as UserType } from '@/client/app/App';
-import { useSystemConfig } from '@/client/context/SystemConfigContext';
 
 interface Notification {
   id: string;
@@ -18,8 +17,7 @@ interface SettingsProps {
 }
 
 export default function Settings({ user, notifications: userNotifications, onMarkAsRead, onLogout }: SettingsProps) {
-  const [activeTab, setActiveTab] = useState<'account' | 'preferences' | 'notifications' | 'privacy' | 'payments' | 'app' | 'support'>('account');
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [activeTab, setActiveTab] = useState<'account' | 'preferences' | 'notifications' | 'privacy' | 'payments' | 'support'>('account');
   const [language, setLanguage] = useState('English');
   const [defaultOrderType, setDefaultOrderType] = useState<'dine-in' | 'takeaway'>('dine-in');
   const [orderUpdates, setOrderUpdates] = useState(true);
@@ -27,9 +25,7 @@ export default function Settings({ user, notifications: userNotifications, onMar
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [smsAlerts, setSmsAlerts] = useState(false);
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
-  const [autoApplyLoyalty, setAutoApplyLoyalty] = useState(true);
-  const [saveFavorites, setSaveFavorites] = useState(true);
-  const [quickReorder, setQuickReorder] = useState(true);
+  
   const [saveMessage, setSaveMessage] = useState<string | null>(null);
   const [paymentMethods, setPaymentMethods] = useState([
     { id: 'upi-1', type: 'UPI', label: 'pooja@upi', detail: 'Primary UPI' },
@@ -41,7 +37,6 @@ export default function Settings({ user, notifications: userNotifications, onMar
     phone: user.phone,
     address: user.address,
   });
-  const { config: sysConfig } = useSystemConfig();
 
   // Sample notifications for demo
   const sampleNotifications: Notification[] = [
@@ -198,24 +193,12 @@ export default function Settings({ user, notifications: userNotifications, onMar
                   <CreditCard className="h-4 w-4" />
                   <span className="font-medium">Payments</span>
                 </button>
-                <button onClick={() => setActiveTab('app')} className={sidebarItemClass('app')}>
-                  <Sparkles className="h-4 w-4" />
-                  <span className="font-medium">App Settings</span>
-                </button>
+                
                 <button onClick={() => setActiveTab('support')} className={sidebarItemClass('support')}>
                   <HelpCircle className="h-4 w-4" />
                   <span className="font-medium">Help &amp; Support</span>
                 </button>
               </nav>
-
-              <div className="mt-4 rounded-2xl border border-[#E8D5B5] bg-[#FAF7F2] px-4 py-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#8B5A2B]">Quick stats</p>
-                <div className="mt-3 space-y-2 text-sm text-[#6D4C41]">
-                  <div className="flex items-center justify-between"><span>Loyalty points</span><span className="font-semibold text-[#3E2723]">{user.loyaltyPoints}</span></div>
-                  <div className="flex items-center justify-between"><span>Membership</span><span className="font-semibold text-[#3E2723]">{membershipLabel}</span></div>
-                  <div className="flex items-center justify-between"><span>Last login</span><span className="font-semibold text-[#3E2723]">{lastLogin}</span></div>
-                </div>
-              </div>
             </div>
           </aside>
 
@@ -300,57 +283,13 @@ export default function Settings({ user, notifications: userNotifications, onMar
                         Earn points with every order and redeem them for exclusive rewards.
                       </div>
                     </section>
-
-                    {(sysConfig.contactNumber || sysConfig.email || sysConfig.operatingHours || sysConfig.address) && (
-                      <section className="rounded-[1.5rem] border border-[#E8D5B5] bg-white p-5 shadow-sm">
-                        <h3 className="text-lg font-semibold text-[#3E2723]">Restaurant Information</h3>
-                        <div className="mt-4 space-y-4">
-                          {sysConfig.contactNumber && (
-                            <div className="flex items-center gap-3">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FAF7F2] text-[#8B5A2B]"><Phone className="h-4 w-4" /></div>
-                              <div><p className="text-xs font-medium uppercase tracking-wide text-[#8B5A2B]">Phone</p><p className="font-semibold text-[#3E2723]">{sysConfig.contactNumber}</p></div>
-                            </div>
-                          )}
-                          {sysConfig.email && (
-                            <div className="flex items-center gap-3">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FAF7F2] text-[#8B5A2B]"><Mail className="h-4 w-4" /></div>
-                              <div><p className="text-xs font-medium uppercase tracking-wide text-[#8B5A2B]">Email</p><p className="font-semibold text-[#3E2723]">{sysConfig.email}</p></div>
-                            </div>
-                          )}
-                          {sysConfig.operatingHours && (
-                            <div className="flex items-center gap-3">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FAF7F2] text-[#8B5A2B]"><Clock className="h-4 w-4" /></div>
-                              <div><p className="text-xs font-medium uppercase tracking-wide text-[#8B5A2B]">Hours</p><p className="font-semibold text-[#3E2723]">{sysConfig.operatingHours}</p></div>
-                            </div>
-                          )}
-                          {sysConfig.address && (
-                            <div className="flex items-start gap-3">
-                              <div className="mt-0.5 flex h-10 w-10 items-center justify-center rounded-xl bg-[#FAF7F2] text-[#8B5A2B]"><MapPin className="h-4 w-4" /></div>
-                              <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-[#8B5A2B]">Address</p>
-                                <p className="font-semibold leading-relaxed text-[#3E2723]">{sysConfig.address}{(sysConfig.city || sysConfig.state) && <>, {[sysConfig.city, sysConfig.state, sysConfig.pincode].filter(Boolean).join(', ')}</>}</p>
-                              </div>
-                            </div>
-                          )}
-                          {sysConfig.website && (
-                            <div className="flex items-center gap-3">
-                              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FAF7F2] text-[#8B5A2B]"><Globe className="h-4 w-4" /></div>
-                              <div>
-                                <p className="text-xs font-medium uppercase tracking-wide text-[#8B5A2B]">Website</p>
-                                <a href={sysConfig.website} target="_blank" rel="noreferrer" className="font-semibold text-[#3E2723] hover:underline">{sysConfig.website}</a>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </section>
-                    )}
                   </aside>
                 </div>
               </div>
             )}
 
             {activeTab === 'preferences' && (
-              <div className="grid gap-6 xl:grid-cols-2">
+              <div className="grid gap-6">
                 <section className="rounded-[1.5rem] border border-[#E8D5B5] bg-white p-5 shadow-sm sm:p-6">
                   <div className="border-b border-[#F1E4D1] pb-4">
                     <h2 className="text-xl font-semibold text-[#3E2723]">Preferences</h2>
@@ -358,22 +297,6 @@ export default function Settings({ user, notifications: userNotifications, onMar
                   </div>
 
                   <div className="mt-5 space-y-5">
-                    <div>
-                      <label className="mb-2 block text-sm font-medium text-[#6D4C41]">Theme</label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <button onClick={() => setTheme('light')} className={`rounded-2xl border px-4 py-4 text-left transition-all ${theme === 'light' ? 'border-[#C8A47A] bg-[#FAF0E4] text-[#3E2723]' : 'border-[#E8D5B5] bg-white text-[#6D4C41]'}`}>
-                          <SunMedium className="h-5 w-5" />
-                          <p className="mt-2 font-semibold">Light</p>
-                          <p className="text-xs">Clean and bright</p>
-                        </button>
-                        <button onClick={() => setTheme('dark')} className={`rounded-2xl border px-4 py-4 text-left transition-all ${theme === 'dark' ? 'border-[#C8A47A] bg-[#FAF0E4] text-[#3E2723]' : 'border-[#E8D5B5] bg-white text-[#6D4C41]'}`}>
-                          <Moon className="h-5 w-5" />
-                          <p className="mt-2 font-semibold">Dark</p>
-                          <p className="text-xs">Premium low-light view</p>
-                        </button>
-                      </div>
-                    </div>
-
                     <div>
                       <label className="mb-2 block text-sm font-medium text-[#6D4C41]">Language</label>
                       <div className="flex items-center gap-3 rounded-2xl border border-[#E8D5B5] bg-[#FAF7F2] px-4 py-3">
@@ -397,19 +320,6 @@ export default function Settings({ user, notifications: userNotifications, onMar
                     <div className="rounded-2xl border border-[#E8D5B5] bg-[#FAF7F2] px-4 py-3">
                       <p className="text-sm font-medium text-[#6D4C41]">Currency display</p>
                       <p className="mt-1 text-sm font-semibold text-[#3E2723]">₹ INR</p>
-                    </div>
-                  </div>
-                </section>
-
-                <section className="rounded-[1.5rem] border border-[#E8D5B5] bg-white p-5 shadow-sm sm:p-6">
-                  <div className="border-b border-[#F1E4D1] pb-4">
-                    <h2 className="text-xl font-semibold text-[#3E2723]">Visual preferences</h2>
-                    <p className="mt-1 text-sm text-[#6D4C41]">A few extra controls to personalize the app feel.</p>
-                  </div>
-                  <div className="mt-5 rounded-2xl border border-[#E8D5B5] bg-[#FAF7F2] p-4 text-sm text-[#6D4C41]">
-                    <div className="flex items-start gap-3">
-                      <ToggleLeft className="mt-0.5 h-5 w-5 text-[#8B5A2B]" />
-                      <p>Theme and language choices update this demo instantly, with no layout changes or reloads.</p>
                     </div>
                   </div>
                 </section>
@@ -581,41 +491,7 @@ export default function Settings({ user, notifications: userNotifications, onMar
               </div>
             )}
 
-            {activeTab === 'app' && (
-              <div className="grid gap-6 xl:grid-cols-2">
-                <section className="rounded-[1.5rem] border border-[#E8D5B5] bg-white p-5 shadow-sm sm:p-6">
-                  <div className="border-b border-[#F1E4D1] pb-4">
-                    <h2 className="text-xl font-semibold text-[#3E2723]">App Settings</h2>
-                    <p className="mt-1 text-sm text-[#6D4C41]">Make repeat ordering faster and more convenient.</p>
-                  </div>
-
-                  <div className="mt-5 space-y-4">
-                    {[
-                      { title: 'Auto-apply loyalty points', desc: 'Use loyalty points whenever they improve the bill', checked: autoApplyLoyalty, setter: setAutoApplyLoyalty },
-                      { title: 'Save favorite dishes', desc: 'Keep your favorite dishes accessible for quick reorders', checked: saveFavorites, setter: setSaveFavorites },
-                      { title: 'Enable quick reorder', desc: 'Add items from the last order in one tap', checked: quickReorder, setter: setQuickReorder },
-                    ].map((item) => (
-                      <div key={item.title} className="flex items-center justify-between rounded-2xl border border-[#E8D5B5] bg-[#FAF7F2] px-4 py-4">
-                        <div className="pr-4">
-                          <p className="font-semibold text-[#3E2723]">{item.title}</p>
-                          <p className="text-sm text-[#6D4C41]">{item.desc}</p>
-                        </div>
-                        <button type="button" onClick={() => item.setter((prev: boolean) => !prev)} className={`relative h-7 w-12 rounded-full transition-colors ${item.checked ? 'bg-[#3E2723]' : 'bg-[#D8C8B3]'}`} aria-pressed={item.checked}>
-                          <span className={`absolute left-1 top-1 h-5 w-5 rounded-full bg-white shadow-sm transition-transform ${item.checked ? 'translate-x-5' : 'translate-x-0'}`} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                </section>
-
-                <section className="rounded-[1.5rem] border border-[#E8D5B5] bg-white p-5 shadow-sm sm:p-6">
-                  <h3 className="text-lg font-semibold text-[#3E2723]">App Behavior</h3>
-                  <div className="mt-4 rounded-2xl bg-[#FAF7F2] p-4 text-sm text-[#6D4C41]">
-                    These preferences shape checkout, favorites, and reorder shortcuts without changing the rest of the app layout.
-                  </div>
-                </section>
-              </div>
-            )}
+            
 
             {activeTab === 'support' && (
               <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px]">
@@ -634,7 +510,7 @@ export default function Settings({ user, notifications: userNotifications, onMar
                           <p className="text-sm text-[#6D4C41]">Fast help during operating hours</p>
                         </div>
                       </div>
-                      <p className="mt-3 text-sm font-semibold text-[#3E2723]">{sysConfig.contactNumber || '+91 98765 43210'}</p>
+                      <p className="mt-3 text-sm font-semibold text-[#3E2723]">+91 98765 43210</p>
                     </div>
 
                     <div className="rounded-2xl border border-[#E8D5B5] bg-[#FAF7F2] p-4">
@@ -645,7 +521,7 @@ export default function Settings({ user, notifications: userNotifications, onMar
                           <p className="text-sm text-[#6D4C41]">Share feedback or report an issue</p>
                         </div>
                       </div>
-                      <p className="mt-3 text-sm font-semibold text-[#3E2723]">{sysConfig.email || 'support@urbanbites.com'}</p>
+                      <p className="mt-3 text-sm font-semibold text-[#3E2723]">support@urbanbites.com</p>
                     </div>
 
                     <div className="rounded-2xl border border-[#E8D5B5] bg-[#FAF7F2] p-4 sm:col-span-2">
@@ -666,10 +542,16 @@ export default function Settings({ user, notifications: userNotifications, onMar
                 </section>
 
                 <section className="rounded-[1.5rem] border border-[#E8D5B5] bg-white p-5 shadow-sm sm:p-6">
-                  <h3 className="text-lg font-semibold text-[#3E2723]">Restaurant details</h3>
+                  <h3 className="text-lg font-semibold text-[#3E2723]">Need help now?</h3>
                   <div className="mt-4 space-y-4 text-sm text-[#6D4C41]">
-                    {sysConfig.operatingHours && <div className="rounded-2xl bg-[#FAF7F2] p-4"><p className="font-semibold text-[#3E2723]">Hours</p><p className="mt-1">{sysConfig.operatingHours}</p></div>}
-                    {sysConfig.address && <div className="rounded-2xl bg-[#FAF7F2] p-4"><p className="font-semibold text-[#3E2723]">Address</p><p className="mt-1">{sysConfig.address}</p></div>}
+                    <div className="rounded-2xl bg-[#FAF7F2] p-4">
+                      <p className="font-semibold text-[#3E2723]">Orders</p>
+                      <p className="mt-1">If an order is stuck, refresh once and check the tracking tab.</p>
+                    </div>
+                    <div className="rounded-2xl bg-[#FAF7F2] p-4">
+                      <p className="font-semibold text-[#3E2723]">Login</p>
+                      <p className="mt-1">If old credentials fail, confirm the account was created after the database migration.</p>
+                    </div>
                     <div className="rounded-2xl bg-[#FAF7F2] p-4">
                       <p className="font-semibold text-[#3E2723]">Feedback matters</p>
                       <p className="mt-1">Your ratings and comments help improve the dining experience.</p>

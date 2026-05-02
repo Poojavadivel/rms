@@ -42,8 +42,12 @@ export async function apiRequest<T>(
 
   if (!res.ok) {
     const message =
-      payload && typeof payload === "object" && "error" in (payload as any)
-        ? String((payload as any).error)
+      payload && typeof payload === "object"
+        ? String(
+            (payload as any).detail ??
+              (payload as any).error ??
+              `HTTP ${res.status}`,
+          )
         : `HTTP ${res.status}`;
     throw new Error(message);
   }

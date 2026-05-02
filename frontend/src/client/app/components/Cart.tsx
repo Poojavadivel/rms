@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Trash2, Plus, Minus, ShoppingBag, CreditCard, Smartphone, Wallet, CheckCircle, Download, Award, Users as UsersIcon, MapPin, Loader2, FileText, ChevronDown, ChevronUp, Clock, Receipt, ArrowRight, Sparkles } from 'lucide-react';
 import { MenuItemImage } from '@/client/app/components/MenuItemImage';
 import type { CartItem, Order, User } from '@/client/app/App';
@@ -28,6 +28,7 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
   const [isComplete, setIsComplete] = useState(false);
   const [upiId, setUpiId] = useState('');
   const [upiError, setUpiError] = useState<string | null>(null);
+  const upiRef = useRef<HTMLInputElement | null>(null);
   const [useLoyaltyPoints, setUseLoyaltyPoints] = useState(false);
   const [loyaltyPointsToUse, setLoyaltyPointsToUse] = useState(0);
   const [pendingOrderId, setPendingOrderId] = useState<string | null>(null);
@@ -117,6 +118,17 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
       setAppliedOfferId(null);
     }
   }, [appliedOffer, appliedOfferId]);
+
+  // Keep focus on the UPI input when payment method is UPI to avoid losing
+  // focus during harmless re-renders (prevents the "page reforming" issue).
+  useEffect(() => {
+    if (selectedPayment === 'upi') {
+      // focus after render
+      setTimeout(() => {
+        try { upiRef.current?.focus(); } catch (e) {}
+      }, 0);
+    }
+  }, [selectedPayment]);
 
   const offerDiscount = useMemo(() => {
     if (!appliedOffer) return 0;
@@ -914,11 +926,18 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
                           type="text"
                           placeholder="yourname@upi"
                           value={upiId}
+                          ref={upiRef}
+                          inputMode="email"
+                          autoCapitalize="none"
+                          autoCorrect="off"
                           onChange={(e) => {
                             setUpiId(e.target.value);
                             if (upiError) setUpiError(null);
                           }}
-                          className="w-full rounded-lg border border-[#C8A47A]/40 bg-[#FAF7F2] px-3 py-2 text-sm text-[#3E2723] placeholder:text-[#8B5A2B]/60 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
+                          onFocus={(e) => { e.stopPropagation(); setSelectedPayment('upi'); }}
+                          onMouseDown={(e) => e.stopPropagation()}
+                          onTouchStart={(e) => e.stopPropagation()}
+                          className="w-full rounded-lg border border-[#C8A47A]/40 bg-[#FAF7F2] px-3 py-2 text-[16px] text-[#3E2723] placeholder:text-[#8B5A2B]/60 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
                         />
                         {upiError && <p className="text-xs text-[#FCA5A5]">{upiError}</p>}
                       </div>
@@ -931,7 +950,7 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
                           <input
                             type="text"
                             placeholder="1234 5678 9012 3456"
-                            className="w-full rounded-lg border border-[#C8A47A]/40 bg-[#FAF7F2] px-3 py-2 text-sm text-[#3E2723] placeholder:text-[#8B5A2B]/60 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
+                            className="w-full rounded-lg border border-[#C8A47A]/40 bg-[#FAF7F2] px-3 py-2 text-[16px] text-[#3E2723] placeholder:text-[#8B5A2B]/60 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
                           />
                         </div>
                         <div className="grid grid-cols-2 gap-2">
@@ -940,7 +959,7 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
                             <input
                               type="text"
                               placeholder="MM/YY"
-                              className="w-full rounded-lg border border-[#C8A47A]/40 bg-[#FAF7F2] px-3 py-2 text-sm text-[#3E2723] placeholder:text-[#8B5A2B]/60 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
+                              className="w-full rounded-lg border border-[#C8A47A]/40 bg-[#FAF7F2] px-3 py-2 text-[16px] text-[#3E2723] placeholder:text-[#8B5A2B]/60 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
                             />
                           </div>
                           <div>
@@ -948,7 +967,7 @@ export default function Cart({ cart, user, onUpdateQuantity, onRemoveItem, onChe
                             <input
                               type="text"
                               placeholder="123"
-                              className="w-full rounded-lg border border-[#C8A47A]/40 bg-[#FAF7F2] px-3 py-2 text-sm text-[#3E2723] placeholder:text-[#8B5A2B]/60 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
+                              className="w-full rounded-lg border border-[#C8A47A]/40 bg-[#FAF7F2] px-3 py-2 text-[16px] text-[#3E2723] placeholder:text-[#8B5A2B]/60 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
                             />
                           </div>
                         </div>

@@ -57,7 +57,7 @@ export const DEFAULT_TAB: Record<UserRole, string> = {
   manager: 'dashboard',
   waiter: 'orders',
   cashier: 'billing',
-  chef: 'kitchen',
+  chef: 'orders',
 };
 
 export interface User {

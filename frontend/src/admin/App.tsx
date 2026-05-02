@@ -3,7 +3,6 @@ import { useLocation, useNavigate } from 'react-router-dom';
 const AdminDashboard = lazy(() => import('@/admin/components/admin-dashboard').then(m => ({ default: m.AdminDashboard })));
 const MenuManagement = lazy(() => import('@/admin/components/menu-management').then(m => ({ default: m.MenuManagement })));
 const OrderManagement = lazy(() => import('@/admin/components/order-management').then(m => ({ default: m.OrderManagement })));
-const MochaKDS = lazy(() => import('@/admin/components/mocha-kds').then(m => ({ default: m.MochaKDS })));
 const TableManagementComprehensive = lazy(() => import('@/admin/components/table-management-comprehensive').then(m => ({ default: m.TableManagementComprehensive })));
 const InventoryManagement = lazy(() => import('@/admin/components/inventory-management').then(m => ({ default: m.InventoryManagement })));
 const StaffManagement = lazy(() => import('@/admin/components/staff-management').then(m => ({ default: m.StaffManagement })));
@@ -69,7 +68,7 @@ function triggerBackupDownload(data: any, filename: string) {
 const ALL_TABS = [
   { value: 'dashboard',     icon: LayoutDashboard, label: 'Dashboard'  },
   { value: 'orders',        icon: ShoppingCart,    label: 'Orders'     },
-  { value: 'kitchen',       icon: ChefHat,         label: 'Kitchen'    },
+  
   { value: 'tables',        icon: Users,           label: 'Tables'     },
   { value: 'menu',          icon: UtensilsCrossed, label: 'Menu'       },
   { value: 'inventory',     icon: Package,         label: 'Inventory'  },
@@ -254,10 +253,7 @@ function AppContent() {
     navigate(`/admin/${value}`);
   };
 
-  // Chef lands directly on kitchen � skips dashboard cards
-  if (isChef && activeTab === 'dashboard') {
-    setActiveTab('kitchen');
-  }
+  // Chef landing behavior: keep default tab routing (no kitchen tab available)
 
   return (
     <div className="app-shell w-full">
@@ -363,7 +359,7 @@ function AppContent() {
         <TabsContent value="dashboard"     className="mt-0 pb-24 sm:pb-6"><AdminDashboard /></TabsContent>
         <TabsContent value="menu"          className="mt-0 pb-24 sm:pb-6"><MenuManagement /></TabsContent>
         <TabsContent value="orders"        className="mt-0 pb-24 sm:pb-6"><OrderManagement /></TabsContent>
-        <TabsContent value="kitchen"       className="mt-0 pb-24 sm:pb-6"><MochaKDS /></TabsContent>
+        
         <TabsContent value="tables"        className="mt-0 pb-24 sm:pb-6"><TableManagementComprehensive /></TabsContent>
         <TabsContent value="inventory"     className="mt-0 pb-24 sm:pb-6"><InventoryManagement triggerStockManagement={triggerStockManagement} /></TabsContent>
         <TabsContent value="staff"         className="mt-0 pb-24 sm:pb-6"><StaffManagement /></TabsContent>

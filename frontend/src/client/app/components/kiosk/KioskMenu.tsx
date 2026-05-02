@@ -24,8 +24,8 @@ const cuisines: CuisineFilter[] = ['all', 'North Indian', 'South Indian', 'Chine
 const navBtnBase = 'w-full text-left px-3 py-1.5 rounded-lg border text-xs font-semibold transition-colors';
 
 export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, onUpdateQuantity, onRemoveItem }: KioskMenuProps) {
-  const [categories, setCategories] = useState<string[]>(['All']);
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [categories, setCategories] = useState<string[]>(sampleCategories);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(menuData);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [filterVeg, setFilterVeg] = useState<VegFilter>('all');
   const [filterCuisine, setFilterCuisine] = useState<CuisineFilter>('all');
@@ -65,7 +65,13 @@ export default function KioskMenu({ onAddToCart, onGoToCart, cartCount, cart, on
     Promise.all([fetchMenuCategories(), fetchMenuItems()])
       .then(([cats, items]) => {
         if (cancelled) return;
-        setCategories(cats);
+        setCategories(Array.isArray(cats) && cats.length > 0 ? cats : sampleCategories);
+
+        if (!Array.isArray(items) || items.length === 0) {
+          setMenuItems(menuData);
+          return;
+        }
+
         const enriched = items.map((item) =>
           item.cuisine ? item : { ...item, cuisine: cuisineLookup.get(item.name.toLowerCase()) },
         );

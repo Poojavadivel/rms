@@ -9,16 +9,16 @@ export default function MenuPreview() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [filterVeg, setFilterVeg] = useState<'all' | 'veg' | 'non-veg'>('all');
 
-  const [categories, setCategories] = useState<string[]>(['All']);
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
+  const [categories, setCategories] = useState<string[]>(sampleCategories);
+  const [menuItems, setMenuItems] = useState<MenuItem[]>(menuData);
 
   useEffect(() => {
     let cancelled = false;
     Promise.all([fetchMenuCategories(), fetchMenuItems()])
       .then(([cats, items]) => {
         if (cancelled) return;
-        setCategories(cats);
-        setMenuItems(items);
+        setCategories(Array.isArray(cats) && cats.length > 0 ? cats : sampleCategories);
+        setMenuItems(Array.isArray(items) && items.length > 0 ? items : menuData);
       })
       .catch(() => {
         if (cancelled) return;

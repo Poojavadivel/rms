@@ -258,6 +258,9 @@ export default function KioskCart({ cart, onUpdateQuantity, onRemoveItem, onChec
                     type="text"
                     value={upiId}
                     onChange={(e) => { setUpiId(e.target.value); setUpiError(null); }}
+                    onFocus={(e) => { e.stopPropagation(); setSelectedPayment('upi'); }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}
                     placeholder="yourname@upi"
                     className="w-full rounded-xl border border-[#E8D5B5] px-4 py-3 text-sm text-[#3E2723] placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#C8A47A]"
                   />
